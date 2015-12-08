@@ -3,9 +3,11 @@ package karuberu.mods.mudmod.blocks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
 
 import org.bouncycastle.util.Strings;
 
+import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 
@@ -13,7 +15,6 @@ import cpw.mods.fml.common.Mod.PostInit;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
@@ -31,8 +32,8 @@ public abstract class BlockMudMod extends Block {
 		NONE
 	}
 
-	public BlockMudMod(int id, Material material) {
-		super(id, material);
+	public BlockMudMod(int id, int texture, Material material) {
+		super(id, texture, material);
 		this.setTickRandomly(true);
 	}
 	
@@ -165,14 +166,14 @@ public abstract class BlockMudMod extends Block {
 	protected void becomeDry(World world, int x, int y, int z) {
 		int dryBlock = this.getDryBlock(world.getBlockMetadata(x, y, z));
 		if (dryBlock >= 0) {
-			world.setBlockAndMetadataWithNotify(x, y, z, dryBlock, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+			world.setBlockAndMetadataWithNotify(x, y, z, dryBlock, 0);
 		}
 	}
 	
 	protected void becomeWet(World world, int x, int y, int z) {
 		int wetBlock = this.getWetBlock(world.getBlockMetadata(x, y, z));
 		if (wetBlock >= 0) {
-			world.setBlockAndMetadataWithNotify(x, y, z, wetBlock, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+			world.setBlockAndMetadataWithNotify(x, y, z, wetBlock, 0);
 		}
 	}
 	
@@ -198,23 +199,23 @@ public abstract class BlockMudMod extends Block {
 	 * @param attempts : The number of attempts the block will make to find a valid block.
 	 */
 	protected void spread(World world, int x, int y, int z, int attempts) {
+		byte[][] surroundingBlocks = new byte[][] {
+			{-1, 0, 0},
+			{+1, 0, 0},
+			{0, -1, 0},
+			{0, 0, -1},
+			{0, 0, +1}
+		};
 		int metadata = world.getBlockMetadata(x, y, z);
 		for (int i = 0; i < attempts; ++i) {
-			int[][] surroundingBlocks = new int[][] {
-				{x-1, y, z},
-				{x+1, y, z},
-				{x, y-1, z},
-				{x, y, z-1},
-				{x, y, z+1}
-			};
 			int randomIndex = world.rand.nextInt(surroundingBlocks.length),
-				xi = surroundingBlocks[randomIndex][0],
-				yi = surroundingBlocks[randomIndex][1],
-				zi = surroundingBlocks[randomIndex][2];
+				xi = surroundingBlocks[randomIndex][0] + x,
+				yi = surroundingBlocks[randomIndex][1] + y,
+				zi = surroundingBlocks[randomIndex][2] + z;
 			if (world.getBlockId(xi, yi, zi) == this.getDryBlock(metadata)
 			&& this.isHydrated(world, xi, yi, zi)
 			&& this.canBlockStay(world, xi, yi, zi)) {
-				world.setBlockAndMetadataWithNotify(xi, yi, zi, this.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				world.setBlockAndMetadataWithNotify(xi, yi, zi, this.blockID, 0);
 				break;
 			}
 		}

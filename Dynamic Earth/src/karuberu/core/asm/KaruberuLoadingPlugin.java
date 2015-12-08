@@ -3,6 +3,8 @@ package karuberu.core.asm;
 import java.io.File;
 import java.util.Map;
 
+import karuberu.core.KaruberuLogger;
+
 import cpw.mods.fml.relauncher.IFMLCallHook;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 

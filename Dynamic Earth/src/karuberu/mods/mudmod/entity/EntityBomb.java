@@ -2,91 +2,173 @@ package karuberu.mods.mudmod.entity;
 
 import java.util.Random;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
+import karuberu.core.KaruberuLogger;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.items.ItemBomb;
 import karuberu.mods.mudmod.items.ItemBombLit;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.item.EntityFireworkRocket;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
 public class EntityBomb extends EntityThrowable {
-	private int fuse = 0;
+	private int
+		fuse = 0,
+		explosiveness = 0;
+	private boolean
+		fireCharged = false,
+		impact = true;
 	
-    public EntityBomb(World world) {
-        super(world);
+	public EntityBomb(World world) {
+		super(world);
+	}
+	
+	public EntityBomb(World world, EntityLiving entityLiving, int fuse, int explosiveness) {
+		super(world, entityLiving);
+		this.fuse = fuse;
+		this.explosiveness = explosiveness;
+	}
+	
+	public EntityBomb(World world, double x, double y, double z, int fuse, int explosiveness) {
+		super(world, x, y, z);
+		this.fuse = fuse;
+		this.explosiveness = explosiveness;
+ 	}
+	
+	public EntityBomb(World world, EntityLiving entityLiving, ItemStack bomb) {
+		this(world, entityLiving, ItemBombLit.getTrueFuseLength(bomb), ((ItemBombLit)bomb.getItem()).getExplosiveness());
+		this.fireCharged = ((ItemBombLit)bomb.getItem()).getFireCharged();
+        this.dataWatcher.updateObject(8, bomb);
+	}
+	
+	public EntityBomb(World world, double x, double y, double z, ItemStack bomb) {
+		this(world, x, y, z, ItemBombLit.getTrueFuseLength(bomb), ((ItemBombLit)bomb.getItem()).getExplosiveness());
+		this.fireCharged = ((ItemBombLit)bomb.getItem()).getFireCharged();
+        this.dataWatcher.updateObject(8, bomb);
+	}
+	
+	public EntityBomb setImpact(boolean impact) {
+		this.impact = impact;
+		return this;
+	}
+	
+	public EntityBomb setFireCharged() {
+		this.fireCharged = true;
+		return this;
+	}
+	
+	public EntityBomb setFuse(int fuse) {
+		this.fuse = fuse;
+		return this;
+	}
+	
+	@Override
+    protected void entityInit() {
+        this.dataWatcher.addObjectByDataType(8, 5);
     }
-
-    public EntityBomb(World world, EntityLiving entityLiving) {
-        super(world, entityLiving);
-        this.fuse = ItemBombLit.fuseLength;
-    }
-    
-    public EntityBomb(World world, EntityLiving entityLiving, int fuse) {
-        super(world, entityLiving);
-        this.fuse = fuse;
-        if (fuse == 0) {
-        	this.explode();
-        }
-    }
-    
-    public EntityBomb(World world, double x, double y, double z) {
-        super(world, x, y, z);
-        this.fuse = ItemBombLit.fuseLength;
-    }
-    
-    public EntityBomb(World world, double x, double y, double z, int fuse) {
-        super(world, x, y, z);
-        this.fuse = fuse;
-    }
-    
+	
+	@Override
+	protected void onImpact(MovingObjectPosition movingObjectPosition) {
+		if (movingObjectPosition.entityHit != null) {
+			movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 2 + (explosiveness / 2));
+			if (impact) {
+				movingObjectPosition.entityHit.addVelocity(this.motionX / 2, 0.25D + (0.05D * explosiveness), this.motionZ / 2);
+			}
+			if (fireCharged && !movingObjectPosition.entityHit.isImmuneToFire()) {
+		 		movingObjectPosition.entityHit.setFire(5);
+			}
+		}
+		this.explode();
+	}
+	
+	@Override
+	public void onUpdate() {
+		if (!this.worldObj.isRemote) {
+			if (this.fuse <= 0) {
+				this.explode();
+			} else {
+				this.fuse--;
+			}
+		}
+		super.onUpdate();
+	}
+	
+    @SideOnly(Side.CLIENT)
     @Override
-    protected void onImpact(MovingObjectPosition movingObjectPosition) {
-    	if (movingObjectPosition.entityHit != null) {
-            movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 2);
-            movingObjectPosition.entityHit.addVelocity(this.motionX / 2, 0.3D, this.motionZ / 2);
-    	}
-        Random rand = new Random();
-        for (int i = 0; i < 8; ++i) {
-        	double px = rand.nextInt(4) / 10D;
-        	double py = rand.nextInt(4) / 10D;
-        	double pz = rand.nextInt(4) / 10D;
-            this.worldObj.spawnParticle("iconcrack_" + new ItemStack(MudMod.bomb).getItem().itemID, this.posX, this.posY, this.posZ, -0.2D + px, -0.2D + py, -0.2D + pz);
+    public void handleHealthUpdate(byte par1) {
+        if (par1 == 17 && this.worldObj.isRemote) {
+        	ItemStack item = this.dataWatcher.getWatchableObjectItemStack(8);
+        	NBTTagCompound compound = null;
+            if (item != null && item.hasTagCompound()) {
+                compound = item.getTagCompound();
+            }
+            this.worldObj.func_92088_a(this.posX, this.posY, this.posZ, this.motionX, this.motionY, this.motionZ, compound);
         }
-        this.explode();
+        super.handleHealthUpdate(par1);
     }
-    
-    @Override
-    public void onUpdate() {
-    	super.onUpdate();
-    	if (!this.worldObj.isRemote) {
-        	if (this.fuse <= 0) {
-        		this.explode();
-	    	} else {
-	    		this.fuse--;
-	    		this.worldObj.spawnParticle("smoke", this.posX, this.posY + 0.3D, this.posZ, 0.0D, 0.0D, 0.0D);
-	    	}
-    	}
-    }
-    
-    protected void explode() {
+	
+	protected void explode() {
+        this.worldObj.setEntityState(this, (byte)17);
+        if (this.worldObj.isRemote || FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+    		for (int i = 0; i < 8; ++i) {
+    			double px = (this.rand.nextInt(5) - 2) / 8.0D;
+    			double py = (this.rand.nextInt(5) - 2) / 8.0D;
+    			double pz = (this.rand.nextInt(5) - 2) / 8.0D;
+    			this.worldObj.spawnParticle("iconcrack_" + MudMod.bomb.itemID, this.posX, this.posY, this.posZ, px, py, pz);
+    		}
+        }
+        if (fireCharged || explosiveness > 0) {
+        	if (!this.worldObj.isRemote) {
+				float explosionSize;
+				if (explosiveness <= 2) {
+					explosionSize = 0.8F + (this.explosiveness * 0.5F);
+				} else {
+					explosionSize = 0.8F * this.explosiveness;
+				}
+				this.worldObj.newExplosion(this, this.posX, this.posY, this.posZ, explosionSize, fireCharged, explosiveness > 0);
+        	}
+        }
         this.setDead();
-        if (!this.worldObj.isRemote){
-            this.worldObj.createExplosion(this, this.posX, this.posY, this.posZ, 1.2F, true);
+	}
+	
+	@Override
+	public void writeEntityToNBT(NBTTagCompound compound) {
+		compound.setByte("Fuse", (byte)this.fuse);
+		compound.setByte("Explosiveness", (byte)this.explosiveness);
+		compound.setBoolean("Fire-charged", this.fireCharged);
+		ItemStack item = this.dataWatcher.getWatchableObjectItemStack(8);
+        if (item != null) {
+        	NBTTagCompound itemCompound = new NBTTagCompound();
+            item.writeToNBT(itemCompound);
+            compound.setCompoundTag("FireworksItem", itemCompound);
         }
-    }
-    
-    @Override
-	public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound) {
-        par1NBTTagCompound.setByte("Fuse", (byte)this.fuse);
-    }
-    
-    @Override
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound) {
-        this.fuse = par1NBTTagCompound.getByte("Fuse");
-    }
+	}
+	
+	@Override
+	public void readEntityFromNBT(NBTTagCompound compound) {
+        if (compound != null) {
+			this.fuse = compound.getByte("Fuse");
+			this.explosiveness = compound.getByte("Explosiveness");
+			this.fireCharged = compound.getBoolean("Fire-charged");
+	        if (compound.hasKey("FireworksItem")) {
+	            NBTTagCompound itemCompound = compound.getCompoundTag("FireworksItem");
+	            this.dataWatcher.updateObject(8, ItemStack.loadItemStackFromNBT(itemCompound));
+	        }
+        }
+	}
 }

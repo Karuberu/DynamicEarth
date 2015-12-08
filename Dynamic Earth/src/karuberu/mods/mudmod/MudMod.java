@@ -3,12 +3,11 @@ package karuberu.mods.mudmod;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import karuberu.mods.craftsmanship.blocks.BlockBale;
-import karuberu.mods.craftsmanship.items.ItemBale;
 import karuberu.mods.mudmod.blocks.*;
-import karuberu.mods.mudmod.client.TextureManager.Texture;
 import karuberu.mods.mudmod.entity.*;
 import karuberu.mods.mudmod.items.*;
+import karuberu.mods.mudmod.items.crafting.RecipeBombs;
+import karuberu.mods.mudmod.items.crafting.RecipeManager;
 import karuberu.mods.mudmod.world.WorldGenMudMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDispenser;
@@ -17,8 +16,11 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.passive.EntitySheep;
+import net.minecraft.item.EnumToolMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
@@ -27,16 +29,18 @@ import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import forestry.api.storage.BackpackManager;
 
 @Mod(
 	useMetadata=true,
 	modid = "karuberu-mudMod",
 	name = "Karuberu's Mud Mod",
-	version = "1.5.3",
-	dependencies = "required-after:karuberu-core")
+	version = "1.6.0",
+	dependencies = "required-after:karuberu-core; before: IC2; before:Thaumcraft; after:Forestry")
 @NetworkMod(
 	clientSideRequired = true,
 	serverSideRequired = false
@@ -86,6 +90,51 @@ public class MudMod {
 		vaseWater;
 	public static int
 		overlayBlockRenderID;
+	public static enum BlockTexture {
+		MUD,
+		MUDWET,
+		ADOBEWET,
+		ADOBEDRY,
+		MUDBRICK,
+		PERMAFROST,
+		DIRT,
+		GRASS,
+		SNOW,
+		GRASSSLABSIDE,
+		GRASSSLABSNOWSIDE,
+		GRASSSLABSIDEOVERLAY,
+		MYCELIUM,
+		MYCELIUMSLABSIDE,
+		PEATMOSS,
+		PEATMOSSYTOPOVERLAY,
+		PEATMOSSYSIDEOVERLAY,
+		PEAT,
+		PEATSIDE1,
+		PEATSIDE2,
+		PEATSIDE3,
+		PEATSIDE4,
+		PEATSIDE5,
+		PEATSIDE6,
+		PEATSIDE7,
+		PEATDRY
+	}
+	public static enum ItemIcon {
+		MUDBLOB,
+		MUDBRICK,
+		ADOBEDUST,
+		ADOBEBLOB,
+		VASERAW,
+		VASE,
+		VASEWATER,
+		VASEMILK,
+		EARTHBOWLRAW,
+		EARTHBOWL,
+		EARTHBOWLSOUP,
+		BOMB,
+		PEATCLUMP,
+		PEATBRICK,
+		PEATMOSSSPECIMEN;
+	}
 	private static int
 		BLOCKID_MUD					= 4000,
 		BLOCKID_PERMAFROST			= BLOCKID_MUD+1,
@@ -120,7 +169,6 @@ public class MudMod {
 		ITEMID_PEATMOSSSPECIMEN		= ITEMID_BOMBLIT+1,
 		ITEMID_PEATCLUMP			= ITEMID_PEATMOSSSPECIMEN+1,
 		ITEMID_PEATBRICK			= ITEMID_PEATCLUMP+1;
-	
 	public static boolean
 		showSnowyBottomSlabs,
 		enableDeepMud,
@@ -135,6 +183,10 @@ public class MudMod {
 		includePermafrost,
 		restoreDirtOnChunkLoad,
 		enableForestryIntegration;
+	public static final String
+		terrainFile = "/karuberu/mods/mudmod/mudTerrain.png",
+		itemsFile = "/karuberu/mods/mudmod/mudItems.png",
+		clayGolemFile = "/karuberu/mods/mudmod/clayGolem.png";
 	
 	@PreInit
 	public void loadConfiguration(FMLPreInitializationEvent event) {       
@@ -157,8 +209,9 @@ public class MudMod {
 		WorldGenMudMod.doGenerateMud = config.get("Terrain Generation", "doGenerateMud", true).getBoolean(true);
 		WorldGenMudMod.doGeneratePermafrost = config.get("Terrain Generation", "doGeneratePermafrost", true).getBoolean(true);
 		WorldGenMudMod.doGeneratePeat = config.get("Terrain Generation", "doGeneratePeat", true).getBoolean(true);
-		ItemBombLit.fuseLength = config.get("Adjustments", "bombFuseLength", ItemBombLit.fuseLength).getInt();
 		FuelHandler.peatBurnTime = config.get("Adjustments", "peatBurnTime", FuelHandler.peatBurnTime).getInt();
+		RecipeBombs.maxGunpowder = config.get("Adjustments", "maxGunpowderForBombs", RecipeBombs.maxGunpowder).getInt();
+		ItemBombLit.maxFuseLength = config.get("Adjustments", "maxFuseLengthForBombs", ItemBombLit.maxFuseLength).getInt();
 		MudMod.enableForestryIntegration = config.get("Forestry", "enableIntegration", true).getBoolean(true);
 		FuelHandler.peatForestryBurnTime = config.get("Forestry", "peatBurnTime", FuelHandler.peatForestryBurnTime).getInt();
 		BLOCKID_MUD				= config.getBlock("Mud", BLOCKID_MUD).getInt();
@@ -194,9 +247,7 @@ public class MudMod {
 		ITEMID_PEATCLUMP		= config.getItem("PeatClump", ITEMID_PEATCLUMP).getInt();
 		ITEMID_PEATBRICK		= config.getItem("PeatBrick", ITEMID_PEATBRICK).getInt();
 		ITEMID_PEATMOSSSPECIMEN	= config.getItem("PeatMossSpecimen", ITEMID_PEATMOSSSPECIMEN).getInt();
-		if (config.hasChanged()) {
-			config.save();
-		}
+		config.save();
 	}
 	
     @Init
@@ -218,14 +269,14 @@ public class MudMod {
     
     private static void registerBlocks() {
     	Block.dirt.setTickRandomly(true);
-        mud = new BlockMud(BLOCKID_MUD);
+        mud = new BlockMud(BLOCKID_MUD, BlockTexture.MUD.ordinal());
 	    GameRegistry.registerBlock(MudMod.mud, "mud");
 	    if (MudMod.includeAdobe) {
-		    adobe = new BlockAdobe(BLOCKID_ADOBE);
-		    adobeWet = new BlockAdobeWet(BLOCKID_ADOBEWET);
+		    adobe = new BlockAdobe(BLOCKID_ADOBE, BlockTexture.ADOBEDRY.ordinal());
+		    adobeWet = new BlockAdobeWet(BLOCKID_ADOBEWET, BlockTexture.ADOBEWET.ordinal());
 		    adobeDoubleSlab = (BlockHalfSlab) new BlockAdobeSlab(BLOCKID_ADOBEDOUBLESLAB, true);
 		    adobeSingleSlab = (BlockHalfSlab) new BlockAdobeSlab(BLOCKID_ADOBESINGLESLAB, false);    
-		    adobeStairs = (new BlockAdobeStairs(BLOCKID_ADOBESTAIRS, adobe, 0)).setUnlocalizedName("adobeStairs");
+		    adobeStairs = (new BlockAdobeStairs(BLOCKID_ADOBESTAIRS, adobe, 0)).setBlockName("adobeStairs");
 	        GameRegistry.registerBlock(MudMod.adobeWet, "adobeWet");
 	        GameRegistry.registerBlock(MudMod.adobe, "adobe");
 	        GameRegistry.registerBlock(MudMod.adobeSingleSlab, ItemAdobeSlab.class, "adobeSingleSlab");
@@ -233,31 +284,31 @@ public class MudMod {
 	        GameRegistry.registerBlock(MudMod.adobeStairs, "adobeStairs");
 	    }
 	    if (MudMod.includeMudBrick) {
-		    blockMudBrick = new BlockMudBrick(BLOCKID_MUDBRICKBLOCK);
-		    mudBrickStairs = (new BlockAdobeStairs(BLOCKID_MUDBRICKSTAIRS, blockMudBrick, 0)).setUnlocalizedName("mudBrickStairs");    
-		    mudBrickWall = (new BlockMudBrickWall(BLOCKID_MUDBRICKWALL, blockMudBrick)).setUnlocalizedName("mudBrickWall");    
+		    blockMudBrick = new BlockMudBrick(BLOCKID_MUDBRICKBLOCK, BlockTexture.MUDBRICK.ordinal());
+		    mudBrickStairs = (new BlockAdobeStairs(BLOCKID_MUDBRICKSTAIRS, blockMudBrick, 0)).setBlockName("mudBrickStairs");    
+		    mudBrickWall = (new BlockMudBrickWall(BLOCKID_MUDBRICKWALL, blockMudBrick)).setBlockName("mudBrickWall");    
 			GameRegistry.registerBlock(MudMod.blockMudBrick, "blockMudBrick");
 			GameRegistry.registerBlock(MudMod.mudBrickStairs, "mudBrickStairs");
 			GameRegistry.registerBlock(MudMod.mudBrickWall, "mudBrickWall");
 	    }
 	    if (MudMod.includePermafrost) {
-	    	permafrost = new BlockPermafrost(BLOCKID_PERMAFROST);
+	    	permafrost = new BlockPermafrost(BLOCKID_PERMAFROST, BlockTexture.PERMAFROST.ordinal());
 	        GameRegistry.registerBlock(MudMod.permafrost, "permafrost");
 	    }
 	    if (MudMod.includeDirtSlabs) {
-		    dirtSlab = (BlockHalfSlab) (new BlockDirtSlab(BLOCKID_DIRTSLAB, false)).setUnlocalizedName("dirtSlab");    
-		    dirtDoubleSlab = (BlockHalfSlab) (new BlockDirtSlab(BLOCKID_DIRTDOUBLESLAB, true)).setUnlocalizedName("dirtDoubleSlab");    
-		    grassSlab = (BlockHalfSlab) (new BlockGrassSlab(BLOCKID_GRASSSLAB, false)).setUnlocalizedName("grassSlab");
-		    grassDoubleSlab = (BlockHalfSlab) (new BlockGrassSlab(BLOCKID_GRASSDOUBLESLAB, true)).setUnlocalizedName("grassDoubleSlab");
+		    dirtSlab = (BlockHalfSlab) (new BlockDirtSlab(BLOCKID_DIRTSLAB, false)).setBlockName("dirtSlab");    
+		    dirtDoubleSlab = (BlockHalfSlab) (new BlockDirtSlab(BLOCKID_DIRTDOUBLESLAB, true)).setBlockName("dirtDoubleSlab");    
+		    grassSlab = (BlockHalfSlab) (new BlockGrassSlab(BLOCKID_GRASSSLAB, false)).setBlockName("grassSlab");
+		    grassDoubleSlab = (BlockHalfSlab) (new BlockGrassSlab(BLOCKID_GRASSDOUBLESLAB, true)).setBlockName("grassDoubleSlab");
 	        GameRegistry.registerBlock(MudMod.dirtSlab, ItemDirtSlab.class, "dirtSlab");
 	        GameRegistry.registerBlock(MudMod.dirtDoubleSlab, ItemDirtSlab.class, "dirtDoubleSlab");
 	        GameRegistry.registerBlock(MudMod.grassSlab, ItemGrassSlab.class, "grassSlab");
 	        GameRegistry.registerBlock(MudMod.grassDoubleSlab, ItemGrassSlab.class, "grassDoubleSlab");
 	    }
 	    if (MudMod.includePeat) {
-		    peatMoss = new BlockPeatMoss(BLOCKID_PEATMOSS);
-			peat = new BlockPeat(BLOCKID_PEAT);
-			peatDry = new BlockPeatDry(BLOCKID_PEATDRY);
+		    peatMoss = new BlockPeatMoss(BLOCKID_PEATMOSS, BlockTexture.PEATMOSS.ordinal());
+			peat = new BlockPeat(BLOCKID_PEAT, BlockTexture.PEAT.ordinal());
+			peatDry = new BlockPeatDry(BLOCKID_PEATDRY, BlockTexture.PEATDRY.ordinal());
 	        GameRegistry.registerBlock(MudMod.peatMoss, "peatMoss");
 	        GameRegistry.registerBlock(MudMod.peat, "peat");
 	        GameRegistry.registerBlock(MudMod.peatDry, "peatDry");
@@ -265,29 +316,51 @@ public class MudMod {
 	}
     
     private static void registerItems() {
-	    mudBlob = (new ItemMudBlob(ITEMID_MUDBLOB, Texture.MUDBLOB)).setUnlocalizedName("mudBlob");
+	    mudBlob = (new ItemMudBlob(ITEMID_MUDBLOB, ItemIcon.MUDBLOB.ordinal())).setItemName("mudBlob");
 	    if (MudMod.includeMudBrick) {
-	    	mudBrick = (new ItemMudMod(ITEMID_MUDBRICK, Texture.MUDBRICK)).setUnlocalizedName("mudBrick").setCreativeTab(CreativeTabs.tabMaterials);
+	    	mudBrick = (new ItemMudMod(ITEMID_MUDBRICK, ItemIcon.MUDBRICK.ordinal())).setItemName("mudBrick").setCreativeTab(CreativeTabs.tabMaterials);
 	    }
 	    if (MudMod.includeAdobe) {
-		    adobeDust = (new ItemAdobeDust(ITEMID_ADOBEDUST, Texture.ADOBEDUST)).setUnlocalizedName("adobeDust").setCreativeTab(CreativeTabs.tabMaterials);
-		    adobeBlob = (new ItemMudMod(ITEMID_ADOBEBLOB, Texture.ADOBEBLOB)).setUnlocalizedName("adobeBlob").setCreativeTab(CreativeTabs.tabMaterials);
-		    vaseRaw = (new ItemMudMod(ITEMID_VASERAW, Texture.VASERAW)).setUnlocalizedName("vaseRaw").setMaxStackSize(1).setCreativeTab(CreativeTabs.tabMaterials);
-		    vase = (ItemVase) (new ItemVase(ITEMID_VASE, 0, Texture.VASE)).setUnlocalizedName("vase");
-		    vaseWater = (ItemVase) (new ItemVase(ITEMID_VASEWATER, Block.waterMoving.blockID, Texture.VASEWATER)).setUnlocalizedName("vaseWater");
-		    vaseMilk = (new ItemVaseMilk(ITEMID_VASEMILK)).setUnlocalizedName("vaseMilk");
-		    earthbowlRaw = (new ItemMudMod(ITEMID_EARTHBOWLRAW, Texture.EARTHBOWLRAW)).setUnlocalizedName("earthbowlRaw").setMaxStackSize(16).setCreativeTab(CreativeTabs.tabMaterials);
-		    earthbowl = (new ItemMudMod(ITEMID_EARTHBOWL, Texture.EARTHBOWL)).setUnlocalizedName("earthbowl").setCreativeTab(CreativeTabs.tabMaterials);
-		    earthbowlSoup = (new ItemEarthbowlSoup(ITEMID_EARTHBOWLSOUP)).setUnlocalizedName("earthbowlSoup");
+		    adobeDust = (new ItemAdobeDust(ITEMID_ADOBEDUST, ItemIcon.ADOBEDUST.ordinal())).setItemName("adobeDust").setCreativeTab(CreativeTabs.tabMaterials);
+		    adobeBlob = (new ItemMudMod(ITEMID_ADOBEBLOB, ItemIcon.ADOBEBLOB.ordinal())).setItemName("adobeBlob").setCreativeTab(CreativeTabs.tabMaterials);
+		    vaseRaw = (new ItemMudMod(ITEMID_VASERAW, ItemIcon.VASERAW.ordinal())).setItemName("vaseRaw").setMaxStackSize(1).setCreativeTab(CreativeTabs.tabMaterials);
+		    vase = (ItemVase) (new ItemVase(ITEMID_VASE, 0, ItemIcon.VASE.ordinal())).setItemName("vase");
+		    vaseWater = (ItemVase) (new ItemVase(ITEMID_VASEWATER, Block.waterMoving.blockID, ItemIcon.VASEWATER.ordinal())).setItemName("vaseWater");
+		    vaseMilk = (new ItemVaseMilk(ITEMID_VASEMILK, ItemIcon.VASEMILK.ordinal())).setItemName("vaseMilk");
+		    earthbowlRaw = (new ItemMudMod(ITEMID_EARTHBOWLRAW, ItemIcon.EARTHBOWLRAW.ordinal())).setItemName("earthbowlRaw").setMaxStackSize(16).setCreativeTab(CreativeTabs.tabMaterials);
+		    earthbowl = (new ItemMudMod(ITEMID_EARTHBOWL, ItemIcon.EARTHBOWL.ordinal())).setItemName("earthbowl").setCreativeTab(CreativeTabs.tabMaterials);
+		    earthbowlSoup = (new ItemEarthbowlSoup(ITEMID_EARTHBOWLSOUP, ItemIcon.EARTHBOWLSOUP.ordinal())).setItemName("earthbowlSoup");
 		    if (MudMod.includeBombs) {
-			    bomb = (new ItemBomb(ITEMID_BOMB, Texture.BOMB)).setUnlocalizedName("bomb");    	
-			    bombLit = (new ItemBombLit(ITEMID_BOMBLIT, Texture.BOMBLIT)).setUnlocalizedName("bombLit");    	
+			    bomb = (new ItemBomb(ITEMID_BOMB, ItemIcon.BOMB.ordinal())).setItemName("bomb");
+			    bombLit = (new ItemBombLit(ITEMID_BOMBLIT, ItemIcon.BOMB.ordinal())).setItemName("bombLit");    	
 		    }
 	    }
 	    if (MudMod.includePeat) {
-	    	peatClump = (new ItemMudMod(ITEMID_PEATCLUMP, Texture.PEATCLUMP)).setUnlocalizedName("peatClump").setCreativeTab(CreativeTabs.tabMaterials);
-	    	peatBrick = (new ItemMudMod(ITEMID_PEATBRICK, Texture.PEATBRICK)).setUnlocalizedName("peatBrick").setCreativeTab(CreativeTabs.tabMaterials);
-	    	peatMossSpecimen = (new ItemPeatMossSpecimen(ITEMID_PEATMOSSSPECIMEN, Texture.PEATMOSSSPECIMEN)).setUnlocalizedName("peatMossSpecimen");
+	    	peatClump = (new ItemMudMod(ITEMID_PEATCLUMP, ItemIcon.PEATCLUMP.ordinal())).setItemName("peatClump").setCreativeTab(CreativeTabs.tabMaterials);
+	    	peatBrick = (new ItemMudMod(ITEMID_PEATBRICK, ItemIcon.PEATBRICK.ordinal())).setItemName("peatBrick").setCreativeTab(CreativeTabs.tabMaterials);
+	    	peatMossSpecimen = (new ItemPeatMossSpecimen(ITEMID_PEATMOSSSPECIMEN, ItemIcon.PEATMOSSSPECIMEN.ordinal())).setItemName("peatMossSpecimen");
+	    }
+	    if (MudMod.enableForestryIntegration
+	    && BackpackManager.backpackItems != null) {
+	    	if (BackpackManager.backpackItems.length >= 4) {
+	    		BackpackManager.backpackItems[1].add(new ItemStack(MudMod.mud));
+	    		BackpackManager.backpackItems[1].add(new ItemStack(MudMod.mudBlob));
+	    		if (MudMod.includeDirtSlabs) {
+		    		BackpackManager.backpackItems[1].add(new ItemStack(MudMod.dirtSlab));
+		    		BackpackManager.backpackItems[1].add(new ItemStack(MudMod.grassSlab, 1, BlockGrassSlab.GRASS));
+		    		BackpackManager.backpackItems[1].add(new ItemStack(MudMod.grassSlab, 1, BlockGrassSlab.MYCELIUM));
+	    		}
+		    	if (MudMod.includePermafrost) {
+	    			BackpackManager.backpackItems[1].add(new ItemStack(MudMod.permafrost));
+	    		}
+	    		if (MudMod.includePeat) {
+		    		BackpackManager.backpackItems[2].add(new ItemStack(MudMod.peat));
+		    		BackpackManager.backpackItems[2].add(new ItemStack(MudMod.peatDry));
+		    		BackpackManager.backpackItems[2].add(new ItemStack(MudMod.peatClump));
+		    		BackpackManager.backpackItems[2].add(new ItemStack(MudMod.peatBrick));
+		    		BackpackManager.backpackItems[2].add(new ItemStack(MudMod.peatMossSpecimen));
+	    		}
+	    	}
 	    }
 	}
     
@@ -316,30 +389,33 @@ public class MudMod {
 	}
 	
     public static void setBlockHarvestLevels() {
-        MinecraftForge.setBlockHarvestLevel(MudMod.mud, "shovel", 0);
+    	final int
+    		WOOD = EnumToolMaterial.WOOD.getHarvestLevel();
+        MinecraftForge.setBlockHarvestLevel(MudMod.mud, "shovel", WOOD);
         if (MudMod.includeAdobe) {
-	        MinecraftForge.setBlockHarvestLevel(MudMod.adobeWet, "shovel", 0);
-	        MinecraftForge.setBlockHarvestLevel(MudMod.adobe, "pickaxe", 1);
-	        MinecraftForge.setBlockHarvestLevel(MudMod.adobeSingleSlab, "pickaxe", 1);
-	        MinecraftForge.setBlockHarvestLevel(MudMod.adobeDoubleSlab, "pickaxe", 1);
-	        MinecraftForge.setBlockHarvestLevel(MudMod.adobeStairs, "pickaxe", 1);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.adobeWet, "shovel", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.adobe, "pickaxe", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.adobeSingleSlab, "pickaxe", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.adobeDoubleSlab, "pickaxe", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.adobeStairs, "pickaxe", WOOD);
         }
         if (MudMod.includeMudBrick) {
-	        MinecraftForge.setBlockHarvestLevel(MudMod.blockMudBrick, "pickaxe", 1);
-	        MinecraftForge.setBlockHarvestLevel(MudMod.mudBrickStairs, "pickaxe", 1);
-	        MinecraftForge.setBlockHarvestLevel(MudMod.mudBrickWall, "pickaxe", 1);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.blockMudBrick, "pickaxe", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.mudBrickStairs, "pickaxe", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.mudBrickWall, "pickaxe", WOOD);
         }
         if (MudMod.includePermafrost) {
-        	MinecraftForge.setBlockHarvestLevel(MudMod.permafrost, "pickaxe", 0);
+        	MinecraftForge.setBlockHarvestLevel(MudMod.permafrost, "pickaxe", WOOD);
         }
         if (MudMod.includeDirtSlabs) {
-	        MinecraftForge.setBlockHarvestLevel(MudMod.dirtSlab, "shovel", 0);
-	        MinecraftForge.setBlockHarvestLevel(MudMod.grassSlab, "shovel", 0);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.dirtSlab, "shovel", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.dirtSlab, "shovel", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.grassSlab, "shovel", WOOD);
         }
         if (MudMod.includePeat) {
-	        MinecraftForge.setBlockHarvestLevel(MudMod.peatMoss, "shovel", 1);
-	        MinecraftForge.setBlockHarvestLevel(MudMod.peat, "shovel", 0);
-	        MinecraftForge.setBlockHarvestLevel(MudMod.peatDry, "shovel", 0);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.peatMoss, "shovel", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.peat, "shovel", WOOD);
+	        MinecraftForge.setBlockHarvestLevel(MudMod.peatDry, "shovel", WOOD);
         }
 	}
 

@@ -73,7 +73,7 @@ public class EntityAIEatGrassSlab extends EntityAIBase {
                 if (blockId == MudMod.grassSlab.blockID
                 && MCHelper.getSlabMetadata(metadata) == BlockGrassSlab.GRASS) {
                     this.theWorld.playAuxSFX(2001, x, yi, z, MudMod.grassSlab.blockID);
-                    this.theWorld.setBlockAndMetadataWithNotify(x, yi, z, MudMod.dirtSlab.blockID, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+                    this.theWorld.setBlockAndMetadataWithNotify(x, yi, z, MudMod.dirtSlab.blockID, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT));
                     this.theEntity.eatGrassBonus();
                 }
             }

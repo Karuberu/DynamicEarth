@@ -37,7 +37,7 @@ public class WorldGenMud implements IWorldGenerator {
 				                if (id == Block.dirt.blockID
 				                || id == Block.grass.blockID
 				                || id == Block.mycelium.blockID) {
-				                    world.setBlockAndMetadataWithNotify(xi, yi, zi, MudMod.mud.blockID, BlockMud.WET, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+				                    world.setBlockAndMetadata(xi, yi, zi, MudMod.mud.blockID, BlockMud.WET);
 				                } else if (world.getBlockMaterial(xi, yi, zi) != Material.water) {
 				                	break;
 				                }

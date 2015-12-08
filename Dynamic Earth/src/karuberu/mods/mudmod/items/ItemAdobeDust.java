@@ -2,11 +2,8 @@ package karuberu.mods.mudmod.items;
 
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.client.TextureManager;
-import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -17,7 +14,7 @@ import net.minecraft.world.World;
 
 public class ItemAdobeDust extends ItemMudMod {
 
-    public ItemAdobeDust(int id, Texture icon) {
+    public ItemAdobeDust(int id, int icon) {
 		super(id, icon);
 		this.setCreativeTab(CreativeTabs.tabMaterials);
 	}
@@ -27,7 +24,7 @@ public class ItemAdobeDust extends ItemMudMod {
         if (world.getBlockId(x, y, z) == Block.cauldron.blockID) {
         	int cauldronMeta = world.getBlockMetadata(x, y, z);
         	if (cauldronMeta > 0) {
-        		world.setBlockMetadataWithNotify(x, y, z, cauldronMeta - 1, MCHelper.NOTIFY_WITHOUT_UPDATE);
+        		world.setBlockMetadata(x, y, z, cauldronMeta - 1);
 	        	if (!player.inventory.addItemStackToInventory(new ItemStack(MudMod.adobeBlob, 1))) {
 	                player.dropPlayerItem(new ItemStack(MudMod.adobeBlob.itemID, 1, 0));
 	            }

@@ -1,6 +1,7 @@
 package karuberu.mods.mudmod.items;
 
 import karuberu.mods.mudmod.MudMod;
+import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.material.Material;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.IBlockSource;
@@ -37,7 +38,7 @@ public class BehaviorVaseEmptyDispense extends BehaviorDefaultDispenseItem
         } else {
             return super.dispenseStack(dispenser, itemStack);
         }
-        world.func_94571_i(x, y, z);
+        world.setBlockAndMetadataWithNotify(x, y, z, 0, 0);
         if (--itemStack.stackSize == 0) {
             itemStack.itemID = item.itemID;
             itemStack.stackSize = 1;

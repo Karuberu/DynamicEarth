@@ -128,7 +128,7 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
                         this.setDead();
                         return;
                     }
-                    this.worldObj.func_94571_i(x, y, z);
+                    this.worldObj.setBlockWithNotify(x, y, z, 0);
                 }
 
                 if (this.onGround) {
@@ -140,9 +140,9 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
                         this.setDead();
 
                         if (!this.blockDestroyed
-                        && this.worldObj.canPlaceEntityOnSide(this.blockID, x, y, z, true, 1, (Entity)null, (ItemStack)null)
+                        && this.worldObj.canPlaceEntityOnSide(this.blockID, x, y, z, true, 1, (Entity)null)
                         && !BlockSand.canFallBelow(this.worldObj, x, y - 1, z)
-                        && this.worldObj.setBlockAndMetadataWithNotify(x, y, z, this.blockID, this.metadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
+                        && this.worldObj.setBlockAndMetadataWithNotify(x, y, z, this.blockID, this.metadata)) {
                         	if (Block.blocksList[this.blockID] instanceof IFallingBlock) {
                                 ((IFallingBlock)Block.blocksList[this.blockID]).onFinishFalling(this.worldObj, x, y, z, this.metadata);
                             }

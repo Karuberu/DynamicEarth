@@ -33,7 +33,7 @@ public class RenderFallingBlock extends Render
         World world = entityFallingBlock.getWorld();
     	GL11.glPushMatrix();
         GL11.glTranslatef((float)x, (float)y, (float)z);
-        this.loadTexture("/terrain.png");
+        this.loadTexture(Block.blocksList[entityFallingBlock.blockID].getTextureFile());
         GL11.glDisable(GL11.GL_LIGHTING);
         Tessellator tessellator;
 

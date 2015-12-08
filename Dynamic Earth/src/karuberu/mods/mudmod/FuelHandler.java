@@ -6,7 +6,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import forestry.api.fuels.EngineCopperFuel;
 import forestry.api.fuels.FuelManager;
 
-public class FuelHandler implements IFuelHandler {
+public final class FuelHandler implements IFuelHandler {
 
 	public static FuelHandler
 		instance = new FuelHandler();

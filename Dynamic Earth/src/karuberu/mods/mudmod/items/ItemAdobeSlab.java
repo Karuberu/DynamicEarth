@@ -1,13 +1,11 @@
 package karuberu.mods.mudmod.items;
 
-import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -32,7 +30,7 @@ public class ItemAdobeSlab extends ItemBlock {
 	
     @Override
     @SideOnly(Side.CLIENT)
-    public Icon getIconFromDamage(int damageValue) {
+    public int getIconFromDamage(int damageValue) {
         return Block.blocksList[this.itemID].getBlockTextureFromSideAndMetadata(2, damageValue);
     }
 
@@ -42,7 +40,7 @@ public class ItemAdobeSlab extends ItemBlock {
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack itemStack) {
+    public String getItemNameIS(ItemStack itemStack) {
         return this.singleSlab.getFullSlabName(itemStack.getItemDamage());
     }
 
@@ -63,7 +61,7 @@ public class ItemAdobeSlab extends ItemBlock {
             if ((side == 1 && !var14 || side == 0 && var14)
             && blockId == this.singleSlab.blockID
             && slabType == itemStack.getItemDamage()) {
-                if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlockAndMetadataWithNotify(x, y, z, this.doubleSlab.blockID, slabType, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
+                if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlockAndMetadataWithNotify(x, y, z, this.doubleSlab.blockID, slabType)) {
                     world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
                     --itemStack.stackSize;
                 }
@@ -140,7 +138,7 @@ public class ItemAdobeSlab extends ItemBlock {
         int slabType = metadata & 7;
 
         if (blockId == this.singleSlab.blockID && slabType == itemStack.getItemDamage()) {
-            if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlockAndMetadataWithNotify(x, y, z, this.doubleSlab.blockID, slabType, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
+            if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlockAndMetadataWithNotify(x, y, z, this.doubleSlab.blockID, slabType)) {
                 world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
                 --itemStack.stackSize;
             }

@@ -4,11 +4,9 @@ import org.omg.CORBA.SystemException;
 
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.passive.EntityCow;
@@ -27,7 +25,7 @@ public class ItemVase extends ItemMudMod {
     /** field for checking if the bucket has been filled. */
     private int contents;
 
-    public ItemVase(int i, int contents, Texture icon) {
+    public ItemVase(int i, int contents, int icon) {
         super(i, icon);
         this.maxStackSize = 1;
         this.contents = contents;
@@ -41,7 +39,7 @@ public class ItemVase extends ItemMudMod {
             if (world.getBlockId(x, y, z) == Block.cauldron.blockID) {
             	int cauldronMeta = world.getBlockMetadata(x, y, z);
             	if (cauldronMeta < 3) {
-            		world.setBlockMetadataWithNotify(x, y, z, 3, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+            		world.setBlockMetadataWithNotify(x, y, z, 3);
             		if (!player.capabilities.isCreativeMode) {
                         player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(this.getContainerItem()));
             		}
@@ -90,7 +88,7 @@ public class ItemVase extends ItemMudMod {
 
                 if (this.contents == 0) {
                     if (world.getBlockMaterial(movingObjectPosX, movingObjectPosY, movingObjectPosZ) == Material.water && world.getBlockMetadata(movingObjectPosX, movingObjectPosY, movingObjectPosZ) == 0) {
-                        world.setBlockAndMetadataWithNotify(movingObjectPosX, movingObjectPosY, movingObjectPosZ, 0, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+                        world.setBlockAndMetadataWithNotify(movingObjectPosX, movingObjectPosY, movingObjectPosZ, 0, 0);
 
                         if (!player.canPlayerEdit(movingObjectPosX, movingObjectPosY, movingObjectPosZ, movingObjectPosition.sideHit, itemStack)) {
                             return itemStack;
@@ -167,7 +165,7 @@ public class ItemVase extends ItemMudMod {
                     world.spawnParticle("largesmoke", movingObjectPosX + Math.random(), movingObjectPosY + Math.random(), movingObjectPosZ + Math.random(), 0.0D, 0.0D, 0.0D);
                 }
             } else {
-                world.setBlockAndMetadataWithNotify(movingObjectPosX, movingObjectPosY, movingObjectPosZ, this.contents, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+                world.setBlockAndMetadataWithNotify(movingObjectPosX, movingObjectPosY, movingObjectPosZ, this.contents, 0);
             }
             return true;
         }

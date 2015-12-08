@@ -9,10 +9,8 @@ import karuberu.mods.mudmod.MudMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -26,15 +24,13 @@ public class BlockAdobeSlab extends BlockHalfSlab {
 		this.setResistance(5.0F);
 		this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-		this.setUnlocalizedName("adobeSlab");
+		this.setBlockName("adobeSlab");
         this.useNeighborBrightness[id] = true;
+        this.setTextureFile(MudMod.terrainFile);
 	}
-    
-	@Override
-	public void func_94332_a(IconRegister iconRegister) {}
 
     @Override
-    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata) {
+    public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
         switch (MCHelper.getSlabMetadata(metadata)) {
         case 0:
             return MudMod.adobe.getBlockTextureFromSide(side);
@@ -60,7 +56,7 @@ public class BlockAdobeSlab extends BlockHalfSlab {
         if (metadata < 0 || metadata >= slabType.length) {
             metadata = 0;
         }
-        return super.getUnlocalizedName() + "." + slabType[metadata];
+        return super.getBlockName() + "." + slabType[metadata];
 	}
 	
 	@Override

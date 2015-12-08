@@ -6,9 +6,12 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import karuberu.core.KaruberuLogger;
 import karuberu.core.event.EventFactory;
 
 import net.minecraft.block.Block;
@@ -33,22 +36,23 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.relauncher.FMLRelaunchLog;
 import cpw.mods.fml.relauncher.IClassTransformer;
 
 public class ClassTransformer implements IClassTransformer, Opcodes {
 	
 	@Override
-	public byte[] transform(String name, String transformedName, byte[] bytes) {
-		ObfHelper.obfuscated = !name.equals(transformedName);
+	public byte[] transform(String name, byte[] bytes) {
+		System.out.println(name);
 		if (ObfHelper.ObfName.WorldServer.equalsIgnoreCase(name.replace('.', '/'))) {
+			KaruberuLogger.fine("Starting injection process for block update hooks.");
 			return insertBlockUpdateHooks(bytes);
-		} else if (ObfHelper.ObfName.World.equalsIgnoreCase(name.replace('.', '/'))) {
-			return insertNeighborBlockChangeHook(bytes);
 		}
 		return bytes;
 	}
 
-	private byte[] insertBlockUpdateHooks(byte[] bytes) {		
+	private byte[] insertBlockUpdateHooks(byte[] bytes) {
 		ClassNode classNode = new ClassNode();
 		ClassReader classReader = new ClassReader(bytes);
 		classReader.accept(classNode, 0);
@@ -70,14 +74,14 @@ public class ClassTransformer implements IClassTransformer, Opcodes {
 			MethodNode method = (MethodNode)methods.next();
 			if (ObfHelper.ObfName.tickUpdates.equalsIgnoreCase(method.name)
 			&& tickUpdatesDescriptor.equalsIgnoreCase(method.desc)) {
-				System.out.println("Found method " + method.name + method.desc + " in class " + ObfHelper.ObfName.WorldServer);
+				KaruberuLogger.finer("Found method " + method.name + method.desc + " in class " + ObfHelper.ObfName.WorldServer);
 				for (int i = 0; i < method.instructions.size(); i++) {
 					AbstractInsnNode instruction = method.instructions.get(i);
 					if (instruction.getType() == AbstractInsnNode.FIELD_INSN
 					&& instruction.getOpcode() == Opcodes.GETSTATIC
 					&& ObfHelper.ObfName.blocksList.equalsIgnoreCase(((FieldInsnNode)instruction).name)
 					&& blocksListDescriptor.equalsIgnoreCase(((FieldInsnNode)instruction).desc)) {
-						System.out.println("Landmark found. Searching for second landmark.");
+						KaruberuLogger.finer("Landmark found. Searching for second landmark.");
 						start = i;
 						break;
 					}
@@ -89,15 +93,16 @@ public class ClassTransformer implements IClassTransformer, Opcodes {
 						&& instruction.getOpcode() == Opcodes.INVOKEVIRTUAL
 						&& ObfHelper.ObfName.updateTick.equalsIgnoreCase(((MethodInsnNode)instruction).name)
 						&& updateTickDescriptor.equalsIgnoreCase(((MethodInsnNode)instruction).desc)) {
-							System.out.println("Second landmark found. Injecting block update hook.");
+							KaruberuLogger.finer("Second landmark found. Injecting block update hook.");
 	
 							InsnList hookStart = new InsnList();
+							final int nextTickListEntryVarRegister = 4;
 							hookStart.add(new VarInsnNode(Opcodes.ALOAD, 0));
-							hookStart.add(new VarInsnNode(Opcodes.ALOAD, 3));
+							hookStart.add(new VarInsnNode(Opcodes.ALOAD, nextTickListEntryVarRegister));
 							hookStart.add(new FieldInsnNode(Opcodes.GETFIELD, ObfHelper.ObfName.NextTickListEntry.toString(), ObfHelper.ObfName.xCoord.toString(), Type.INT_TYPE.getDescriptor()));
-							hookStart.add(new VarInsnNode(Opcodes.ALOAD, 3));
+							hookStart.add(new VarInsnNode(Opcodes.ALOAD, nextTickListEntryVarRegister));
 							hookStart.add(new FieldInsnNode(Opcodes.GETFIELD, ObfHelper.ObfName.NextTickListEntry.toString(), ObfHelper.ObfName.yCoord.toString(), Type.INT_TYPE.getDescriptor()));
-							hookStart.add(new VarInsnNode(Opcodes.ALOAD, 3));
+							hookStart.add(new VarInsnNode(Opcodes.ALOAD, nextTickListEntryVarRegister));
 							hookStart.add(new FieldInsnNode(Opcodes.GETFIELD, ObfHelper.ObfName.NextTickListEntry.toString(), ObfHelper.ObfName.zCoord.toString(), Type.INT_TYPE.getDescriptor()));
 							hookStart.add(new InsnNode(Opcodes.ICONST_0)); // false
 							hookStart.add(new MethodInsnNode(Opcodes.INVOKESTATIC, hookClassName, hookMethodName, hookDescriptor));
@@ -124,13 +129,13 @@ public class ClassTransformer implements IClassTransformer, Opcodes {
 			}
 			if (ObfHelper.ObfName.tickBlocksAndAmbiance.equalsIgnoreCase(method.name)
 			&& tickBlocksAndAmbianceDescriptor.equalsIgnoreCase(method.desc)) {
-				System.out.println("Found method " + method.name + method.desc + " in class " + ObfHelper.ObfName.WorldServer);
+				KaruberuLogger.finer("Found method " + method.name + method.desc + " in class " + ObfHelper.ObfName.WorldServer);
 				for (int i = 0; i < method.instructions.size(); i++) {
 					AbstractInsnNode instruction = method.instructions.get(i);
 					if (instruction.getType() == AbstractInsnNode.VAR_INSN
 					&& instruction.getOpcode() == Opcodes.ALOAD
 					&& ((VarInsnNode)instruction).var == 22) {
-						System.out.println("Landmark found. Searching for second landmark.");
+						KaruberuLogger.finer("Landmark found. Searching for second landmark.");
 						start = i;
 						break;
 					}
@@ -142,7 +147,7 @@ public class ClassTransformer implements IClassTransformer, Opcodes {
 						&& instruction.getOpcode() == Opcodes.INVOKEVIRTUAL
 						&& ObfHelper.ObfName.updateTick.equalsIgnoreCase(((MethodInsnNode)instruction).name)
 						&& updateTickDescriptor.equalsIgnoreCase(((MethodInsnNode)instruction).desc)) {
-							System.out.println("Second landmark found. Injecting block update hook.");
+							KaruberuLogger.finer("Second landmark found. Injecting block update hook.");
 	
 							InsnList hookStart = new InsnList();
 							hookStart.add(new VarInsnNode(Opcodes.ALOAD, 0));
@@ -177,52 +182,6 @@ public class ClassTransformer implements IClassTransformer, Opcodes {
 					otherComplete = true;
 				} else {
 					break;
-				}
-			}
-		}
-		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		classNode.accept(writer);
-		return writer.toByteArray();
-	}
-	
-	private byte[] insertNeighborBlockChangeHook(byte[] bytes) {
-		ClassNode classNode = new ClassNode();
-		ClassReader classReader = new ClassReader(bytes);
-		classReader.accept(classNode, 0);
-		
-		final String
-			setBlockMethodDescriptor = Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE),
-			notifyBlockChangeDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE),
-			hookClassName = Type.getInternalName(EventFactory.class),
-			hookMethodName = "onNeighborBlockChange",
-			hookDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE, Type.getObjectType(ObfHelper.ObfName.World.toString()), Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
-		
-		Iterator methods = classNode.methods.iterator();
-		while (methods.hasNext()) {
-			MethodNode method = (MethodNode)methods.next();
-			if (ObfHelper.ObfName.setBlock.equalsIgnoreCase(method.name)
-			&& setBlockMethodDescriptor.equalsIgnoreCase(method.desc)) {
-				System.out.println("Found method " + method.name + method.desc + " in class " + ObfHelper.ObfName.World);
-				for (int i = 0; i < method.instructions.size(); i++) {
-					AbstractInsnNode instruction = method.instructions.get(i);
-					if (instruction.getType() == AbstractInsnNode.METHOD_INSN
-					&& instruction.getOpcode() == Opcodes.INVOKEVIRTUAL
-					&& ObfHelper.ObfName.notifyBlockChange.equalsIgnoreCase(((MethodInsnNode)instruction).name)
-					&& notifyBlockChangeDescriptor.equalsIgnoreCase(((MethodInsnNode)instruction).desc)
-					) {
-						System.out.println("Hook location found. Injecting neighbor block change hook.");
-
-						InsnList hook = new InsnList();
-						hook.add(new VarInsnNode(Opcodes.ALOAD, 0));
-						hook.add(new VarInsnNode(Opcodes.ILOAD, 1));
-						hook.add(new VarInsnNode(Opcodes.ILOAD, 2));
-						hook.add(new VarInsnNode(Opcodes.ILOAD, 3));
-						hook.add(new VarInsnNode(Opcodes.ILOAD, 4));
-						hook.add(new MethodInsnNode(Opcodes.INVOKESTATIC, hookClassName, hookMethodName, hookDescriptor));
-						
-						method.instructions.insert(method.instructions.get(i), hook);
-						break;
-					}
 				}
 			}
 		}

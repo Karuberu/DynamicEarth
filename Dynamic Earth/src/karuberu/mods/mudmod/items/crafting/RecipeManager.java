@@ -1,9 +1,9 @@
-package karuberu.mods.mudmod;
+package karuberu.mods.mudmod.items.crafting;
 
 import java.util.List;
 import java.util.Map.Entry;
 
-import karuberu.mods.craftsmanship.blocks.BlockBale;
+import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.blocks.BlockGrassSlab;
 
 import net.minecraft.block.Block;
@@ -19,10 +19,9 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.IFuelHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
-import forestry.api.recipes.ISqueezerManager;
 import forestry.api.recipes.RecipeManagers;
 
-public class RecipeManager {
+public final class RecipeManager {
 	
 	public static boolean
 		canCraftBombs,
@@ -225,12 +224,7 @@ public class RecipeManager {
 			)
 	    );
 	    if (MudMod.includeBombs && RecipeManager.canCraftBombs) {
-		    GameRegistry.addShapelessRecipe(
-				new ItemStack(MudMod.bomb),
-				new Object[] {
-					MudMod.earthbowl, MudMod.earthbowl, Item.gunpowder, Item.silk
-				}
-			);
+		    GameRegistry.addRecipe(RecipeBombs.instance);
 	    }
 	    GameRegistry.addSmelting(MudMod.adobeWet.blockID, new ItemStack(MudMod.adobe), 0.1F);
 	    GameRegistry.addSmelting(MudMod.vaseRaw.itemID, new ItemStack(MudMod.vase), 0.1F);

@@ -1,28 +1,21 @@
 package karuberu.mods.mudmod.blocks;
 
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.client.TextureManager;
-import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 
 public class BlockAdobeWet extends BlockMudMod {
 	
-	public BlockAdobeWet(int id) {
-		super(id, Material.ground);
+	public BlockAdobeWet(int id, int texture) {
+		super(id, texture, Material.ground);
 		this.setHardness(0.5F);
 		this.setStepSound(Block.soundGravelFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-		this.setUnlocalizedName("adobeWet");
+		this.setBlockName("adobeWet");
         this.setTickRandomly(true);
         this.setHydrateRadius(2, 1, 2);
-	}
-	
-	@Override
-	public void func_94332_a(IconRegister iconRegister) {
-		this.field_94336_cN = TextureManager.instance().getBlockTexture(Texture.ADOBEWET);
+        this.setTextureFile(MudMod.terrainFile);
 	}
 	
 	@Override

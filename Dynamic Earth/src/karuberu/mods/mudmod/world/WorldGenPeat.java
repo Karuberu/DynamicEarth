@@ -3,11 +3,13 @@ package karuberu.mods.mudmod.world;
 import java.util.Arrays;
 import java.util.Random;
 
+import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.blocks.BlockMud;
 import karuberu.mods.mudmod.blocks.BlockPeat;
 import karuberu.mods.mudmod.blocks.BlockPeatMoss;
+import karuberu.mods.mudmod.blocks.MaterialPeatMoss;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -148,29 +150,37 @@ public class WorldGenPeat implements IWorldGenerator {
 	
 	private void generatePeat(int depth, World world, int x, int y, int z, Random random) {
 		if (!world.getBlockMaterial(x, y + 1, z).isSolid()) {
-			world.setBlockAndMetadataWithNotify(x, y, z, world.getBlockId(x, y + 1, z), world.getBlockMetadata(x, y + 1, z), MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
-			world.func_94571_i(x, y + 1, z);
+			if (world.isAirBlock(x, y + 1, z)
+			|| !BlockPeatMoss.canSpreadToBlock(world, x, y + 1, z)) {
+				world.setBlockAndMetadata(x, y, z, world.getBlockId(x, y + 1, z), world.getBlockMetadata(x, y + 1, z));
+			} else {
+				world.setBlockAndMetadata(x, y, z, MudMod.peatMoss.blockID, BlockPeatMoss.getMetadataForSpread(world, x, y + 1, z));
+			}
+			world.setBlockAndMetadata(x, y + 1, z, 0, 0);
 			y--;
 		}
+		Material material = world.getBlockMaterial(x, y + 1, z);
 		if (random.nextInt(BlockPeatMoss.hydrationRadius) == 0) {
-			if (world.getBlockMaterial(x, y + 1, z).isReplaceable()) {
-				world.func_94571_i(x, y + 1, z);
-				world.setBlockAndMetadataWithNotify(x, y, z, Block.waterMoving.blockID, 0, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+			if (material.isReplaceable()
+			&& material != MaterialPeatMoss.material) {
+				world.setBlockAndMetadata(x, y + 1, z, 0, 0);
+				world.setBlockAndMetadata(x, y, z, Block.waterMoving.blockID, 0);
 			} else {
-				world.setBlockAndMetadataWithNotify(x, y, z, MudMod.peat.blockID, 0, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+				world.setBlockAndMetadata(x, y, z, MudMod.peat.blockID, 0);
 			}
 		} else {
-			if (world.getBlockMaterial(x, y + 1, z).isReplaceable()) {
-				world.setBlockAndMetadataWithNotify(x, y + 1, z, MudMod.peatMoss.blockID, BlockPeatMoss.GROWTHSTAGE_FULLGROWN, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+			if (material.isReplaceable()
+			&& material != MaterialPeatMoss.material) {
+				world.setBlockAndMetadata(x, y + 1, z, MudMod.peatMoss.blockID, BlockPeatMoss.GROWTHSTAGE_FULLGROWN);
 			}
-			world.setBlockAndMetadataWithNotify(x, y, z, MudMod.peat.blockID, BlockPeat.META_FULL, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+			world.setBlockAndMetadata(x, y, z, MudMod.peat.blockID, BlockPeat.META_FULL);
 		}
 		if (depth > 1) {
 			depth -= random.nextInt(depth / 2);
 		}
 		int i;
     	for	(i = 1; i < depth; i++) {
-        	world.setBlockAndMetadataWithNotify(x, y - i, z, MudMod.peat.blockID, BlockPeat.META_FULL, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+        	world.setBlockAndMetadata(x, y - i, z, MudMod.peat.blockID, BlockPeat.META_FULL);
     	}
     	int meta = BlockPeat.META_1EIGHTH;
     	switch(random.nextInt(4)) {
@@ -178,7 +188,7 @@ public class WorldGenPeat implements IWorldGenerator {
     	case 2: meta = BlockPeat.META_3EIGHTHS; break;
     	case 3: meta = BlockPeat.META_HALF; break;
     	}
-    	world.setBlockAndMetadataWithNotify(x, y - i, z, MudMod.peat.blockID, meta, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+    	world.setBlockAndMetadata(x, y - i, z, MudMod.peat.blockID, meta);
 	}
 	
 	private void cleanBogEdges(World world, int x, int y, int z, Random random) {

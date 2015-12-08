@@ -4,12 +4,9 @@ import java.util.Random;
 
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.client.TextureManager;
-import karuberu.mods.mudmod.client.TextureManager.Texture;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.EnumSkyBlock;
@@ -20,26 +17,21 @@ public class BlockPermafrost extends Block {
 	public static int maximumLightLevel = 11;
 	public static float maximumTemperature = 0.15F;
 
-	public BlockPermafrost(int id) {
-		super(id, Material.rock);
+	public BlockPermafrost(int id,int texture) {
+		super(id, texture, Material.rock);
 		this.setHardness(1.5F);
 		this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-		this.setUnlocalizedName("permafrost");
+		this.setBlockName("permafrost");
         this.setTickRandomly(true);
         this.slipperiness = 0.93F;
-	}
-	
-	@Override
-	public void func_94332_a(IconRegister iconRegister) {
-		this.field_94336_cN = TextureManager.instance().getBlockTexture(Texture.PERMAFROST);
+        this.setTextureFile(MudMod.terrainFile);
 	}
 	
     @Override
 	public void updateTick(World world, int x, int y, int z, Random random) {
-	    if (world.getBlockLightValue(x, y + 1, z) > maximumLightLevel
-	    && world.getBlockId(x, y + 1, z) != Block.snow.blockID) {
-	    	world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+	    if (BlockPermafrost.willMelt(world, x, y, z)) {
+	    	world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0);
 	    }
     }
     
@@ -50,8 +42,7 @@ public class BlockPermafrost extends Block {
     
     public static boolean canForm(World world, int x, int y, int z) {
     	if (!MudMod.restoreDirtOnChunkLoad
-    	&& (world.getBlockLightValue(x, y + 1, z) <= maximumLightLevel
-    	|| world.getBlockId(x, y + 1, z) == Block.snow.blockID)) {
+    	&& !BlockPermafrost.willMelt(world, x, y, z)) {
             if (world.getBiomeGenForCoords(x, z).getFloatTemperature() <= maximumTemperature) {
             	return true;
             } else {
@@ -69,5 +60,10 @@ public class BlockPermafrost extends Block {
     		}
     	}
     	return false;
+    }
+    
+    public static boolean willMelt(World world, int x, int y, int z) {
+    	return world.getBlockLightValue(x, y + 1, z) > maximumLightLevel
+    		   && world.getBlockId(x, y + 1, z) != Block.snow.blockID;
     }
 }

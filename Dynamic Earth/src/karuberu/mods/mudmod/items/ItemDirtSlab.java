@@ -1,5 +1,6 @@
 package karuberu.mods.mudmod.items;
 
+import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.blocks.BlockGrassSlab;
@@ -8,7 +9,6 @@ import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -33,7 +33,7 @@ public class ItemDirtSlab extends ItemBlock {
 	
     @Override
     @SideOnly(Side.CLIENT)
-    public Icon getIconFromDamage(int damageValue) {
+    public int getIconFromDamage(int damageValue) {
         return Block.blocksList[this.itemID].getBlockTextureFromSideAndMetadata(MCHelper.SIDE_EAST, damageValue);
     }
 
@@ -43,28 +43,26 @@ public class ItemDirtSlab extends ItemBlock {
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack itemStack) {
+    public String getItemNameIS(ItemStack itemStack) {
         return this.singleSlab.getFullSlabName(itemStack.getItemDamage());
     }
 
     @Override
     public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
-        if (this.isDoubleSlab) {
+    	if (this.isDoubleSlab) {
             return super.onItemUse(itemStack, player, world, x, y, z, side, hitX, hitY, hitZ);
         } else if (itemStack.stackSize == 0 || !player.canPlayerEdit(x, y, z, side, itemStack)) {
             return false;
         } else {
-            int slabID = world.getBlockId(x, y, z);
-            int slabMetadata = world.getBlockMetadata(x, y, z);
-            int slabType = slabMetadata & 7;
-            boolean isTopSlab = (slabMetadata & 8) != 0;
-
+            int id = world.getBlockId(x, y, z);
+            int metadata = world.getBlockMetadata(x, y, z);
+            boolean isTopSlab = MCHelper.isTopSlab(metadata);
             if ((side == MCHelper.SIDE_TOP && !isTopSlab || side == MCHelper.SIDE_BOTTOM && isTopSlab)
-            && this.blockMatches(slabID, slabType)) {
+            && this.blockMatches(id, metadata)) {
                 if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
                 	if (this.tryFormDoubleSlab(itemStack, world, x, y, z, side)) {
 	                    world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
-	                    --itemStack.stackSize;
+	                    itemStack.stackSize--;
                 	}
                 }
                 return true;
@@ -74,7 +72,7 @@ public class ItemDirtSlab extends ItemBlock {
         }
     }
     
-    protected boolean blockMatches(int blockId, int slabType) {
+    protected boolean blockMatches(int blockId, int metadata) {
     	assert MudMod.dirtSlab != null;
     	assert MudMod.grassSlab != null;
     	
@@ -82,20 +80,20 @@ public class ItemDirtSlab extends ItemBlock {
     }
     
     protected boolean tryFormDoubleSlab(ItemStack itemStack, World world, int x, int y, int z, int side) {
-    	int slabMetadata = world.getBlockMetadata(x, y, z);
-        boolean isTopSlab = (slabMetadata & 8) != 0;
+    	int metadata = world.getBlockMetadata(x, y, z);
     	boolean blockPlaced = false;
-    	if (isTopSlab && world.getBlockId(x, y, z) == MudMod.grassSlab.blockID) {
-        	switch (slabMetadata & 7) {
+    	if (MCHelper.isTopSlab(metadata)
+    	&& world.getBlockId(x, y, z) == MudMod.grassSlab.blockID) {
+        	switch (MCHelper.getSlabMetadata(metadata)) {
         	case BlockGrassSlab.GRASS:
-        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.grass.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.grass.blockID, 0);
         		break;
         	case BlockGrassSlab.MYCELIUM:
-        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.mycelium.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.mycelium.blockID, 0);
         		break;
         	}
     	} else {
-    		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+    		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0);
     	}
     	return blockPlaced;
     }
@@ -103,16 +101,15 @@ public class ItemDirtSlab extends ItemBlock {
     @SideOnly(Side.CLIENT)
     @Override
     public boolean canPlaceItemBlockOnSide(World world, int x, int y, int z, int side, EntityPlayer player, ItemStack itemStack) {
-        int originalX = x;
+    	int originalX = x;
         int originalY = y;
         int originalZ = z;
-        int slabID = world.getBlockId(x, y, z);
-        int slabMetadata = world.getBlockMetadata(x, y, z);
-        int slabType = slabMetadata & 7;
-        boolean isTopSlab = (slabMetadata & 8) != 0;
+        int id = world.getBlockId(x, y, z);
+        int metadata = world.getBlockMetadata(x, y, z);
+        boolean isTopSlab = MCHelper.isTopSlab(metadata);
 
-        if ((side == 1 && !isTopSlab || side == 0 && isTopSlab)
-        && this.blockMatches(slabID, slabType)) {
+        if ((side == MCHelper.SIDE_TOP && !isTopSlab || side == MCHelper.SIDE_BOTTOM && isTopSlab)
+        && this.blockMatches(id, metadata)) {
             return true;
         } else {
         	switch (side) {
@@ -123,11 +120,9 @@ public class ItemDirtSlab extends ItemBlock {
         	case MCHelper.SIDE_NORTH: --x; break;
         	case MCHelper.SIDE_SOUTH: ++x; break;
             }
-            slabID = world.getBlockId(x, y, z);
-            slabMetadata = world.getBlockMetadata(x, y, z);
-            slabType = slabMetadata & 7;
-            isTopSlab = (slabMetadata & 8) != 0;
-            return this.blockMatches(slabID, slabType) ? true : super.canPlaceItemBlockOnSide(world, originalX, originalY, originalZ, side, player, itemStack);
+        	id = world.getBlockId(x, y, z);
+        	metadata = world.getBlockMetadata(x, y, z);
+            return this.blockMatches(id, metadata) ? true : super.canPlaceItemBlockOnSide(world, originalX, originalY, originalZ, side, player, itemStack);
         }
     }
 
@@ -140,11 +135,9 @@ public class ItemDirtSlab extends ItemBlock {
     	case MCHelper.SIDE_NORTH: --x; break;
     	case MCHelper.SIDE_SOUTH: ++x; break;
         }
-        int blockId = world.getBlockId(x, y, z);
+        int id = world.getBlockId(x, y, z);
         int metadata = world.getBlockMetadata(x, y, z);
-        int slabType = metadata & 7;
-
-        if (this.blockMatches(blockId, slabType)) {
+        if (this.blockMatches(id, metadata)) {
             if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
             	if (this.tryFormDoubleSlab(itemStack, world, x, y, z, side)) {
                     world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);

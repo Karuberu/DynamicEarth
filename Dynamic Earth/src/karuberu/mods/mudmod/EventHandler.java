@@ -2,17 +2,18 @@ package karuberu.mods.mudmod;
 
 import java.util.Random;
 
+import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.core.event.BlockUpdateEvent;
-import karuberu.core.event.INeighborBlockEventHandler;
-import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.mods.mudmod.blocks.BlockAdobe;
 import karuberu.mods.mudmod.blocks.BlockMud;
 import karuberu.mods.mudmod.blocks.BlockMudMod;
 import karuberu.mods.mudmod.blocks.BlockPeat;
 import karuberu.mods.mudmod.blocks.BlockPeatMoss;
 import karuberu.mods.mudmod.blocks.BlockPermafrost;
+import karuberu.mods.mudmod.entity.EntityBomb;
 import karuberu.mods.mudmod.entity.ai.EntityAIEatGrassSlab;
+import karuberu.mods.mudmod.items.ItemBombLit;
 import karuberu.mods.mudmod.world.WorldGenMudMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPumpkin;
@@ -32,7 +33,11 @@ import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import net.minecraftforge.event.terraingen.BiomeEvent;
+import net.minecraftforge.event.terraingen.ChunkProviderEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
+import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 
 public class EventHandler {
@@ -53,8 +58,25 @@ public class EventHandler {
 				&& itemStack.getItem() == MudMod.bombLit
 				&& itemStack.isItemDamaged()) {
 					itemTossEvent.setCanceled(true);
-					itemTossEvent.player.dropPlayerItem(new ItemStack(MudMod.bomb));
+					ItemStack droppedStack;
+					if (itemStack.hasTagCompound() && itemStack.getTagCompound().hasKey("Stack Size")) {
+						droppedStack = new ItemStack(MudMod.bomb, itemStack.getTagCompound().getByte("Stack Size") + 1);
+					} else {
+						droppedStack = new ItemStack(MudMod.bomb);
+					}
+					droppedStack.setTagCompound(itemStack.getTagCompound());
+					itemTossEvent.player.dropPlayerItem(droppedStack);
 				}
+			}
+		}
+	}
+	
+	@ForgeSubscribe
+	public void itemDestroyed(PlayerDestroyItemEvent destroyItemEvent) {
+		if (MudMod.includeBombs
+		&& destroyItemEvent.original.getItem() == MudMod.bombLit) {
+			if (!destroyItemEvent.entity.worldObj.isRemote) {
+				destroyItemEvent.entity.worldObj.spawnEntityInWorld(new EntityBomb(destroyItemEvent.entity.worldObj, destroyItemEvent.entityPlayer, destroyItemEvent.original));
 			}
 		}
 	}
@@ -122,39 +144,15 @@ public class EventHandler {
 		if (!MudMod.restoreDirtOnChunkLoad
 		&& blockID == Block.dirt.blockID) {
 			if (BlockMudMod.willBlockHydrate(world, x, y, z, 1, 0, 1, 1)) {
-				world.setBlockAndMetadataWithNotify(x, y, z, MudMod.mud.blockID, BlockMud.NORMAL, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				world.setBlockAndMetadataWithNotify(x, y, z, MudMod.mud.blockID, BlockMud.NORMAL);
 			} else if (MudMod.includePermafrost
 			&& BlockPermafrost.canForm(world, x, y, z)) {
 		    	int metadata = world.getBlockMetadata(x, y, z);
 				if (metadata >= 5) {
-					world.setBlockAndMetadataWithNotify(x, y, z, MudMod.permafrost.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+					world.setBlockAndMetadataWithNotify(x, y, z, MudMod.permafrost.blockID, 0);
 		    	} else {
-		    		world.setBlockMetadataWithNotify(x, y, z, metadata + 1, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+		    		world.setBlockMetadata(x, y, z, metadata + 1);
 		    	}
-			}
-		}
-	}
-	
-	@ForgeSubscribe
-	public void onNeighborBlockChange(NeighborBlockChangeEvent event) {
-		World world = event.world;
-		int x = event.x;
-		int y = event.y;
-		int z = event.z;
-		int neighborBlockID = event.neighborBlockID;
-		int side = event.side;
-		
-		Block block = Block.blocksList[world.getBlockId(x, y, z)];
-		if (block instanceof INeighborBlockEventHandler) {
-			((INeighborBlockEventHandler)block).handleNeighborBlockChangeEvent(event);
-		}
-		
-		int blockID = world.getBlockId(x, y, z);
-		if (MudMod.enableGrassBurning
-		&& (blockID == Block.grass.blockID)) {
-			Material material = world.getBlockMaterial(x, y + 1, z);
-			if (material == Material.fire || material == Material.lava) {
-				world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 			}
 		}
 	}
