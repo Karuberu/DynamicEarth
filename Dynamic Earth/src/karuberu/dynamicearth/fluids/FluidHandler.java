@@ -1,5 +1,6 @@
 package karuberu.dynamicearth.fluids;
 
+import karuberu.dynamicearth.DELogger;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 import karuberu.dynamicearth.items.ItemVase;
@@ -58,19 +59,41 @@ public class FluidHandler {
 		}
 	}
 	
-	public static void addVaseLiquid(Fluid liquid) {
-		String name = liquid.getName().toLowerCase();
-		if (name == null
-		|| ItemVase.blacklist.contains(name)
-		|| (((name.matches("(^|\\s)molten(\\s|$)") || name.matches("^lava(\\s|$)"))
-			&& !ItemVase.whitelist.contains(name))
-		)) {
+	public static void addVaseLiquid(Fluid fluid) {
+		String name = fluid.getName().toLowerCase();
+		if (name == null) {
 			return;
-		} else {
-			FluidStack FluidStack = new FluidStack(liquid, 1000);
-    		ItemStack itemStack = new ItemStack(DynamicEarth.vase, 1, ItemVase.getDamage(FluidStack));
-    		ItemVase.liquids.add(ItemVase.getDamage(FluidStack));
-    		FluidContainerRegistry.registerFluidContainer(new FluidContainerData(FluidStack, itemStack, new ItemStack(DynamicEarth.vase)));
 		}
+		if (!ItemVase.whitelist.contains(name)) {
+			if (ItemVase.blacklist.contains(name)) {
+				logSkippedFluid(name, "Blacklisted.");
+				return;
+			}
+			if (fluid.getTemperature() > ItemVase.maxTemperature) {
+				logSkippedFluid(name, "Too hot (" + fluid.getTemperature() + " Kelvin)");
+				return;
+			}
+			if (fluid.getTemperature() < ItemVase.minTemperature) {
+				logSkippedFluid(name, "Too cold (" + fluid.getTemperature() + " Kelvin)");
+				return;
+			}
+			if (name.matches("(^|\\s)molten(\\s|$)")) {
+				logSkippedFluid(name, "Name contained \"molten\"");
+				return;
+			}
+			if (name.matches("^lava(\\s|$)")) {
+				logSkippedFluid(name, "Name contained \"lava\"");
+				return;
+			}
+		}
+		FluidStack FluidStack = new FluidStack(fluid, 1000);
+		ItemStack itemStack = new ItemStack(DynamicEarth.vase, 1, ItemVase.getDamage(FluidStack));
+		ItemVase.liquids.add(ItemVase.getDamage(FluidStack));
+		FluidContainerRegistry.registerFluidContainer(new FluidContainerData(FluidStack, itemStack, new ItemStack(DynamicEarth.vase)));
+		DELogger.finer("Fluid \"" + name + "\" was added as a vase fluid.");
+	}
+	
+	private static void logSkippedFluid(String fluidName, String reason) {
+		DELogger.finer("Fluid \"" + fluidName + "\" could not be added as a vase fluid. Reason: " + reason);
 	}
 }

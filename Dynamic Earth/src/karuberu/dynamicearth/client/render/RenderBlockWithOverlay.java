@@ -1,7 +1,6 @@
 package karuberu.dynamicearth.client.render;
 
 import org.lwjgl.opengl.GL11;
-
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.client.ITextureOverlay;

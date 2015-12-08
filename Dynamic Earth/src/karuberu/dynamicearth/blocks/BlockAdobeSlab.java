@@ -42,12 +42,12 @@ public class BlockAdobeSlab extends BlockHalfSlab {
     @Override
     public Icon getIcon(int side, int metadata) {
         switch (MCHelper.getSlabMetadata(metadata)) {
-        case 0:
+        case ADOBE:
             return DynamicEarth.adobe.getBlockTextureFromSide(side);
-        case 1:
+        case MUDBRICK:
             return DynamicEarth.blockMudBrick.getBlockTextureFromSide(side);
         default:
-        	return super.getIcon(side, metadata);
+        	return DynamicEarth.adobe.getBlockTextureFromSide(side);
         }
     }
     

@@ -66,11 +66,13 @@ import cpw.mods.fml.common.registry.GameRegistry;
 	useMetadata=true,
 	modid = "DynamicEarth",
 	name = "Dynamic Earth",
-	version = "1.7.2",
+	version = "1.7.3",
 	dependencies = "required-after:Forge@[9.10.0.776,); " +
-		"required-after:KaruberuCore@[1.1.2, 1.1.3];" +
-		"after:Thaumcraft;" +
+		"required-after:KaruberuCore@[1.2.0];" +
+		"after:BiomesOPlenty;" +
 		"after:Forestry;" +
+		"after:IC2;" +
+		"after:Thaumcraft;" +
 		"after:ThermalExpansion",
 	acceptedMinecraftVersions = "[1.6.2, 1.6.4]"
 )
@@ -133,9 +135,9 @@ public class DynamicEarth {
 		BLOCKID_ADOBEWET			= BLOCKID_PERMAFROST+1,
 		BLOCKID_ADOBE				= BLOCKID_ADOBEWET+1,
 		BLOCKID_MUDBRICKBLOCK		= BLOCKID_ADOBE+1,
-		BLOCKID_ADOBEDOUBLESLAB		= BLOCKID_MUDBRICKBLOCK+1,
-		BLOCKID_ADOBESINGLESLAB		= BLOCKID_ADOBEDOUBLESLAB+1,
-		BLOCKID_ADOBESTAIRS			= BLOCKID_ADOBESINGLESLAB+1,
+		BLOCKID_ADOBESLAB			= BLOCKID_MUDBRICKBLOCK+1,
+		BLOCKID_ADOBEDOUBLESLAB		= BLOCKID_ADOBESLAB+1,
+		BLOCKID_ADOBESTAIRS			= BLOCKID_ADOBEDOUBLESLAB+1,
 		BLOCKID_MUDBRICKSTAIRS		= BLOCKID_ADOBESTAIRS+1,
 		BLOCKID_MUDBRICKWALL		= BLOCKID_MUDBRICKSTAIRS+1,
 		BLOCKID_DIRTSLAB			= BLOCKID_MUDBRICKWALL+1,
@@ -166,11 +168,12 @@ public class DynamicEarth {
 		ITEMID_PEATBRICK			= ITEMID_PEATCLUMP+1;
 	public static boolean
 		showSnowyBottomSlabs,
+		enableBottomSlabGrassKilling,
 		enableDeepMud,
 		enableDeepPeat,
 		enableGrassBurning,
-		enableMyceliumTilling,
 		enableMoreDestructiveMudslides,
+		enableMyceliumTilling,
 		useSimpleHydration,
 		includeAdobe,
 		includeBombs,
@@ -185,7 +188,7 @@ public class DynamicEarth {
 		useCustomCreativeTab;
 	
 	@EventHandler
-	public void loadConfiguration(FMLPreInitializationEvent event) {
+	public void preInitialization(FMLPreInitializationEvent event) {
 		ConfigurationManager.setConfigurationFile(new Configuration(event.getSuggestedConfigurationFile()));
 		ConfigurationManager.configAdjustments();
 		ConfigurationManager.configCrafting();
@@ -199,7 +202,7 @@ public class DynamicEarth {
 		BLOCKID_ADOBE			= ConfigurationManager.getBlockID("Adobe", BLOCKID_ADOBE);
 		BLOCKID_MUDBRICKBLOCK	= ConfigurationManager.getBlockID("MudBrick", BLOCKID_MUDBRICKBLOCK);
 		BLOCKID_ADOBEDOUBLESLAB	= ConfigurationManager.getBlockID("AdobeDoubleSlab", BLOCKID_ADOBEDOUBLESLAB);
-		BLOCKID_ADOBESINGLESLAB	= ConfigurationManager.getBlockID("AdobeSingleSlab", BLOCKID_ADOBESINGLESLAB);
+		BLOCKID_ADOBESLAB		= ConfigurationManager.getBlockID("AdobeSingleSlab", BLOCKID_ADOBESLAB);
 		BLOCKID_ADOBESTAIRS		= ConfigurationManager.getBlockID("AdobeStairs", BLOCKID_ADOBESTAIRS);
 		BLOCKID_MUDBRICKSTAIRS	= ConfigurationManager.getBlockID("MudBrickStairs", BLOCKID_MUDBRICKSTAIRS);
 		BLOCKID_MUDBRICKWALL	= ConfigurationManager.getBlockID("MudBrickWall", BLOCKID_MUDBRICKWALL);
@@ -212,8 +215,8 @@ public class DynamicEarth {
 		BLOCKID_FARMLAND		= ConfigurationManager.getBlockID("Farmland", BLOCKID_FARMLAND);
 		BLOCKID_FERTILESOIL		= ConfigurationManager.getBlockID("FertileSoil", BLOCKID_FERTILESOIL);
 		BLOCKID_SANDYSOIL		= ConfigurationManager.getBlockID("SandySoil", BLOCKID_SANDYSOIL);
-		BLOCKID_LIQUIDMILK		= ConfigurationManager.getItemID("LiquidMilk", BLOCKID_LIQUIDMILK);
-		BLOCKID_LIQUIDSOUP		= ConfigurationManager.getItemID("LiquidSoup", BLOCKID_LIQUIDSOUP);
+		BLOCKID_LIQUIDMILK		= ConfigurationManager.getBlockID("LiquidMilk", BLOCKID_LIQUIDMILK);
+		BLOCKID_LIQUIDSOUP		= ConfigurationManager.getBlockID("LiquidSoup", BLOCKID_LIQUIDSOUP);
 		ITEMID_DIRTCLOD			= ConfigurationManager.getItemID("DirtClod", ITEMID_DIRTCLOD);
 		ITEMID_MUDBLOB			= ConfigurationManager.getItemID("MudBlob", ITEMID_MUDBLOB);
 		ITEMID_MUDBRICK			= ConfigurationManager.getItemID("MudBrick", ITEMID_MUDBRICK);
@@ -249,6 +252,7 @@ public class DynamicEarth {
         CommonProxy.proxy.registerNames();
         CommonProxy.proxy.registerLocalizations();
         CommonProxy.proxy.registerRenderInformation();
+        ModHandler.integrateThermalExpansion();
     }
 	
 	@EventHandler
@@ -292,7 +296,7 @@ public class DynamicEarth {
 		    adobe = new BlockAdobe(BLOCKID_ADOBE);
 		    adobeWet = new BlockAdobeWet(BLOCKID_ADOBEWET);
 		    adobeDoubleSlab = (BlockHalfSlab) new BlockAdobeSlab(BLOCKID_ADOBEDOUBLESLAB, true);
-		    adobeSingleSlab = (BlockHalfSlab) new BlockAdobeSlab(BLOCKID_ADOBESINGLESLAB, false);    
+		    adobeSingleSlab = (BlockHalfSlab) new BlockAdobeSlab(BLOCKID_ADOBESLAB, false);    
 		    adobeStairs = (new BlockAdobeStairs(BLOCKID_ADOBESTAIRS, adobe, 0)).setUnlocalizedName("adobeStairs");
 		    liquidMilk = new BlockLiquid(BLOCKID_LIQUIDMILK, Material.water, BlockTexture.MILK).setUnlocalizedName("liquidMilk");
 		    liquidSoup = new BlockLiquid(BLOCKID_LIQUIDSOUP, Material.water, BlockTexture.SOUP).setUnlocalizedName("liquidSoup");

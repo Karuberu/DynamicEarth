@@ -42,7 +42,9 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 		PEAT_7 = PEAT_6 + 1;
 	private Icon
 		textureFarmlandDry,
-		textureFarmlandWet;
+		textureFarmlandWet,
+		texturePeatFarmlandDry,
+		texturePeatFarmlandWet;
 	private static ItemStack
 		dirt,
 		mud,
@@ -76,8 +78,10 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 	
 	@Override
 	public void registerIcons(IconRegister iconRegister) {
-		this.textureFarmlandDry = iconRegister.registerIcon(BlockTexture.PEATFARMLAND.getIconPath());
-		this.textureFarmlandWet = iconRegister.registerIcon(BlockTexture.PEATFARMLANDWET.getIconPath());
+		this.textureFarmlandDry = iconRegister.registerIcon("farmland_dry");
+		this.textureFarmlandWet = iconRegister.registerIcon("farmland_wet");
+		this.texturePeatFarmlandDry = iconRegister.registerIcon(BlockTexture.PEATFARMLAND.getIconPath());
+		this.texturePeatFarmlandWet = iconRegister.registerIcon(BlockTexture.PEATFARMLANDWET.getIconPath());
 	}
 
     @Override
@@ -86,9 +90,9 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
     	if (side == MCHelper.SIDE_TOP) {
     		switch (metadata) {
     		case SANDY_DRY:
-    		case SOIL_DRY: return Block.tilledField.getIcon(side, 0);
+    		case SOIL_DRY: return this.textureFarmlandDry;
     		case MUD:
-    		case SOIL_WET: return Block.tilledField.getIcon(side, 1);
+    		case SOIL_WET: return this.textureFarmlandWet;
     		case PEAT_1:
     		case PEAT_2:
     		case PEAT_3:
@@ -96,14 +100,14 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
     		case PEAT_5:
     		case PEAT_6:
     		case PEAT_7:
-    		case PEAT_WET: return this.textureFarmlandWet;
-    		case PEAT_DRY: return this.textureFarmlandDry;
+    		case PEAT_WET: return this.texturePeatFarmlandWet;
+    		case PEAT_DRY: return this.texturePeatFarmlandDry;
     		default: return Block.dirt.getBlockTextureFromSide(side);
     		}
     	} else {
     		ItemStack itemStack = BlockDynamicFarmland.getAssociatedBlock(metadata);
     		Block block = Block.blocksList[itemStack.itemID];
-    		return block == null ? Block.dirt.getIcon(side, metadata) : block.getIcon(side, itemStack.getItemDamage());
+    		return block == null ? Block.dirt.getIcon(side, 0) : block.getIcon(side, itemStack.getItemDamage());
     	}
     }
     

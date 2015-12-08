@@ -429,7 +429,7 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
 	}
 	
 	@Override
-	public int idDropped(int i, Random random, int j) {
+	public int idDropped(int metadata, Random random, int fortune) {
 		return DynamicEarth.mudBlob.itemID;
 	}
 	

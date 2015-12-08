@@ -241,12 +241,7 @@ public class BlockFertileSoil extends BlockDynamicEarth implements ITextureOverl
     
 	@Override
 	public boolean canSpread(World world, int x, int y, int z) {
-		EnumGrassType type = this.getType(world, x, y, z);
-		if ((type == EnumGrassType.GRASS || type == EnumGrassType.MYCELIUM)
-		&& world.getBlockLightValue(x, y + 1, z) >= 9) {
-			return true;
-		}
-		return false;
+		return IGrassyBlock.dirt.canSpread(world, x, y, z);
 	}
 	
 	@Override

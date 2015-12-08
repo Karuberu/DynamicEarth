@@ -59,7 +59,7 @@ public class ItemDirtSlab extends ItemBlock {
 			boolean isTopSlab = MCHelper.isTopSlab(metadata);
 			if ((side == MCHelper.SIDE_TOP && !isTopSlab || side == MCHelper.SIDE_BOTTOM && isTopSlab)
 					&& this.blockMatches(id, metadata)) {
-				if (world.checkBlockCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
+				if (world.checkNoEntityCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
 					if (this.tryFormDoubleSlab(itemStack, world, x, y, z, side)) {
 						world.playSoundEffect(x + 0.5F, y + 0.5F, z + 0.5F, this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
 						itemStack.stackSize--;
@@ -138,7 +138,7 @@ public class ItemDirtSlab extends ItemBlock {
 		int id = world.getBlockId(x, y, z);
 		int metadata = world.getBlockMetadata(x, y, z);
 		if (this.blockMatches(id, metadata)) {
-			if (world.checkBlockCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
+			if (world.checkNoEntityCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
 				if (this.tryFormDoubleSlab(itemStack, world, x, y, z, side)) {
 					world.playSoundEffect(x + 0.5F, y + 0.5F, z + 0.5F, this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
 					--itemStack.stackSize;

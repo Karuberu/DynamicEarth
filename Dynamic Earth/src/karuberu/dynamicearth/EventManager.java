@@ -6,7 +6,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import karuberu.core.MCHelper;
 import karuberu.core.event.BlockUpdateEvent;
 import karuberu.core.event.CanPlantStayEvent;
-import karuberu.core.event.INeighborBlockEventHandler;
 import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.dynamicearth.blocks.BlockMud;
 import karuberu.dynamicearth.blocks.BlockDynamicEarth;
@@ -20,6 +19,7 @@ import karuberu.dynamicearth.entity.ai.EntityAIEatGrassyBlock;
 import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 import karuberu.dynamicearth.items.ItemVase;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityCow;
@@ -171,34 +171,45 @@ public class EventManager {
 		int y = event.y;
 		int z = event.z;
 		
+		IGrassyBlock grassyBlock = null;
 		int blockId = world.getBlockId(x, y, z);
+		if (blockId == Block.grass.blockID
+		|| blockId == Block.mycelium.blockID
+		|| Block.blocksList[blockId] instanceof IGrassyBlock) {
+			if (blockId == Block.grass.blockID
+			|| blockId == Block.mycelium.blockID) {
+				grassyBlock = IGrassyBlock.dirt;
+			} else {
+				grassyBlock = (IGrassyBlock)Block.blocksList[blockId];
+			}
+		}
+		
+		if (DynamicEarth.enableBottomSlabGrassKilling
+		&& grassyBlock != null) {
+			if (Block.blocksList[world.getBlockId(x, y + 1, z)] instanceof BlockHalfSlab
+			&& MCHelper.isBottomSlab(world.getBlockMetadata(x, y + 1, z))) {
+				world.setBlock(x, y, z, grassyBlock.getBlockForType(world, x, y, z, EnumGrassType.DIRT).itemID);
+			}
+		}
+		
 		if (!DynamicEarth.restoreDirtOnChunkLoad
 		&& event.isRandomTick) {
 			if (blockId == Block.dirt.blockID) {
 				if (BlockDynamicEarth.willBlockHydrate(world, x, y, z, 1, 0, 1, 1)) {
 					world.setBlock(x, y, z, DynamicEarth.mud.blockID, BlockMud.NORMAL, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-				} else if (DynamicEarth.includePermafrost
-				&& BlockPermafrost.canForm(world, x, y, z)) {
-					int metadata = world.getBlockMetadata(x, y, z);
-					if (metadata >= 5) {
-						world.setBlock(x, y, z, DynamicEarth.permafrost.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-					} else {
-						world.setBlockMetadataWithNotify(x, y, z, metadata + 1, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
-					}
+				} else if (DynamicEarth.includePermafrost) {
+					BlockPermafrost.tryToForm(world, x, y, z);
 				}
-			} else if (blockId == Block.grass.blockID
-			|| blockId == Block.mycelium.blockID
-			|| Block.blocksList[blockId] instanceof IGrassyBlock) {
+			} else if (grassyBlock != null) {
 				if (!world.isRemote) {
-					IGrassyBlock block;
 					if (blockId == Block.grass.blockID
 					|| blockId == Block.mycelium.blockID) {
-						block = IGrassyBlock.dirt;
+						grassyBlock = IGrassyBlock.dirt;
 					} else {
-						block = (IGrassyBlock)Block.blocksList[blockId];
+						grassyBlock = (IGrassyBlock)Block.blocksList[blockId];
 					}
-					EnumGrassType type = block.getType(world, x, y, z);
-					if (block.canSpread(world, x, y, z)) {
+					EnumGrassType type = grassyBlock.getType(world, x, y, z);
+					if (grassyBlock.canSpread(world, x, y, z)) {
 						for (int i = 0; i < 4; ++i) {
 							int xi = x + world.rand.nextInt(3) - 1;
 							int yi = y + world.rand.nextInt(5) - 3;
@@ -229,15 +240,6 @@ public class EventManager {
 		int y = event.y;
 		int z = event.z;
 		
-		if (event.getResult() == Result.DEFAULT) {
-			Block block = Block.blocksList[world.getBlockId(x, y, z)];
-			if (block instanceof INeighborBlockEventHandler) {
-				((INeighborBlockEventHandler)block).handleNeighborBlockChangeEvent(event);
-				if (event.getResult() == Result.DEFAULT) {
-					event.setResult(Result.ALLOW);
-				}
-			}
-		}
 		if (event.getResult() != Result.DENY) {
 			int blockID = world.getBlockId(x, y, z);
 			if (DynamicEarth.enableGrassBurning) {
@@ -268,9 +270,11 @@ public class EventManager {
 		int z = event.z;
 		boolean tilled = false;
 		Block block = Block.blocksList[world.getBlockId(x, y, z)];
-		if (block != null) {
+		if (block != null
+		&& world.isAirBlock(x, y + 1, z)) {
 			if (DynamicEarth.enableMyceliumTilling
 			&& block.blockID == Block.mycelium.blockID) {
+				world.setBlock(x, y, z, Block.tilledField.blockID);
 				tilled = true;
 			} else if (block instanceof ITillable
 			&& ((ITillable)block).onTilled(world, x, y, z)) {
@@ -279,7 +283,10 @@ public class EventManager {
 			if (tilled) {
 				event.entityPlayer.swingItem();
 				event.current.attemptDamageItem(1, world.rand);
-				world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), block.stepSound.getStepSound(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
+				block = Block.blocksList[world.getBlockId(x, y, z)];
+				if (block != null) {
+					world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), block.stepSound.getStepSound(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
+				}
 			}
 		}
 	}

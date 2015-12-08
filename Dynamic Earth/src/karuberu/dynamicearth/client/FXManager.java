@@ -3,7 +3,6 @@ package karuberu.dynamicearth.client;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemPotion;
-import net.minecraft.src.ModLoader;
 import net.minecraft.world.World;
 
 public class FXManager {
@@ -18,7 +17,7 @@ public class FXManager {
 	        if (isSplash) {
 	            particleName = "iconcrack_" + Item.potion.itemID;
 	            for (int i = 0; i < 8; ++i) {
-	            	ModLoader.getMinecraftInstance().renderGlobal.spawnParticle(particleName, posX, posY, posZ, world.rand.nextGaussian() * 0.15D, world.rand.nextDouble() * 0.2D, world.rand.nextGaussian() * 0.15D);
+	            	ClientProxy.proxy.getMinecraftClient().renderGlobal.spawnParticle(particleName, posX, posY, posZ, world.rand.nextGaussian() * 0.15D, world.rand.nextDouble() * 0.2D, world.rand.nextGaussian() * 0.15D);
 	            }
 	        }
             
@@ -36,7 +35,7 @@ public class FXManager {
 	            double velocityX = Math.cos(d1) * d0;
 	            double velocityY = 0.01D + world.rand.nextDouble() * 0.5D;
 	            double velocityZ = Math.sin(d1) * d0;
-	            EntityFX entityfx = ModLoader.getMinecraftInstance().renderGlobal.doSpawnParticle(particleName, posX + velocityX * 0.1D, posY + 0.3D, posZ + velocityZ * 0.1D, velocityX, velocityY, velocityZ);
+	            EntityFX entityfx = ClientProxy.proxy.getMinecraftClient().renderGlobal.doSpawnParticle(particleName, posX + velocityX * 0.1D, posY + 0.3D, posZ + velocityZ * 0.1D, velocityX, velocityY, velocityZ);
 	            if (entityfx != null) {
 	                float colorRand = 0.75F + world.rand.nextFloat() * 0.25F;
 	                entityfx.setRBGColorF(r * colorRand, g * colorRand, b * colorRand);
@@ -44,7 +43,7 @@ public class FXManager {
 	            }
 	        }
 	        if (isSplash) {
-	        	ModLoader.getMinecraftInstance().renderGlobal.theWorld.playSound(posX + 0.5D, posY + 0.5D, posZ + 0.5D, "random.glass", 1.0F, world.rand.nextFloat() * 0.1F + 0.9F, false);
+	        	ClientProxy.proxy.getMinecraftClient().renderGlobal.theWorld.playSound(posX + 0.5D, posY + 0.5D, posZ + 0.5D, "random.glass", 1.0F, world.rand.nextFloat() * 0.1F + 0.9F, false);
 	        }
 		}
 	}

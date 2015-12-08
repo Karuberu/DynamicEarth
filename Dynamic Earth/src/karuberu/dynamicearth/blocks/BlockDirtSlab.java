@@ -51,8 +51,10 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
     @Override
     public Icon getIcon(int side, int metadata) {
         switch (MCHelper.getSlabMetadata(metadata)) {
-        case DIRT: return Block.dirt.getBlockTextureFromSide(side);
-        default: return super.getIcon(side, metadata);
+        case DIRT:
+        	return Block.dirt.getBlockTextureFromSide(side);
+        default:
+        	return Block.dirt.getBlockTextureFromSide(side);
         }
     }
     

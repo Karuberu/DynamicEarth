@@ -3,9 +3,12 @@ package karuberu.dynamicearth.items.crafting;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.ModHandler;
 import karuberu.dynamicearth.blocks.BlockAdobeSlab;
+import karuberu.dynamicearth.blocks.BlockDirtSlab;
 import karuberu.dynamicearth.blocks.BlockFertileSoil;
+import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import karuberu.dynamicearth.blocks.BlockMud;
 import karuberu.dynamicearth.blocks.BlockPeat;
+import karuberu.dynamicearth.blocks.BlockPermafrost;
 import karuberu.dynamicearth.blocks.BlockSandySoil;
 import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 
@@ -13,6 +16,9 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public final class RecipeManager {
@@ -101,26 +107,30 @@ public final class RecipeManager {
 	
 	private static void addAdobeRecipes() {
 	    GameRegistry.addRecipe(
-        	new ItemStack(DynamicEarth.adobeWet, 2),
-        	new Object[] {
-	            "#X#",
-	            "XCX",
-	            "#X#",
-	            '#', DynamicEarth.mudBlob,
-	            'X', Item.wheat,
-	            'C', Item.clay
-	        }
+	    	new ShapedOreRecipe(
+	        	new ItemStack(DynamicEarth.adobeWet, 2),
+	        	new Object[] {
+		            "#X#",
+		            "XCX",
+		            "#X#",
+		            '#', "mudBlob",
+		            'X', Item.wheat,
+		            'C', Item.clay
+		        }
+			)
         );
 	    GameRegistry.addRecipe(
-        	new ItemStack(DynamicEarth.adobeWet, 2),
-        	new Object[] {
-	            "#X#",
-	            "XCX",
-	            "#X#",
-	            '#', DynamicEarth.mudBlob,
-	            'X', Item.reed,
-	            'C', Item.clay
-	        }
+	    	new ShapedOreRecipe(
+		    	new ItemStack(DynamicEarth.adobeWet, 2),
+		    	new Object[] {
+		            "#X#",
+		            "XCX",
+		            "#X#",
+		            '#', "mudBlob",
+		            'X', Item.reed,
+		            'C', Item.clay
+		        }
+		    )
         );
 	    GameRegistry.addRecipe(
         	new ItemStack(DynamicEarth.adobeBlob, 4),
@@ -385,7 +395,7 @@ public final class RecipeManager {
 	    }
 	}
 	
-	public static void addForestryRecipes() {
+	public static void addForestryRecipes() throws NoClassDefFoundError, NoSuchMethodError {
 		if (DynamicEarth.includePeat
 		&& !ModHandler.useForestryPeat
 		&& forestry.api.core.ItemInterface.getItem("bituminousPeat") != null) {
@@ -520,80 +530,130 @@ public final class RecipeManager {
 				);
 			}
 	    }
-//	    if (forestry.api.recipes.RecipeManagers.moistenerManager != null) {
-//	    	if (MudMod.includeDirtSlabs) {
-//			    forestry.api.recipes.RecipeManagers.moistenerManager.addRecipe(
-//			    	new ItemStack(MudMod.dirtSlab),
-//			    	new ItemStack(MudMod.grassSlab, 1, BlockGrassSlab.MYCELIUM),
-//			    	5000
-//			    );
-//	    	}
-//	    	if (MudMod.includePeat) {
-//			    forestry.api.recipes.RecipeManagers.moistenerManager.addRecipe(
-//			    	new ItemStack(MudMod.peatMossSpecimen),
-//			    	new ItemStack(MudMod.peatMossSpecimen, 2),
-//			    	3000
-//			    );
-//	    	}
-//	    	if (MudMod.includeFertileSoil) {
-//			    forestry.api.recipes.RecipeManagers.moistenerManager.addRecipe(
-//			    	new ItemStack(MudMod.fertileSoil, 1, BlockFertileSoil.SOIL),
-//			    	new ItemStack(MudMod.fertileSoil, 1, BlockFertileSoil.MYCELIUM),
-//			    	5000
-//			    );
-//	    	}
-//	    	if (MudMod.includeSandySoil) {
-//			    forestry.api.recipes.RecipeManagers.moistenerManager.addRecipe(
-//			    	new ItemStack(MudMod.sandySoil, 1, BlockSandySoil.DIRT),
-//			    	new ItemStack(MudMod.sandySoil, 1, BlockSandySoil.MYCELIUM),
-//			    	5000
-//			    );
-//	    	}
-//	    }
+	    if (forestry.api.recipes.RecipeManagers.moistenerManager != null) {
+	    	if (DynamicEarth.includeDirtSlabs) {
+			    forestry.api.recipes.RecipeManagers.moistenerManager.addRecipe(
+			    	new ItemStack(DynamicEarth.dirtSlab),
+			    	new ItemStack(DynamicEarth.grassSlab, 1, BlockGrassSlab.MYCELIUM),
+			    	5000
+			    );
+	    	}
+	    	if (DynamicEarth.includeFertileSoil) {
+			    forestry.api.recipes.RecipeManagers.moistenerManager.addRecipe(
+			    	new ItemStack(DynamicEarth.fertileSoil, 1, BlockFertileSoil.SOIL),
+			    	new ItemStack(DynamicEarth.fertileSoil, 1, BlockFertileSoil.MYCELIUM),
+			    	5000
+			    );
+	    	}
+	    	if (DynamicEarth.includeSandySoil) {
+			    forestry.api.recipes.RecipeManagers.moistenerManager.addRecipe(
+			    	new ItemStack(DynamicEarth.sandySoil, 1, BlockSandySoil.DIRT),
+			    	new ItemStack(DynamicEarth.sandySoil, 1, BlockSandySoil.MYCELIUM),
+			    	5000
+			    );
+	    	}
+	    }
 	}
-
+	
 	public static void addThermalExpansionRecipes() {
-		if (thermalexpansion.api.crafting.CraftingManagers.pulverizerManager != null) {
-			if (DynamicEarth.includePeat) {
-				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
-					320,
-					new ItemStack(Block.cobblestoneMossy),
-					new ItemStack(Block.sand),
-					new ItemStack(DynamicEarth.peatMossSpecimen),
-					5
-				);
-			}
-			if (DynamicEarth.includeAdobe) {
-				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
-					320,
-					new ItemStack(DynamicEarth.adobe),
-					new ItemStack(DynamicEarth.adobeDust, 4)
-				);
-				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
-					160,
-					new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.ADOBE),
-					new ItemStack(DynamicEarth.adobeDust, 2)
-				);
-				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
-					320,
-					new ItemStack(DynamicEarth.adobeStairs),
-					new ItemStack(DynamicEarth.adobeDust, 4)
-				);
-				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
-					80,
-					new ItemStack(DynamicEarth.earthbowl),
-					new ItemStack(DynamicEarth.adobeDust, 3)
-				);
-				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
-					160,
-					new ItemStack(DynamicEarth.vase),
-					new ItemStack(DynamicEarth.adobeDust, 5)
-				);
-			}
+		if (DynamicEarth.includePeat) {
+			RecipeManager.addPulverizerRecipe(
+				350,
+				new ItemStack(Block.cobblestoneMossy),
+				new ItemStack(Block.sand),
+				new ItemStack(DynamicEarth.peatMossSpecimen),
+				5
+			);
+		}
+		if (DynamicEarth.includeAdobe) {
+			RecipeManager.addPulverizerRecipe(
+				320,
+				new ItemStack(DynamicEarth.adobe),
+				new ItemStack(DynamicEarth.adobeDust, 4)
+			);
+			RecipeManager.addPulverizerRecipe(
+				160,
+				new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.ADOBE),
+				new ItemStack(DynamicEarth.adobeDust, 2)
+			);
+			RecipeManager.addPulverizerRecipe(
+				320,
+				new ItemStack(DynamicEarth.adobeStairs),
+				new ItemStack(DynamicEarth.adobeDust, 4)
+			);
+			RecipeManager.addPulverizerRecipe(
+				80,
+				new ItemStack(DynamicEarth.earthbowl),
+				new ItemStack(DynamicEarth.adobeDust, 3)
+			);
+			RecipeManager.addPulverizerRecipe(
+				160,
+				new ItemStack(DynamicEarth.vase),
+				new ItemStack(DynamicEarth.adobeDust, 5)
+			);
 		}
 	}
 	
-	public static void addRailcraftRecipes() {
+	private static void addPulverizerRecipe(int energy, ItemStack inputStack, ItemStack outputStack) {
+		RecipeManager.addPulverizerRecipe(energy, inputStack, outputStack, null, 0);		
+	}
+
+	private static void addPulverizerRecipe(int energy, ItemStack input, ItemStack output, ItemStack bonus, int chance) {
+		NBTTagCompound comm = new NBTTagCompound();
+		comm.setCompoundTag("input", input.writeToNBT(new NBTTagCompound()));
+		comm.setCompoundTag("primaryOutput", output.writeToNBT(new NBTTagCompound()));
+		comm.setInteger("energy", energy);
+		if (chance > 0) {
+			comm.setInteger("secondaryChance", chance);
+		}
+		if (bonus != null) {
+			comm.setCompoundTag("secondaryOutput", bonus.writeToNBT(new NBTTagCompound()));			
+		}
+		FMLInterModComms.sendMessage("ThermalExpansion", "PulverizerRecipe", comm);
+	}
+
+//	public static void addThermalExpansionRecipes() throws NoClassDefFoundError, NoSuchMethodError {
+//		if (thermalexpansion.api.crafting.CraftingManagers.pulverizerManager != null) {
+//			if (DynamicEarth.includePeat) {
+//				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+//					320,
+//					new ItemStack(Block.cobblestoneMossy),
+//					new ItemStack(Block.sand),
+//					new ItemStack(DynamicEarth.peatMossSpecimen),
+//					5
+//				);
+//			}
+//			if (DynamicEarth.includeAdobe) {
+//				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+//					320,
+//					new ItemStack(DynamicEarth.adobe),
+//					new ItemStack(DynamicEarth.adobeDust, 4)
+//				);
+//				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+//					160,
+//					new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.ADOBE),
+//					new ItemStack(DynamicEarth.adobeDust, 2)
+//				);
+//				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+//					320,
+//					new ItemStack(DynamicEarth.adobeStairs),
+//					new ItemStack(DynamicEarth.adobeDust, 4)
+//				);
+//				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+//					80,
+//					new ItemStack(DynamicEarth.earthbowl),
+//					new ItemStack(DynamicEarth.adobeDust, 3)
+//				);
+//				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+//					160,
+//					new ItemStack(DynamicEarth.vase),
+//					new ItemStack(DynamicEarth.adobeDust, 5)
+//				);
+//			}
+//		}
+//	}
+	
+	public static void addRailcraftRecipes() throws NoClassDefFoundError, NoSuchMethodError {
 		if (mods.railcraft.api.crafting.RailcraftCraftingManager.rockCrusher != null) {
 			if (DynamicEarth.includePeat) {
 				mods.railcraft.api.crafting.IRockCrusherRecipe mossyCobblestoneRecipe = mods.railcraft.api.crafting.RailcraftCraftingManager.rockCrusher.createNewRecipe(
@@ -616,64 +676,130 @@ public final class RecipeManager {
 		}
 	}
 	
-	public static void addIndustrialCraftRecipes() {
+	public static void addIndustrialCraftRecipes() throws NoClassDefFoundError, NoSuchMethodError {
 		if (ic2.api.recipe.Recipes.macerator != null) {
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(Block.dirt, 1, 0)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 4)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(Block.grass, 1, 0)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 4)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(Block.mycelium, 1, 0)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 4)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.permafrost, 1, BlockPermafrost.META_PERMAFROST)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 4)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.dirtSlab, 1, BlockDirtSlab.DIRT)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 2)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.grassSlab, 1, BlockGrassSlab.GRASS)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 2)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.grassSlab, 1, BlockGrassSlab.MYCELIUM)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 2)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.mudBrick)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 1)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.blockMudBrick)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 4)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.MUDBRICK)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 2)
+			);
+			ic2.api.recipe.Recipes.macerator.addRecipe(
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.mudBrickStairs)),
+				null,
+				new ItemStack(DynamicEarth.dirtClod, 4)
+			);
 			if (DynamicEarth.includeAdobe) {
 				ic2.api.recipe.Recipes.macerator.addRecipe(
-					new ItemStack(DynamicEarth.adobe),
+					new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.adobe)),
+					null,
 					new ItemStack(DynamicEarth.adobeDust, 4)
 				);
 				ic2.api.recipe.Recipes.macerator.addRecipe(
-					new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.ADOBE),
+					new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.ADOBE)),
+					null,
 					new ItemStack(DynamicEarth.adobeDust, 2)
 				);
 				ic2.api.recipe.Recipes.macerator.addRecipe(
-					new ItemStack(DynamicEarth.adobeStairs),
+					new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.adobeStairs)),
+					null,
 					new ItemStack(DynamicEarth.adobeDust, 4)
 				);
 				ic2.api.recipe.Recipes.macerator.addRecipe(
-					new ItemStack(DynamicEarth.earthbowl),
+					new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.earthbowl)),
+					null,
 					new ItemStack(DynamicEarth.adobeDust, 3)
 				);
 				ic2.api.recipe.Recipes.macerator.addRecipe(
-					new ItemStack(DynamicEarth.vase),
+					new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.vase, 1, 0)),
+					null,
 					new ItemStack(DynamicEarth.adobeDust, 5)
 				);
 			}
 		}
 		if (ic2.api.recipe.Recipes.compressor != null) {
 			ic2.api.recipe.Recipes.compressor.addRecipe(
-				new ItemStack(DynamicEarth.dirtClod, 4),
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.dirtClod, 4)),
+				null,
 				new ItemStack(Block.dirt)
 			);
 			ic2.api.recipe.Recipes.compressor.addRecipe(
-				new ItemStack(DynamicEarth.mudBlob, 4),
+				new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.mudBlob, 4)),
+				null,
 				new ItemStack(DynamicEarth.mud.blockID, 1, BlockMud.NORMAL)
 			);
 			if (DynamicEarth.includeAdobe) {
 				ic2.api.recipe.Recipes.compressor.addRecipe(
-					new ItemStack(DynamicEarth.adobeBlob, 4),
+					new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.adobeBlob, 4)),
+					null,
 					new ItemStack(DynamicEarth.adobe)
 				);
 				ic2.api.recipe.Recipes.compressor.addRecipe(
-					new ItemStack(DynamicEarth.earthbowlRaw),
-					new ItemStack(DynamicEarth.adobeDust, 3)
+					new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.earthbowlRaw)),
+					null,
+					new ItemStack(DynamicEarth.adobeBlob, 3)
 				);
 				ic2.api.recipe.Recipes.compressor.addRecipe(
-					new ItemStack(DynamicEarth.vaseRaw),
-					new ItemStack(DynamicEarth.adobeDust, 5)
+					new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.vaseRaw)),
+					null,
+					new ItemStack(DynamicEarth.adobeBlob, 5)
 				);
 			}
 			if (DynamicEarth.includePeat) {
 				ic2.api.recipe.Recipes.compressor.addRecipe(
-					new ItemStack(DynamicEarth.peatClump),
+					new ic2.api.recipe.RecipeInputItemStack(new ItemStack(DynamicEarth.peatClump)),
+					null,
 					ModHandler.getPeatBrick()
 				);
 			}
 		}
 		if (ic2.api.recipe.Recipes.scrapboxDrops != null) {
 			if (DynamicEarth.includePeat) {
-				ic2.api.recipe.Recipes.scrapboxDrops.addRecipe(
+				ic2.api.recipe.Recipes.scrapboxDrops.addDrop(
 					new ItemStack(DynamicEarth.peatMossSpecimen), 0.2F
 				);
 			}

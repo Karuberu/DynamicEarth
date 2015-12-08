@@ -21,15 +21,15 @@ public class FluidHelper {
 		WATER("water", "7690DA", 0),
 		MILK("milk", "FEFEFE"),
 		SOUP("soup", "CC9978"),
-		REDSTONE("redstone", "C40000", 7),
-		ENDER("ender", "105E51", 3),
-		GLOWSTONE("glowstone", "FECB03", 7),
+		REDSTONE("redstone", "C40000"),
+		ENDER("ender", "105E51"),
+		GLOWSTONE("glowstone", "FECB03"),
 		CREOSOTE("creosote", "676311"),
 		STEAM("steam", "828282", 15),
 		OIL("oil", "202020", 0),
 		FUEL("fuel", "C1B920", 0),
 		BIOMASS("biomass", "29B000"),
-		ETHANOL("ethanol", "FF7100"),
+		ETHANOL("bioethanol", "FF7100"),
 		SEEDOIL("seedoil", "FFFFA7"),
 		HONEY("honey", "FFD801"),
 		JUICE("juice", "3BC900"),
@@ -105,7 +105,7 @@ public class FluidHelper {
 		}
 	}
 	public static final int
-		UNDEFINED = -1,
+		UNDEFINED_COLOR = 0xFFFFFF,
 		BUCKET_VOLUME = FluidContainerRegistry.BUCKET_VOLUME,
 		BOWL_VOLUME = 250,
 		BOTTLE_VOLUME = 250;
@@ -115,20 +115,22 @@ public class FluidHelper {
 	private static Hashtable<String, Integer>
 		colorTable = new Hashtable<String, Integer>();
 
-	public static int getFluidColor(FluidStack fluidStack) {
-		if (fluidStack != null) {
-			Fluid fluid = fluidStack.getFluid();
-			String fluidName = fluid.getName().toLowerCase();
-			if (colorTable.containsKey(fluidName)) {
-				return colorTable.get(fluidName);
-			} else {
-				int fluidColor = fluid.getColor();
-				if (fluidColor != 0xFFFFFF) {
-					return fluidColor;			
-				}
-			}
+	public static int getFluidColor(Fluid fluid) {
+		if (fluid == null) {
+			return UNDEFINED_COLOR;
 		}
-		return UNDEFINED;
+		String fluidName = fluid.getName().toLowerCase();
+		if (colorTable.containsKey(fluidName)) {
+			return colorTable.get(fluidName);
+		} else {
+			return fluid.getColor();
+		}
+	}
+	public static int getFluidColor(FluidStack fluidStack) {
+		if (fluidStack == null) {
+			return UNDEFINED_COLOR;
+		}
+		return FluidHelper.getFluidColor(fluidStack.getFluid());
 	}
 	
 	public static void setColorList(String[] colorList) {

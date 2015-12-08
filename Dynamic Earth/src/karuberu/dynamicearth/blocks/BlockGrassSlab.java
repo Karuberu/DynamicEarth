@@ -58,86 +58,7 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
 		this.textureSnowySide = iconRegister.registerIcon(BlockTexture.GRASSSLABSNOWY.getIconPath());
 		this.textureOverlayGrassSide = iconRegister.registerIcon(BlockTexture.GRASSSLABOVERLAY.getIconPath());
 	}
-	
-    @Override
-    public void onBlockAdded(World world, int x, int y, int z) {
-    	if (this.isOpaqueCube()) {
-    		int metadata = world.getBlockMetadata(x, y, z);
-    		switch (MCHelper.getSlabMetadata(metadata)) {
-    		case GRASS:
-    			world.setBlock(x, y, z, Block.grass.blockID, 0, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
-    			break;
-    		case MYCELIUM:
-    			world.setBlock(x, y, z, Block.mycelium.blockID, 0, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
-    			break;
-    		}
-    	}
-    }
-
-    @Override
-	public void updateTick(World world, int x, int y, int z, Random random) {
-		if (world.getBlockLightValue(x, y + 1, z) < 4
-    	&& world.getBlockLightOpacity(x, y + 1, z) > 2) {
-    		int metadata = world.getBlockMetadata(x, y, z);
-            world.setBlock(x, y, z, DynamicEarth.dirtSlab.blockID, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT), MCHelper.NOTIFY_WITHOUT_UPDATE);
-		}
-    }
-	
-	@Override
-	public boolean canSpread(World world, int x, int y, int z) {
-		EnumGrassType type = this.getType(world, x, y, z);
-		if ((type == EnumGrassType.GRASS || type == EnumGrassType.MYCELIUM)
-		&& world.getBlockLightValue(x, y + 1, z) >= 9) {
-			return true;
-		}
-		return false;
-	}
-	
-	@Override
-	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {}
-
-	@Override
-	public EnumGrassType getType(World world, int x, int y, int z) {
-		int metadata = world.getBlockMetadata(x, y, z);
-        switch (MCHelper.getSlabMetadata(metadata)) {
-    	case GRASS:
-    		return EnumGrassType.GRASS;
-    	case MYCELIUM:
-    		return EnumGrassType.MYCELIUM;
-    	default:
-    		return EnumGrassType.DIRT;
-        }
-	}
-	
-	@Override
-	public ItemStack getBlockForType(World world, int x, int y, int z, EnumGrassType type) {
-		return ((IGrassyBlock)DynamicEarth.dirtSlab).getBlockForType(world, x, y, z, type);
-	}
-	
-	@Override
-	public boolean willForcePlantToStay(World world, int x, int y, int z, IPlantable plant) {
-		int metadata = world.getBlockMetadata(x, y, z);
-		if (MCHelper.isTopSlab(metadata)) {
-			switch (MCHelper.getSlabMetadata(metadata)) {
-			case MYCELIUM:
-				if (plant.getPlantType(world, x, y + 1, z) == EnumPlantType.Cave) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	public boolean isLightSufficient(World world, int x, int y, int z) {
-		return world.getBlockLightValue(x, y + 1, z) >= 4
-        && world.getBlockLightOpacity(x, y + 1, z) <= 2;
-	}
-	
-	@Override
-	public boolean canSustainPlant(World world, int x, int y, int z, ForgeDirection direction, IPlantable plant) {
-		return DynamicEarth.dirtSlab.canSustainPlant(world, x, y, z, direction, plant);
-	}
-	    
+		    
     @Override
     public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
     	int metadata = blockAccess.getBlockMetadata(x, y, z);
@@ -178,7 +99,7 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
     		default: return this.textureMyceliumSide;
     		}
         }
-        return super.getIcon(side, metadata);
+        return Block.grass.getBlockTextureFromSide(side);
     }
     
     private boolean isSnowAdjacent(IBlockAccess blockAccess, int x, int y, int z) {
@@ -334,17 +255,91 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
     }
     
     @Override
+    public void onBlockAdded(World world, int x, int y, int z) {
+    	if (this.isOpaqueCube()) {
+    		int metadata = world.getBlockMetadata(x, y, z);
+    		switch (MCHelper.getSlabMetadata(metadata)) {
+    		case GRASS:
+    			world.setBlock(x, y, z, Block.grass.blockID, 0, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
+    			break;
+    		case MYCELIUM:
+    			world.setBlock(x, y, z, Block.mycelium.blockID, 0, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
+    			break;
+    		}
+    	}
+    }
+
+    @Override
+	public void updateTick(World world, int x, int y, int z, Random random) {
+		if (world.getBlockLightValue(x, y + 1, z) < 4
+    	&& world.getBlockLightOpacity(x, y + 1, z) > 2) {
+    		int metadata = world.getBlockMetadata(x, y, z);
+            world.setBlock(x, y, z, DynamicEarth.dirtSlab.blockID, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT), MCHelper.NOTIFY_WITHOUT_UPDATE);
+		}
+    }
+	
+	@Override
+	public boolean canSpread(World world, int x, int y, int z) {
+		return IGrassyBlock.dirt.canSpread(world, x, y, z);
+	}
+	
+	@Override
+	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {}
+
+	@Override
+	public EnumGrassType getType(World world, int x, int y, int z) {
+		int metadata = world.getBlockMetadata(x, y, z);
+        switch (MCHelper.getSlabMetadata(metadata)) {
+    	case GRASS:
+    		return EnumGrassType.GRASS;
+    	case MYCELIUM:
+    		return EnumGrassType.MYCELIUM;
+    	default:
+    		return EnumGrassType.DIRT;
+        }
+	}
+	
+	@Override
+	public ItemStack getBlockForType(World world, int x, int y, int z, EnumGrassType type) {
+		return ((IGrassyBlock)DynamicEarth.dirtSlab).getBlockForType(world, x, y, z, type);
+	}
+	
+	@Override
+	public boolean willForcePlantToStay(World world, int x, int y, int z, IPlantable plant) {
+		int metadata = world.getBlockMetadata(x, y, z);
+		if (MCHelper.isTopSlab(metadata)) {
+			switch (MCHelper.getSlabMetadata(metadata)) {
+			case MYCELIUM:
+				if (plant.getPlantType(world, x, y + 1, z) == EnumPlantType.Cave) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean isLightSufficient(World world, int x, int y, int z) {
+		return world.getBlockLightValue(x, y + 1, z) >= 4
+        && world.getBlockLightOpacity(x, y + 1, z) <= 2;
+	}
+	
+	@Override
+	public boolean canSustainPlant(World world, int x, int y, int z, ForgeDirection direction, IPlantable plant) {
+		return DynamicEarth.dirtSlab.canSustainPlant(world, x, y, z, direction, plant);
+	}
+    
+    @Override
     public boolean canSilkHarvest(World par1World, EntityPlayer par2EntityPlayer, int par3, int par4, int par5, int par6) {
     	return true;
     }
     
     @Override
-    public int idDropped(int par1, Random par2Random, int par3) {
+    public int idDropped(int metadata, Random par2Random, int fortune) {
     	return DynamicEarth.dirtSlab.blockID;
     }
     
     @Override
-    public int damageDropped(int par1) {
+    public int damageDropped(int metadata) {
         return BlockDirtSlab.DIRT;
     }
     

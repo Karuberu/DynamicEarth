@@ -59,12 +59,13 @@ public interface IGrassyBlock {
     /**
      * Implementation of IGrassyBlock for vanilla dirt, grass, and mycelium.
      */
-    public static IGrassyBlock dirt = new IGrassyBlock() {
+    public static final IGrassyBlock dirt = new IGrassyBlock() {
     	@Override
     	public boolean canSpread(World world, int x, int y, int z) {
     		EnumGrassType type = this.getType(world, x, y, z);
     		if ((type == EnumGrassType.GRASS || type == EnumGrassType.MYCELIUM)
-    		&& world.getBlockLightValue(x, y + 1, z) >= 9) {
+    		&& world.getBlockLightValue(x, y + 1, z) >= 9
+    		&& world.getBlockLightOpacity(x, y + 1, z) <= 2) {
     			return true;
     		}
     		return false;

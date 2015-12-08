@@ -56,6 +56,13 @@ public class ConfigurationManager {
 			true,
 			"When this setting is enabled, walking in hydrated peat will slow entities."
 		);
+		DynamicEarth.enableBottomSlabGrassKilling = ConfigurationManager.get(
+			"Features",
+			"enableBottomSlabGrassKilling",
+			true,
+			"When this setting is enabled, grass blocks will become dirt blocks if they" +
+			"are covered by a bottom-oriented half-slab as if it were a full block."
+		);
 		DynamicEarth.enableGrassBurning = ConfigurationManager.get(
 			"Features",
 			"enableGrassBurning",
@@ -196,14 +203,14 @@ public class ConfigurationManager {
 		ItemVase.blacklist = Arrays.asList(ConfigurationManager.get(
 			"Adjustments", 
 			"vaseBlacklist", 
-			new String[] {""}, 
+			new String[] {}, 
 			"Used to ban liquids from being contained in the vase. Entries should be " +
 			"in all lowercase letters."
 		));
 		ItemVase.whitelist = Arrays.asList(ConfigurationManager.get(
-			"Adjustments", 
-			"vaseWhitelist", 
-			new String[] {""}, 
+			"Adjustments",
+			"vaseWhitelist",
+			new String[] {}, 
 			"Used to prevent liquids from being automatically banned from the vase. " +
 			"Entries should be in all lowercase letters."
 		));

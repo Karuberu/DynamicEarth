@@ -2,6 +2,8 @@ package karuberu.dynamicearth.client;
 
 import karuberu.dynamicearth.CommonProxy;
 import karuberu.dynamicearth.DynamicEarth;
+import karuberu.dynamicearth.blocks.BlockAdobeSlab;
+import karuberu.dynamicearth.blocks.BlockDirtSlab;
 import karuberu.dynamicearth.blocks.BlockFertileSoil;
 import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import karuberu.dynamicearth.blocks.BlockMud;
@@ -28,6 +30,7 @@ public class ClientProxy extends CommonProxy {
         LanguageRegistry.addName(new ItemStack(DynamicEarth.mud, 1, BlockMud.WET), "Wet Mud");
         LanguageRegistry.addName(new ItemStack(DynamicEarth.mud, 1, BlockMud.FERTILE), "Rich Mud");
         LanguageRegistry.addName(new ItemStack(DynamicEarth.mud, 1, BlockMud.FERTILE_WET), "Rich Wet Mud");
+        LanguageRegistry.addName(DynamicEarth.farmland, "Tilled Earth");
         LanguageRegistry.addName(DynamicEarth.mudBlob, "Mud Blob");
         LanguageRegistry.addName(DynamicEarth.dirtClod, "Dirt Clod");
         if (DynamicEarth.includeMudBrick) {
@@ -39,10 +42,10 @@ public class ClientProxy extends CommonProxy {
         if (DynamicEarth.includeAdobe) {
 	        LanguageRegistry.addName(DynamicEarth.adobeWet, "Moist Adobe");
 	        LanguageRegistry.addName(DynamicEarth.adobe, "Adobe");
-	        LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeSingleSlab, 1, 0), "Adobe Slab");
-	        LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeDoubleSlab, 1, 0), "Adobe Slab");
-	        LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeSingleSlab, 1, 1), "Mud Brick Slab");
-	        LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeDoubleSlab, 1, 1), "Mud Brick Slab");
+	        LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.ADOBE), "Adobe Slab");
+	        LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeDoubleSlab, 1, BlockAdobeSlab.ADOBE), "Adobe Slab");
+	        LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.MUDBRICK), "Mud Brick Slab");
+	        LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeDoubleSlab, 1, BlockAdobeSlab.MUDBRICK), "Mud Brick Slab");
 		    LanguageRegistry.addName(DynamicEarth.adobeStairs, "Adobe Stairs");
 	        LanguageRegistry.addName(DynamicEarth.adobeBlob, "Moist Adobe Blob");
 	        LanguageRegistry.addName(DynamicEarth.adobeDust, "Adobe Dust");
@@ -62,7 +65,7 @@ public class ClientProxy extends CommonProxy {
         	LanguageRegistry.addName(DynamicEarth.permafrost, "Permafrost");
         }
         if (DynamicEarth.includeDirtSlabs) {
-	        LanguageRegistry.addName(new ItemStack(DynamicEarth.dirtSlab, 1, 0), "Dirt Slab");
+	        LanguageRegistry.addName(new ItemStack(DynamicEarth.dirtSlab, 1, BlockDirtSlab.DIRT), "Dirt Slab");
 	        LanguageRegistry.addName(new ItemStack(DynamicEarth.grassSlab, 1, BlockGrassSlab.GRASS), "Grass Slab");
 	        LanguageRegistry.addName(new ItemStack(DynamicEarth.grassSlab, 1, BlockGrassSlab.MYCELIUM), "Mycelium Slab");
         }

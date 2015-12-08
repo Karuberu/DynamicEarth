@@ -64,7 +64,7 @@ public class RecipeVase implements IRecipe {
 					if (tagCompound == null) {
 						tagCompound = new NBTTagCompound();
 					}
-					tagCompound.setInteger("craftingDrain", FluidContainerRegistry.getFluidForFilledItem(filledContainer).amount);
+					tagCompound.setInteger(ItemVase.CRAFTING_DRAIN, FluidContainerRegistry.getFluidForFilledItem(filledContainer).amount);
 					vase.setTagCompound(tagCompound);
 					result = filledContainer.copy();
 					result.stackSize = container.stackSize;
