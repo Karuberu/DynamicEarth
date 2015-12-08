@@ -7,7 +7,7 @@ public class ItemMudBlob extends Item {
 
 	protected ItemMudBlob(int i) {
 		super(i);
-		this.setTabToDisplayOn(CreativeTabs.tabMaterials);
+		this.setCreativeTab(CreativeTabs.tabMaterials);
 	}
 	
     @Override

@@ -2,7 +2,6 @@ package karuberu.mods.mudmod;
 
 import java.util.Random;
 
-import net.minecraft.src.Block;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.Material;
 import net.minecraft.src.World;
@@ -24,7 +23,8 @@ public class BlockAdobeWet extends BlockMudMod {
     /**
      * Ticks the block if it's been scheduled
      */
-    public void updateTick(World world, int i, int j, int k, Random random) {
+    @Override
+	public void updateTick(World world, int i, int j, int k, Random random) {
         if (!this.isWaterNearby(world, i, j, k)
         	&& (!this.isGettingRainedOn(world, i, j, k))
 		) {

@@ -1,7 +1,6 @@
 package karuberu.mods.mudmod;
 
 import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.Item;
 import net.minecraft.src.ItemSoup;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.World;

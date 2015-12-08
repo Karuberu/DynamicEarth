@@ -1,7 +1,5 @@
 package karuberu.mods.mudmod;
 
-import net.minecraft.src.Block;
-import net.minecraft.src.BlockJukeBox;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.EnumMovingObjectType;
@@ -15,7 +13,7 @@ public class ItemAdobeDry extends Item {
 
     protected ItemAdobeDry(int par1) {
 		super(par1);
-		this.setTabToDisplayOn(CreativeTabs.tabMaterials);
+		this.setCreativeTab(CreativeTabs.tabMaterials);
 	}
 
     @Override
@@ -26,7 +24,8 @@ public class ItemAdobeDry extends Item {
     /**
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
-    public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
+    @Override
+	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
     	MovingObjectPosition movingObjectPos = this.getMovingObjectPositionFromPlayer(world, player, true);
 
         if (movingObjectPos == null) {

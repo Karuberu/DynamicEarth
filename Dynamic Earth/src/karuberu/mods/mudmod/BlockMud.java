@@ -1,23 +1,18 @@
 package karuberu.mods.mudmod;
 
-import java.util.List;
 import java.util.Random;
-
-import cpw.mods.fml.common.Side;
-import cpw.mods.fml.common.asm.SideOnly;
 
 import net.minecraft.src.AxisAlignedBB;
 import net.minecraft.src.Block;
 import net.minecraft.src.CreativeTabs;
-import net.minecraft.src.EnchantmentHelper;
 import net.minecraft.src.Entity;
 import net.minecraft.src.EntityFallingSand;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.EntityTracker;
-import net.minecraft.src.ItemStack;
 import net.minecraft.src.Material;
-import net.minecraft.src.StatList;
 import net.minecraft.src.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.IPlantable;
+import cpw.mods.fml.common.Side;
+import cpw.mods.fml.common.asm.SideOnly;
 
 public class BlockMud extends BlockMudMod {
 
@@ -41,7 +36,8 @@ public class BlockMud extends BlockMudMod {
     	return MudMod.terrainFile;
     }
     
-    @SideOnly(Side.CLIENT)
+    @Override
+	@SideOnly(Side.CLIENT)
     public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
 	    switch(metadata) {
 	    case meta_mud:
@@ -54,8 +50,14 @@ public class BlockMud extends BlockMudMod {
 
 //    @Override
 //    public void onEntityWalking(World world, int x, int y, int z, Entity entity) {
-//    	if (world.getBlockMaterial(x, y+1, z) == Material.water) {
-//    		world.setBlock(x, y+1, z, mod_MudMod.muddyWaterStill.blockID);
+//    	Material material = world.getBlockMaterial(x, y + 1, z);
+//    	int metadata = world.getBlockMetadata(x, y + 1, z);
+//    	if (material == Material.water) {
+//    		if (metadata == 0) {
+//    			world.setBlockAndMetadataWithNotify(x, y + 1, z, MudMod.muddyWaterStill.blockID, metadata);
+//    		} else {
+//    			world.setBlockAndMetadataWithNotify(x, y + 1, z, MudMod.muddyWaterMoving.blockID, metadata);
+//    		}
 //    	}
 //    }
     
@@ -63,17 +65,19 @@ public class BlockMud extends BlockMudMod {
      * Returns a bounding box from the pool of bounding boxes (this means this box can change after the pool has been
      * cleared to be reused)
      */
-    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+    @Override
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
     	if (world.getBlockMetadata(x, y, z) >= meta_mudWet) {    	
             float var5 = 0.125F;
-            return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool((double)x, (double)y, (double)z, (double)(x + 1), (double)((float)(y + 1) - var5), (double)(z + 1));
+            return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool(x, y, z, x + 1, y + 1 - var5, z + 1);
     	}
-    	return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool((double)x, (double)y, (double)z, (double)(x + 1), (double)((float)(y + 1)), (double)(z + 1));
+    	return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool(x, y, z, x + 1, (y + 1), z + 1);
     }
     /**
      * Triggered whenever an entity collides with this block (enters into the block). Args: world, x, y, z, entity
      */
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
+    @Override
+	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
         entity.motionX *= 0.4D;
         entity.motionZ *= 0.4D;
     }
@@ -93,7 +97,15 @@ public class BlockMud extends BlockMudMod {
     		this.initiateMudSlide(world, x, y, z);
     	}
     }
-    
+    @Override
+    public boolean canSustainPlant(World world, int x, int y, int z, ForgeDirection direction, IPlantable plant) {
+    	int plantID = plant.getPlantID(world, x, y + 1, z);
+    	if (plantID == Block.reed.blockID
+    	|| plantID == Block.sapling.blockID) {
+    		return true;
+    	}
+    	return super.canSustainPlant(world, x, y, z, direction, plant);
+    }
     /**
      * Ticks the block if it's been scheduled
      */
@@ -204,7 +216,7 @@ public class BlockMud extends BlockMudMod {
 
             if (!fallInstantly && world.checkChunksExist(x - var8, y - var8, z - var8, x + var8, y + var8, z + var8)) {
                 if (!world.isRemote) {
-                    EntityFallingSand fallingMud = new EntityFallingSand(world, (double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.blockID);
+                    EntityFallingSand fallingMud = new EntityFallingSand(world, x + 0.5F, y + 0.5F, z + 0.5F, this.blockID);
                     world.spawnEntityInWorld(fallingMud);
                 }
             } else {

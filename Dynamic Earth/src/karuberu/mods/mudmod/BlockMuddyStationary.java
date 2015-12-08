@@ -15,14 +15,16 @@ public class BlockMuddyStationary extends BlockStationary {
 		this.setTickRandomly(true);
 	}
 	
+	@Override
 	public int colorMultiplier(IBlockAccess iblockaccess, int i, int j, int k) {
 	    return 0xbd9e82;
 	}
+
 	/**
      * Ticks the block if it's been scheduled
      */
     @Override
     public void updateTick(World world, int x, int y, int z, Random random) {
-    	world.setBlock(x, y, z, Block.waterStill.blockID);
+    	world.setBlockAndMetadataWithNotify(x, y, z, Block.waterStill.blockID, 0);
     }
 }
