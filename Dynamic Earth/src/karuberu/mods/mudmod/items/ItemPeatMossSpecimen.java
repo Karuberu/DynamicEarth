@@ -3,7 +3,9 @@ package karuberu.mods.mudmod.items;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.blocks.BlockPeatMoss;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -15,7 +17,7 @@ import net.minecraftforge.common.IPlantable;
 
 public class ItemPeatMossSpecimen extends ItemMudMod implements IPlantable {
 
-	public ItemPeatMossSpecimen(int id, int icon) {
+	public ItemPeatMossSpecimen(int id, Texture icon) {
 		super(id, icon);
 		this.setCreativeTab(CreativeTabs.tabDecorations);
 	}
@@ -28,11 +30,11 @@ public class ItemPeatMossSpecimen extends ItemMudMod implements IPlantable {
             int id = world.getBlockId(x, y, z);
             Block soil = Block.blocksList[id];
             if (soil != null && soil.canSustainPlant(world, x, y, z, ForgeDirection.UP, this) && world.isAirBlock(x, y + 1, z)) {
-                world.setBlockAndMetadataWithNotify(x, y + 1, z, MudMod.peatMoss.blockID, BlockPeatMoss.GROWTHSTAGE_1);
+                world.setBlock(x, y + 1, z, MudMod.peatMoss.blockID, BlockPeatMoss.GROWTHSTAGE_1, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
                 --itemStack.stackSize;
                 return true;
             } else if (player.capabilities.isCreativeMode && BlockPeatMoss.soilIsValid(id, BlockPeatMoss.GROWTHSTAGE_FULLGROWN)) {
-            	world.setBlockAndMetadataWithNotify(x, y + 1, z, MudMod.peatMoss.blockID, BlockPeatMoss.GROWTHSTAGE_FULLGROWN);
+            	world.setBlock(x, y + 1, z, MudMod.peatMoss.blockID, BlockPeatMoss.GROWTHSTAGE_FULLGROWN, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
             	return true;
             } else {
                 return false;

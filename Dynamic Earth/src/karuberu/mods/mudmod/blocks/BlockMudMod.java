@@ -15,6 +15,7 @@ import cpw.mods.fml.common.Mod.PostInit;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
@@ -32,8 +33,8 @@ public abstract class BlockMudMod extends Block {
 		NONE
 	}
 
-	public BlockMudMod(int id, int texture, Material material) {
-		super(id, texture, material);
+	public BlockMudMod(int id, Material material) {
+		super(id, material);
 		this.setTickRandomly(true);
 	}
 	
@@ -166,14 +167,14 @@ public abstract class BlockMudMod extends Block {
 	protected void becomeDry(World world, int x, int y, int z) {
 		int dryBlock = this.getDryBlock(world.getBlockMetadata(x, y, z));
 		if (dryBlock >= 0) {
-			world.setBlockAndMetadataWithNotify(x, y, z, dryBlock, 0);
+			world.setBlock(x, y, z, dryBlock, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 		}
 	}
 	
 	protected void becomeWet(World world, int x, int y, int z) {
 		int wetBlock = this.getWetBlock(world.getBlockMetadata(x, y, z));
 		if (wetBlock >= 0) {
-			world.setBlockAndMetadataWithNotify(x, y, z, wetBlock, 0);
+			world.setBlock(x, y, z, wetBlock, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 		}
 	}
 	
@@ -215,7 +216,7 @@ public abstract class BlockMudMod extends Block {
 			if (world.getBlockId(xi, yi, zi) == this.getDryBlock(metadata)
 			&& this.isHydrated(world, xi, yi, zi)
 			&& this.canBlockStay(world, xi, yi, zi)) {
-				world.setBlockAndMetadataWithNotify(xi, yi, zi, this.blockID, 0);
+				world.setBlock(xi, yi, zi, this.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 				break;
 			}
 		}

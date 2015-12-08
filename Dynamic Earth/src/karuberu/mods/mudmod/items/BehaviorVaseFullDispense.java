@@ -21,9 +21,9 @@ public class BehaviorVaseFullDispense extends BehaviorDefaultDispenseItem {
         int x = dispenser.getXInt();
         int y = dispenser.getYInt();
         int z = dispenser.getZInt();
-        EnumFacing facing = EnumFacing.getFront(dispenser.func_82620_h());
+        EnumFacing facing = BlockDispenser.getFacing(dispenser.getBlockMetadata());
 
-        if (vase.tryPlaceContainedLiquid(dispenser.getWorld(), (double)x, (double)y, (double)z, x + facing.getFrontOffsetX(), y, z + facing.getFrontOffsetZ())) {
+        if (vase.tryPlaceContainedLiquid(dispenser.getWorld(), (double)x, (double)y, (double)z, x + facing.getFrontOffsetX(), y + facing.getFrontOffsetY(), z + facing.getFrontOffsetZ())) {
             itemStack.itemID = MudMod.vase.itemID;
             itemStack.stackSize = 1;
             return itemStack;

@@ -28,11 +28,11 @@ public class BlockFalling extends Block implements IFallingBlock {
                     world.spawnEntityInWorld(fallingBlock);
                 }
             } else {
-                world.setBlockWithNotify(x, y, z, 0);
+                world.setBlockToAir(x, y, z);
                 while (this.canFallBelow(world, x, y, z)) {
                     --y;
                 } if (y > 0) {
-                    world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, world.getBlockMetadata(x, y, z));
+                    world.setBlock(x, y, z, this.blockID, world.getBlockMetadata(x, y, z), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
                 }
             }
             return true;

@@ -8,7 +8,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import karuberu.mods.mudmod.entity.EntityBomb;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,7 +24,7 @@ import net.minecraft.world.World;
 public class ItemBomb extends ItemMudMod {
 	
 	
-	public ItemBomb(int id, int icon) {
+	public ItemBomb(int id, Texture icon) {
 		super(id, icon);
 		this.setCreativeTab(CreativeTabs.tabCombat);
 		this.setMaxStackSize(16);

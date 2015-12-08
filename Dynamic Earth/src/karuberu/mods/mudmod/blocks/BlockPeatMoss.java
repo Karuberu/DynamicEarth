@@ -8,8 +8,11 @@ import cpw.mods.fml.relauncher.SideOnly;
 import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.passive.EntityCow;
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,17 +41,27 @@ public class BlockPeatMoss extends BlockMudMod {
 		GROWTHSTAGE_2 = 1,
 		GROWTHSTAGE_3 = 2,
 		GROWTHSTAGE_4 = 3,
-		GROWTHSTAGE_FULLGROWN = 4;
+		GROWTHSTAGE_FULLGROWN = 4,
+		GROWTH_GRASS = 5,
+		GROWTH_FLOWER_RED = 6,
+		GROWTH_FLOWER_YELLOW = 7,
+		GROWTH_MUSHROOM_BROWN = 8,
+		GROWTH_MUSHROOM_RED = 9,
+		GROWTH_NONE = 10;
 
-	public BlockPeatMoss(int id, int texture) {
-		super(id, texture, MaterialPeatMoss.material);
-		this.setBlockName("peatMoss");
+	public BlockPeatMoss(int id) {
+		super(id, MaterialPeatMoss.material);
+		this.setUnlocalizedName("peatMoss");
 		this.setStepSound(Block.soundGrassFootstep);
 		this.setLightOpacity(0);
 		this.setHardness(0.1F);
 		this.setTickRandomly(true);
 		this.setHydrateRadius(hydrationRadius, 2, 0, hydrationRadius);
-        this.setTextureFile(MudMod.terrainFile);
+	}
+
+	@Override
+	public void registerIcons(IconRegister iconRegister) {
+		this.blockIcon = TextureManager.instance().getBlockTexture(Texture.PEATMOSS);
 	}
 	
 	@Override
@@ -76,6 +89,12 @@ public class BlockPeatMoss extends BlockMudMod {
 		case GROWTHSTAGE_4: this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, (1.0F / 16.0F), 1.0F); break;
 		default: this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, (1.0F / 8.0F), 1.0F); break;
 		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public int getRenderType() {
+		return MudMod.peatMossRenderID;
 	}
 	   
 	@Override
@@ -124,7 +143,7 @@ public class BlockPeatMoss extends BlockMudMod {
 	private boolean tryRemoveInvalidMoss(World world, int x, int y, int z) {
 		if (!this.canPlaceBlockAt(world, x, y, z)) {
 			this.dropBlockAsItem(world, x, y, z, 0, 0);
-			world.setBlockWithNotify(x, y, z, 0);
+			world.setBlockToAir(x, y, z);
 			return true;
 		}
 		return false;
@@ -132,18 +151,29 @@ public class BlockPeatMoss extends BlockMudMod {
 
 	@Override
     public boolean removeBlockByPlayer(World world, EntityPlayer player, int x, int y, int z) {
-		return super.removeBlockByPlayer(world, player, x, y, z);
+		if (this.hasPlantGrowth(world, x, y, z)) {
+			if (!player.capabilities.isCreativeMode) {
+				this.getPlantGrowth(world, x, y, z).harvestBlock(world, player, x, y, z, this.getPlantGrowthMetadata(world, x, y, z));
+			}
+			world.setBlock(x, y, z, MudMod.peatMoss.blockID, GROWTHSTAGE_FULLGROWN, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+			return false;
+		} else {
+			return super.removeBlockByPlayer(world, player, x, y, z);
+		}
     }
 
 	@Override
 	public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int metadata) {
 		super.harvestBlock(world, player, x, y, z, metadata);
-		world.setBlockWithNotify(x, y, z, 0);
+		world.setBlockToAir(x, y, z);
 	}
 	
 	@Override
 	public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune) {
 		ArrayList<ItemStack> items = new ArrayList<ItemStack>();
+		if (this.hasPlantGrowth(world, x, y, z)) {
+			items.addAll(this.getPlantGrowth(world, x, y, z).getBlockDropped(world, x, y, z, this.getPlantGrowthMetadata(world, x, y, z), fortune));
+		}
 		if (world.rand.nextInt(Math.max(1, 10 - metadata - fortune)) == 0) {
 			items.add(new ItemStack(MudMod.peatMossSpecimen));
 		}
@@ -157,7 +187,53 @@ public class BlockPeatMoss extends BlockMudMod {
 	
 	@Override
 	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
+		if (this.hasPlantGrowth(world, x, y, z)) {
+			return new ItemStack(this.getPlantGrowth(world, x, y, z), 1, this.getPlantGrowthMetadata(world, x, y, z));
+		}
 		return super.getPickBlock(target, world, x, y, z);
+	}
+	
+	public boolean hasPlantGrowth(IBlockAccess blockAccess, int x, int y, int z, int metadata) {
+		switch (metadata) {
+		case GROWTH_GRASS:
+		case GROWTH_FLOWER_RED:
+		case GROWTH_FLOWER_YELLOW:
+		case GROWTH_MUSHROOM_BROWN:
+		case GROWTH_MUSHROOM_RED: return true;
+		default: return false;
+		}
+	}
+	
+	public boolean hasPlantGrowth(IBlockAccess blockAccess, int x, int y, int z) {
+		return this.hasPlantGrowth(blockAccess, x, y, z, blockAccess.getBlockMetadata(x, y, z));
+	}
+
+	public Block getPlantGrowth(IBlockAccess blockAccess, int x, int y, int z, int metadata) {
+		switch (metadata) {
+		case GROWTH_GRASS: return Block.tallGrass;
+		case GROWTH_FLOWER_RED: return Block.plantRed;
+		case GROWTH_FLOWER_YELLOW: return Block.plantYellow;
+		case GROWTH_MUSHROOM_BROWN: return Block.mushroomBrown;
+		case GROWTH_MUSHROOM_RED: return Block.mushroomRed;
+		default: return null;
+		}
+	}
+	public Block getPlantGrowth(IBlockAccess blockAccess, int x, int y, int z) {
+		return this.getPlantGrowth(blockAccess, x, y, z, blockAccess.getBlockMetadata(x, y, z));
+	}
+	
+	public int getPlantGrowthMetadata(IBlockAccess blockAccess, int x, int y, int z, int metadata) {
+		switch (metadata) {
+		case GROWTH_GRASS: return 1;
+		case GROWTH_FLOWER_RED: return 0;
+		case GROWTH_FLOWER_YELLOW: return 0;
+		case GROWTH_MUSHROOM_BROWN: return 0;
+		case GROWTH_MUSHROOM_RED: return 0;
+		default: return -1;
+		}
+	}
+	public int getPlantGrowthMetadata(IBlockAccess blockAccess, int x, int y, int z) {
+		return this.getPlantGrowthMetadata(blockAccess, x, y, z, blockAccess.getBlockMetadata(x, y, z));
 	}
 	
 	@Override
@@ -178,12 +254,12 @@ public class BlockPeatMoss extends BlockMudMod {
 				this.tryToSpread(world, x, y, z);
 			}
 		} else {
-			world.setBlockWithNotify(x, y, z, 0);
+			world.setBlockToAir(x, y, z);
 		}
 	}
 	
 	@Override
-	public int tickRate() {
+	public int tickRate(World world) {
 		return this.tickRate;
 	}
 	
@@ -199,17 +275,17 @@ public class BlockPeatMoss extends BlockMudMod {
 		while (soilIsValid(soilID = world.getBlockId(x, y - i, z), metadata)) {
 			if (soilID != MudMod.peat.blockID
 			&& soilID != MudMod.peatDry.blockID) {
-				world.setBlockAndMetadataWithNotify(x, y - i, z, MudMod.peat.blockID, i == 1 ? BlockPeat.META_NONE : BlockPeat.META_1EIGHTH);
+				world.setBlock(x, y - i, z, MudMod.peat.blockID, i == 1 ? BlockPeat.META_NONE : BlockPeat.META_1EIGHTH, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 				return;
 			} else if (soilID == MudMod.peat.blockID) {
 				int soilMeta = world.getBlockMetadata(x, y - i, z);
 				switch (soilMeta) {
 				case BlockPeat.META_FULL: break;
 				case BlockPeat.META_7EIGHTHS:
-					world.setBlockAndMetadataWithNotify(x, y - i, z, MudMod.peat.blockID, BlockPeat.META_FULL);
+					world.setBlock(x, y - i, z, MudMod.peat.blockID, BlockPeat.META_FULL, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 					return;
 				default:
-					world.setBlockAndMetadataWithNotify(x, y - i, z, MudMod.peat.blockID, soilMeta + 1);
+					world.setBlock(x, y - i, z, MudMod.peat.blockID, soilMeta + 1, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 					return;
 				}
 			}
@@ -222,15 +298,35 @@ public class BlockPeatMoss extends BlockMudMod {
 			int metadata = world.getBlockMetadata(x, y, z);
 			switch(metadata) {
 			case GROWTHSTAGE_FULLGROWN:
+				if (world.rand.nextInt(50) == 0) {
+					int random = world.rand.nextInt(100);
+					int newMetadata = GROWTHSTAGE_FULLGROWN;
+					if (random > 95) {
+						newMetadata = GROWTH_NONE;
+					} else if (random > 45) {
+						newMetadata = GROWTH_GRASS;
+					} else if (random > 44) {
+						newMetadata = GROWTH_FLOWER_RED;
+					} else if (random > 43) {
+						newMetadata = GROWTH_FLOWER_YELLOW;
+					} else if (random > 40) {
+						newMetadata = GROWTH_MUSHROOM_BROWN;
+					} else if (random > 39) {
+						newMetadata = GROWTH_MUSHROOM_RED;
+					} else {
+						break;
+					}
+					world.setBlockMetadataWithNotify(x, y, z, newMetadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);				
+				}
 				break;
 			case GROWTHSTAGE_1:
 			case GROWTHSTAGE_2:
 			case GROWTHSTAGE_3:
 			case GROWTHSTAGE_4:
-				world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, metadata + 1);		
+				world.setBlockMetadataWithNotify(x, y, z, metadata + 1, MCHelper.NOTIFY_AND_UPDATE_REMOTE);		
 				break;
 			default:
-				world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, GROWTHSTAGE_FULLGROWN);			
+				world.setBlockMetadataWithNotify(x, y, z, GROWTHSTAGE_FULLGROWN, MCHelper.NOTIFY_AND_UPDATE_REMOTE);			
 				break;
 			}
 		}
@@ -264,7 +360,7 @@ public class BlockPeatMoss extends BlockMudMod {
 			&& this.isHydrated(world, xi, yi, zi)
 			&& this.canBlockStay(world, xi, yi, zi, metadata)
 			&& world.getBlockLightValue(xi, yi, zi) >= this.minimumLightLevel) {
-				world.setBlockAndMetadataWithNotify(xi, yi, zi, this.blockID, newMetadata);
+				world.setBlock(xi, yi, zi, this.blockID, newMetadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 				break;
 			}
 		}
@@ -279,6 +375,16 @@ public class BlockPeatMoss extends BlockMudMod {
 		int metadata = world.getBlockMetadata(x, y, z);
 		if (blockID == 0) {
 			return GROWTHSTAGE_FULLGROWN;
+		} else if (blockID == Block.tallGrass.blockID && metadata == 1) {
+			return GROWTH_GRASS;
+		} else if (blockID == Block.plantRed.blockID && metadata == 0) {
+			return GROWTH_FLOWER_RED;
+		} else if (blockID == Block.plantYellow.blockID && metadata == 0) {
+			return GROWTH_FLOWER_YELLOW;
+		} else if (blockID == Block.mushroomBrown.blockID && metadata == 0) {
+			return GROWTH_MUSHROOM_BROWN;
+		} else if (blockID == Block.mushroomRed.blockID && metadata == 0) {
+			return GROWTH_MUSHROOM_RED;
 		} else {
 			return -1;
 		}

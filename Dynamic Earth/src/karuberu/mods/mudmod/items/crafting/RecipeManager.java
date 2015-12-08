@@ -3,7 +3,9 @@ package karuberu.mods.mudmod.items.crafting;
 import java.util.List;
 import java.util.Map.Entry;
 
+import karuberu.mods.mudmod.ModHandler;
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.blocks.BlockAdobeSlab;
 import karuberu.mods.mudmod.blocks.BlockGrassSlab;
 
 import net.minecraft.block.Block;
@@ -19,7 +21,6 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.IFuelHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
-import forestry.api.recipes.RecipeManagers;
 
 public final class RecipeManager {
 	
@@ -37,10 +38,13 @@ public final class RecipeManager {
             RecipeManager.addAdobeRecipes();
         }
         if (MudMod.includePeat) {
+        	if (ModHandler.useForestryPeat) {
+        		OreDictionary.registerOre(OreDictionary.getOreID("brickPeat"), MudMod.peatBrick);
+        	}
         	RecipeManager.addPeatRecipes();
         }
 	    RecipeManager.addStairAndSlabRecipes();
-	    RecipeManager.addModRecipes();
+	    GameRegistry.addRecipe(RecipeWetBlocks.instance);
 	}
 
 	public static void addSmelting() {
@@ -65,38 +69,6 @@ public final class RecipeManager {
 	            '#', MudMod.mudBlob
 	        }
         );
-	    CraftingManager.getInstance().getRecipeList().add(
-	    	new ShapelessOreRecipe(
-	    		new ItemStack(MudMod.mud, 1),
-	            Block.dirt, "bucketWater"
-	    	)
-	    );
-	    CraftingManager.getInstance().getRecipeList().add(
-	    	new ShapedOreRecipe(
-	    		new ItemStack(MudMod.mud, 4),
-	    		true,
-	    		new Object[]{
-		            " # ",
-		            "#W#",
-		            " # ",
-		            '#', Block.dirt,
-		            'W', "bucketWater",
-				}
-	    	)
-	    );
-	    CraftingManager.getInstance().getRecipeList().add(
-	    	new ShapedOreRecipe(
-	    		new ItemStack(MudMod.mud, 8),
-	    		true,
-	    		new Object[]{
-		            "###",
-		            "#W#",
-		            "###",
-		            '#', Block.dirt,
-		            'W', "bucketWater",
-				}
-	    	)
-	    );
 	    GameRegistry.addShapelessRecipe(
         	new ItemStack(MudMod.mudBlob, 4),
         	new Object[] {MudMod.mud}
@@ -136,32 +108,6 @@ public final class RecipeManager {
 	            'C', Item.clay
 	        }
         );
-	    CraftingManager.getInstance().getRecipeList().add(
-	    	new ShapedOreRecipe(
-	    		new ItemStack(MudMod.adobeWet, 1),
-	    		true,
-	    		new Object[]{
-		            " # ",
-		            "#W#",
-		            " # ",
-		            '#', MudMod.adobeDust,
-		            'W', "bucketWater",
-				}
-	    	)
-	    );
-	    CraftingManager.getInstance().getRecipeList().add(
-	    	new ShapedOreRecipe(
-	    		new ItemStack(MudMod.adobeWet, 2),
-	    		true,
-	    		new Object[]{
-		            "###",
-		            "#W#",
-		            "###",
-		            '#', MudMod.adobeDust,
-		            'W', "bucketWater",
-				}
-	    	)
-	    );
 	    GameRegistry.addRecipe(
         	new ItemStack(MudMod.adobeBlob, 4),
         	new Object[] {
@@ -247,7 +193,7 @@ public final class RecipeManager {
 			}
 		);
 		GameRegistry.addShapelessRecipe(
-			new ItemStack(MudMod.peatBrick, 4),
+			new ItemStack(ModHandler.getPeat().getItem(), 4),
 			new Object[] {
 				MudMod.peatDry
 			}
@@ -359,49 +305,163 @@ public final class RecipeManager {
 	    }
 	}
 	
-	private static void addModRecipes() {
-		// Forestry recipes
-		if (MudMod.enableForestryIntegration) {
-		    if (RecipeManagers.squeezerManager != null) {
-				RecipeManagers.squeezerManager.addRecipe(
+	public static void addForestryRecipes() {
+	    if (forestry.api.recipes.RecipeManagers.carpenterManager != null) {
+			forestry.api.recipes.RecipeManagers.carpenterManager.addRecipe(
+				10,
+				LiquidDictionary.getLiquid("Water", 50),
+				null,
+				new ItemStack(MudMod.mud),
+				new Object[] {
+					"#",
+					'#', new ItemStack(Block.dirt)
+				}
+			);
+			if (MudMod.includeAdobe) {
+				forestry.api.recipes.RecipeManagers.carpenterManager.addRecipe(
+					10,
+					LiquidDictionary.getLiquid("Water", 50),
+					null,
+					new ItemStack(MudMod.adobeBlob),
+					new Object[] {
+						"#",
+						'#', new ItemStack(MudMod.adobeDust)
+					}
+				);
+				forestry.api.recipes.RecipeManagers.carpenterManager.addRecipe(
+					10,
+					LiquidDictionary.getLiquid("Water", 200),
+					null,
+					new ItemStack(MudMod.adobeWet),
+					new Object[] {
+						"##",
+						"##",
+						'#', new ItemStack(MudMod.adobeDust)
+					}
+				);
+			}
+	    }
+	    if (forestry.api.recipes.RecipeManagers.squeezerManager != null) {
+			forestry.api.recipes.RecipeManagers.squeezerManager.addRecipe(
+				10,
+				new ItemStack[] {
+					new ItemStack(MudMod.mudBlob)
+				},
+				LiquidDictionary.getLiquid("Water", 50)
+			);
+			if (MudMod.includeAdobe) {
+				forestry.api.recipes.RecipeManagers.squeezerManager.addRecipe(
 					10,
 					new ItemStack[] {
-						new ItemStack(MudMod.mudBlob)
+						new ItemStack(MudMod.adobeBlob)
 					},
-					LiquidDictionary.getLiquid("Water", 100)
+					LiquidDictionary.getLiquid("Water", 50),
+					new ItemStack(MudMod.adobeDust),
+					100
 				);
-				if (MudMod.includeAdobe) {
-					RecipeManagers.squeezerManager.addRecipe(
-						10,
-						new ItemStack[] {
-							new ItemStack(MudMod.adobeBlob)
-						},
-						LiquidDictionary.getLiquid("Water", 100),
-						new ItemStack(MudMod.adobeDust),
-						80
-					);
-				}
-				if (MudMod.includePeat) {
-					RecipeManagers.squeezerManager.addRecipe(
-						10,
-						new ItemStack[] {
-							new ItemStack(MudMod.peatClump)
-						},
-						LiquidDictionary.getLiquid("Water", 100),
-						new ItemStack(MudMod.peatBrick),
-						100
-					);
-				}
-		    }
-		    if (RecipeManagers.moistenerManager != null) {
-		    	if (MudMod.includeDirtSlabs) {
-				    RecipeManagers.moistenerManager.addRecipe(
-				    	new ItemStack(MudMod.dirtSlab),
-				    	new ItemStack(MudMod.grassSlab, 1, BlockGrassSlab.MYCELIUM),
-				    	5000
-				    );
-		    	}
-		    }
+				forestry.api.recipes.RecipeManagers.squeezerManager.addRecipe(
+					30,
+					new ItemStack[] {
+						new ItemStack(MudMod.earthbowlRaw)
+					},
+					LiquidDictionary.getLiquid("Water", 150),
+					new ItemStack(MudMod.adobeDust, 3),
+					100
+				);
+				forestry.api.recipes.RecipeManagers.squeezerManager.addRecipe(
+					30,
+					new ItemStack[] {
+						new ItemStack(MudMod.vaseRaw)
+					},
+					LiquidDictionary.getLiquid("Water", 250),
+					new ItemStack(MudMod.adobeDust, 5),
+					100
+				);
+			}
+			if (MudMod.includePeat) {
+				forestry.api.recipes.RecipeManagers.squeezerManager.addRecipe(
+					10,
+					new ItemStack[] {
+						new ItemStack(MudMod.peatClump)
+					},
+					LiquidDictionary.getLiquid("Water", 100),
+					new ItemStack(MudMod.peatBrick),
+					100
+				);
+			}
+	    }
+	    if (forestry.api.recipes.RecipeManagers.moistenerManager != null) {
+	    	if (MudMod.includeDirtSlabs) {
+			    forestry.api.recipes.RecipeManagers.moistenerManager.addRecipe(
+			    	new ItemStack(MudMod.dirtSlab),
+			    	new ItemStack(MudMod.grassSlab, 1, BlockGrassSlab.MYCELIUM),
+			    	5000
+			    );
+	    	}
+	    }
+	}
+
+	public static void addThermalExpansionRecipes() {
+		if (thermalexpansion.api.crafting.CraftingManagers.pulverizerManager != null) {
+			if (MudMod.includePeat) {
+				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+					320,
+					new ItemStack(Block.cobblestoneMossy),
+					new ItemStack(Block.sand),
+					new ItemStack(MudMod.peatMossSpecimen),
+					5
+				);
+			}
+			if (MudMod.includeAdobe) {
+				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+					320,
+					new ItemStack(MudMod.adobe),
+					new ItemStack(MudMod.adobeDust, 4)
+				);
+				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+					160,
+					new ItemStack(MudMod.adobeSingleSlab, 1, BlockAdobeSlab.ADOBE),
+					new ItemStack(MudMod.adobeDust, 2)
+				);
+				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+					320,
+					new ItemStack(MudMod.adobeStairs),
+					new ItemStack(MudMod.adobeDust, 4)
+				);
+				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+					80,
+					new ItemStack(MudMod.earthbowl),
+					new ItemStack(MudMod.adobeDust, 3)
+				);
+				thermalexpansion.api.crafting.CraftingManagers.pulverizerManager.addRecipe(
+					160,
+					new ItemStack(MudMod.vase),
+					new ItemStack(MudMod.adobeDust, 5)
+				);
+			}
+		}
+	}
+	
+	public static void addRailcraftRecipes() {
+		if (mods.railcraft.api.crafting.RailcraftCraftingManager.rockCrusher != null) {
+			if (MudMod.includePeat) {
+				mods.railcraft.api.crafting.IRockCrusherRecipe mossyCobblestoneRecipe = mods.railcraft.api.crafting.RailcraftCraftingManager.rockCrusher.createNewRecipe(
+					new ItemStack(Block.cobblestoneMossy), false, false);
+				mossyCobblestoneRecipe.addOutput(new ItemStack(Block.gravel), 1.0F);
+				mossyCobblestoneRecipe.addOutput(new ItemStack(MudMod.peatMossSpecimen), 0.1F);
+			}
+			if (MudMod.includeAdobe) {
+				mods.railcraft.api.crafting.RailcraftCraftingManager.rockCrusher.createNewRecipe(
+					new ItemStack(MudMod.adobe), false, false).addOutput(new ItemStack(MudMod.adobeDust, 4), 1.0F);
+				mods.railcraft.api.crafting.RailcraftCraftingManager.rockCrusher.createNewRecipe(
+					new ItemStack(MudMod.adobeSingleSlab), false, false).addOutput(new ItemStack(MudMod.adobeDust, 2), 1.0F);
+				mods.railcraft.api.crafting.RailcraftCraftingManager.rockCrusher.createNewRecipe(
+					new ItemStack(MudMod.adobeStairs), false, false).addOutput(new ItemStack(MudMod.adobeDust, 4), 1.0F);
+				mods.railcraft.api.crafting.RailcraftCraftingManager.rockCrusher.createNewRecipe(
+					new ItemStack(MudMod.earthbowl), false, false).addOutput(new ItemStack(MudMod.adobeDust, 3), 1.0F);
+				mods.railcraft.api.crafting.RailcraftCraftingManager.rockCrusher.createNewRecipe(
+					new ItemStack(MudMod.vase), false, false).addOutput(new ItemStack(MudMod.adobeDust, 5), 1.0F);
+			}
 		}
 	}
 }

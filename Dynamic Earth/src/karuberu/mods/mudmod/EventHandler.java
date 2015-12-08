@@ -2,9 +2,10 @@ package karuberu.mods.mudmod;
 
 import java.util.Random;
 
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.core.event.BlockUpdateEvent;
+import karuberu.core.event.INeighborBlockEventHandler;
+import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.mods.mudmod.blocks.BlockAdobe;
 import karuberu.mods.mudmod.blocks.BlockMud;
 import karuberu.mods.mudmod.blocks.BlockMudMod;
@@ -144,15 +145,39 @@ public class EventHandler {
 		if (!MudMod.restoreDirtOnChunkLoad
 		&& blockID == Block.dirt.blockID) {
 			if (BlockMudMod.willBlockHydrate(world, x, y, z, 1, 0, 1, 1)) {
-				world.setBlockAndMetadataWithNotify(x, y, z, MudMod.mud.blockID, BlockMud.NORMAL);
+				world.setBlock(x, y, z, MudMod.mud.blockID, BlockMud.NORMAL, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 			} else if (MudMod.includePermafrost
 			&& BlockPermafrost.canForm(world, x, y, z)) {
 		    	int metadata = world.getBlockMetadata(x, y, z);
 				if (metadata >= 5) {
-					world.setBlockAndMetadataWithNotify(x, y, z, MudMod.permafrost.blockID, 0);
+					world.setBlock(x, y, z, MudMod.permafrost.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 		    	} else {
-		    		world.setBlockMetadata(x, y, z, metadata + 1);
+		    		world.setBlockMetadataWithNotify(x, y, z, metadata + 1, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
 		    	}
+			}
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onNeighborBlockChange(NeighborBlockChangeEvent event) {
+		World world = event.world;
+		int x = event.x;
+		int y = event.y;
+		int z = event.z;
+		int neighborBlockID = event.neighborBlockID;
+		int side = event.side;
+		
+		Block block = Block.blocksList[world.getBlockId(x, y, z)];
+		if (block instanceof INeighborBlockEventHandler) {
+			((INeighborBlockEventHandler)block).handleNeighborBlockChangeEvent(event);
+		}
+		
+		int blockID = world.getBlockId(x, y, z);
+		if (MudMod.enableGrassBurning
+		&& (blockID == Block.grass.blockID)) {
+			Material material = world.getBlockMaterial(x, y + 1, z);
+			if (material == Material.fire || material == Material.lava) {
+				world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 			}
 		}
 	}

@@ -31,29 +31,29 @@ public class ItemGrassSlab extends ItemDirtSlab {
     		if (world.getBlockId(x, y, z) == MudMod.dirtSlab.blockID || slabMetadata != itemDamage) {
 	        	switch (itemDamage) {
 	        	case BlockGrassSlab.GRASS:
-	        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.grass.blockID, 0);
+	        		blockPlaced = world.setBlock(x, y, z, Block.grass.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 	        		break;
 	        	case BlockGrassSlab.MYCELIUM:
-	        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.mycelium.blockID, 0);
+	        		blockPlaced = world.setBlock(x, y, z, Block.mycelium.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 	        		break;
 	        	}
     		} else {
-    			blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, this.doubleSlab.blockID, slabMetadata);
+    			blockPlaced = world.setBlock(x, y, z, this.doubleSlab.blockID, slabMetadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
     		}
     	} else if (isTopSlab) {
     		if (world.getBlockId(x, y, z) == MudMod.dirtSlab.blockID) {
-        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0);
+        		blockPlaced = world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
     		} else if (slabMetadata != itemDamage) {
 	        	switch (slabMetadata & 7) {
 	        	case BlockGrassSlab.GRASS:
-	        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.grass.blockID, 0);
+	        		blockPlaced = world.setBlock(x, y, z, Block.grass.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 	        		break;
 	        	case BlockGrassSlab.MYCELIUM:
-	        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.mycelium.blockID, 0);
+	        		blockPlaced = world.setBlock(x, y, z, Block.mycelium.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 	        		break;
 	        	}
     		} else {
-    			blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, this.doubleSlab.blockID, slabMetadata);    			
+    			blockPlaced = world.setBlock(x, y, z, this.doubleSlab.blockID, slabMetadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);    			
     		}
     	}
     	return blockPlaced;

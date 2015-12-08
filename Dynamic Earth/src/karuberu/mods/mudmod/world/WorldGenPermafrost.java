@@ -35,7 +35,7 @@ public class WorldGenPermafrost implements IWorldGenerator {
 				        if (!world.canBlockSeeTheSky(xi, yi, zi)) {
 				            while (blockShouldBeConverted(world.getBlockId(xi, yi, zi))) {
 				                if (world.getBlockMaterial(xi, yi+1, zi) != Material.wood) {
-				                    world.setBlockAndMetadata(xi, yi, zi, MudMod.permafrost.blockID, 0);
+				                    world.setBlock(xi, yi, zi, MudMod.permafrost.blockID, 0, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
 				                }
 				            	yi--;
 				            }

@@ -1,6 +1,7 @@
 package karuberu.mods.mudmod.entity;
 
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityIronGolem;
 import net.minecraft.util.DamageSource;
@@ -13,7 +14,7 @@ public class EntityClayGolem extends EntityIronGolem {
 	public EntityClayGolem(World world) {
 		super(world);
         this.getNavigator().setAvoidsWater(false);
-        this.texture = MudMod.clayGolemFile;
+        this.texture = TextureManager.clayGolemTexture;
 	}
 	
 	@Override

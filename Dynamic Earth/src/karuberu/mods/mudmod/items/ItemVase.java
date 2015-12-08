@@ -4,9 +4,11 @@ import org.omg.CORBA.SystemException;
 
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.passive.EntityCow;
@@ -25,7 +27,7 @@ public class ItemVase extends ItemMudMod {
     /** field for checking if the bucket has been filled. */
     private int contents;
 
-    public ItemVase(int i, int contents, int icon) {
+    public ItemVase(int i, int contents, Texture icon) {
         super(i, icon);
         this.maxStackSize = 1;
         this.contents = contents;
@@ -39,7 +41,7 @@ public class ItemVase extends ItemMudMod {
             if (world.getBlockId(x, y, z) == Block.cauldron.blockID) {
             	int cauldronMeta = world.getBlockMetadata(x, y, z);
             	if (cauldronMeta < 3) {
-            		world.setBlockMetadataWithNotify(x, y, z, 3);
+            		world.setBlockMetadataWithNotify(x, y, z, 3, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
             		if (!player.capabilities.isCreativeMode) {
                         player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(this.getContainerItem()));
             		}
@@ -60,22 +62,22 @@ public class ItemVase extends ItemMudMod {
         if (movingObjectPosition == null) {
             return itemStack;
         } else {
-            FillBucketEvent event = new FillBucketEvent(player, itemStack, world, movingObjectPosition);
-            if (MinecraftForge.EVENT_BUS.post(event)) {
-                return itemStack;
-            }
-            if (event.getResult() == Event.Result.ALLOW) {
-                if (player.capabilities.isCreativeMode) {
-                    return itemStack;
-                }            	
-                if (--itemStack.stackSize <= 0) {
-                    return event.result;
-                }
-                if (!player.inventory.addItemStackToInventory(new ItemStack(MudMod.vaseWater))) {
-                    player.dropPlayerItem(event.result);
-                }
-                return itemStack;
-            }
+//            FillBucketEvent event = new FillBucketEvent(player, itemStack, world, movingObjectPosition);
+//            if (MinecraftForge.EVENT_BUS.post(event)) {
+//                return itemStack;
+//            }
+//            if (event.getResult() == Event.Result.ALLOW) {
+//                if (player.capabilities.isCreativeMode) {
+//                    return itemStack;
+//                }
+//                if (--itemStack.stackSize <= 0) {
+//                    return event.result;
+//                }
+//                if (!player.inventory.addItemStackToInventory(new ItemStack(MudMod.vaseWater))) {
+//                    player.dropPlayerItem(event.result);
+//                }
+//                return itemStack;
+//            }
             
         	if (movingObjectPosition.typeOfHit == EnumMovingObjectType.TILE) {
                 int movingObjectPosX = movingObjectPosition.blockX;
@@ -88,7 +90,7 @@ public class ItemVase extends ItemMudMod {
 
                 if (this.contents == 0) {
                     if (world.getBlockMaterial(movingObjectPosX, movingObjectPosY, movingObjectPosZ) == Material.water && world.getBlockMetadata(movingObjectPosX, movingObjectPosY, movingObjectPosZ) == 0) {
-                        world.setBlockAndMetadataWithNotify(movingObjectPosX, movingObjectPosY, movingObjectPosZ, 0, 0);
+                        world.setBlock(movingObjectPosX, movingObjectPosY, movingObjectPosZ, 0, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 
                         if (!player.canPlayerEdit(movingObjectPosX, movingObjectPosY, movingObjectPosZ, movingObjectPosition.sideHit, itemStack)) {
                             return itemStack;
@@ -165,7 +167,7 @@ public class ItemVase extends ItemMudMod {
                     world.spawnParticle("largesmoke", movingObjectPosX + Math.random(), movingObjectPosY + Math.random(), movingObjectPosZ + Math.random(), 0.0D, 0.0D, 0.0D);
                 }
             } else {
-                world.setBlockAndMetadataWithNotify(movingObjectPosX, movingObjectPosY, movingObjectPosZ, this.contents, 0);
+                world.setBlock(movingObjectPosX, movingObjectPosY, movingObjectPosZ, this.contents, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
             }
             return true;
         }

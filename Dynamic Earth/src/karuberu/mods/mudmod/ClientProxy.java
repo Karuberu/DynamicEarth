@@ -3,7 +3,7 @@ package karuberu.mods.mudmod;
 import karuberu.mods.mudmod.blocks.BlockGrassSlab;
 import karuberu.mods.mudmod.client.RenderBlockWithOverlay;
 import karuberu.mods.mudmod.client.RenderFallingBlock;
-import karuberu.mods.mudmod.client.RenderMudball;
+import karuberu.mods.mudmod.client.RenderPeatMoss;
 import karuberu.mods.mudmod.entity.EntityBomb;
 import karuberu.mods.mudmod.entity.EntityFallingBlock;
 import karuberu.mods.mudmod.entity.EntityMudball;
@@ -14,7 +14,6 @@ import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
@@ -83,17 +82,18 @@ public class ClientProxy extends CommonProxy {
 	
 	@Override
 	public void registerRenderInformation() {
-		MinecraftForgeClient.preloadTexture(MudMod.clayGolemFile);
-		MinecraftForgeClient.preloadTexture(MudMod.terrainFile);
-		MinecraftForgeClient.preloadTexture(MudMod.itemsFile);
- 		RenderingRegistry.registerEntityRenderingHandler(EntityMudball.class, new RenderMudball(MudMod.mudBlob.getTextureFile(), MudMod.ItemIcon.MUDBLOB.ordinal()));
+ 		RenderingRegistry.registerEntityRenderingHandler(EntityMudball.class, new RenderSnowball(MudMod.mudBlob, 0));
 		RenderingRegistry.registerEntityRenderingHandler(EntityFallingBlock.class, new RenderFallingBlock());
 		if (MudMod.includeBombs) {
-			RenderingRegistry.registerEntityRenderingHandler(EntityBomb.class, new RenderMudball(MudMod.bombLit.getTextureFile(), MudMod.ItemIcon.BOMB.ordinal()));
+			RenderingRegistry.registerEntityRenderingHandler(EntityBomb.class, new RenderSnowball(MudMod.bombLit, 0));
 		}
 		if (MudMod.includeDirtSlabs || MudMod.includePeat) {
 			MudMod.overlayBlockRenderID = RenderingRegistry.getNextAvailableRenderId();
 			RenderingRegistry.registerBlockHandler(new RenderBlockWithOverlay());
+		}
+		if (MudMod.includePeat) {
+			MudMod.peatMossRenderID = RenderingRegistry.getNextAvailableRenderId();
+			RenderingRegistry.registerBlockHandler(new RenderPeatMoss());
 		}
 	}
 }

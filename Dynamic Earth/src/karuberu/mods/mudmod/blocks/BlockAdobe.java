@@ -3,25 +3,34 @@ package karuberu.mods.mudmod.blocks;
 import java.util.Random;
 
 import karuberu.core.MCHelper;
+import karuberu.core.event.INeighborBlockEventHandler;
+import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import karuberu.mods.mudmod.entity.EntityClayGolem;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPumpkin;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.world.World;
 
-public class BlockAdobe extends Block {
+public class BlockAdobe extends Block implements INeighborBlockEventHandler {
 
-	public BlockAdobe(int id, int texture) {
-		super(id, texture, Material.rock);
+	public BlockAdobe(int id) {
+		super(id, Material.rock);
         this.setHardness(1.5F);
         this.setResistance(5.0F);
         this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-        this.setBlockName("adobeDry");
-        this.setTextureFile(MudMod.terrainFile);
+        this.setUnlocalizedName("adobeDry");
+	}
+	
+	@Override
+	public void registerIcons(IconRegister iconRegister) {
+		this.blockIcon = TextureManager.instance().getBlockTexture(Texture.ADOBE);
 	}
     
     @Override
@@ -35,10 +44,11 @@ public class BlockAdobe extends Block {
     }
     
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
+	public void handleNeighborBlockChangeEvent(NeighborBlockChangeEvent event) {
 		if (MudMod.includeClayGolems
-		&& Block.blocksList[neighborBlockID] instanceof BlockPumpkin) {
-			this.tryToSpawnClayGolem(world, x, y, z);
+		&& event.side == MCHelper.SIDE_TOP
+		&& Block.blocksList[event.neighborBlockID] instanceof BlockPumpkin) {
+			this.tryToSpawnClayGolem(event.world, event.x, event.y, event.z);
 		}
 	}
 	
@@ -50,15 +60,15 @@ public class BlockAdobe extends Block {
 	    	boolean Xaligned = world.getBlockId(x - 1, y, z) == this.blockID && world.getBlockId(x + 1, y, z) == this.blockID;
 	    	boolean Zaligned = world.getBlockId(x, y, z - 1) == this.blockID && world.getBlockId(x, y, z + 1) == this.blockID;
 	    	if (Xaligned || Zaligned) {
-	    		world.setBlockWithNotify(x, y + 1, z, 0);
-	    		world.setBlockWithNotify(x, y, z, 0);
-	    		world.setBlockWithNotify(x, y - 1, z, 0);
+	    		world.setBlockToAir(x, y + 1, z);
+	    		world.setBlockToAir(x, y, z);
+	    		world.setBlockToAir(x, y - 1, z);
 	    		if (Xaligned) {
-	    			world.setBlockWithNotify(x - 1, y, z, 0);
-	    			world.setBlockWithNotify(x + 1, y, z, 0);
+	    			world.setBlockToAir(x - 1, y, z);
+	    			world.setBlockToAir(x + 1, y, z);
 	    		} else {
-	    			world.setBlockWithNotify(x, y, z - 1, 0);
-	    			world.setBlockWithNotify(x, y, z + 1, 0);
+	    			world.setBlockToAir(x, y, z - 1);
+	    			world.setBlockToAir(x, y, z + 1);
 	    		}
                 EntityClayGolem golem = new EntityClayGolem(world);
                 golem.setLocationAndAngles((double)x + 0.5D, (double)y - 0.95D, (double)z + 0.5D, 0.0F, 0.0F);

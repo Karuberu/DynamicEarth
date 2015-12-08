@@ -3,8 +3,6 @@ package karuberu.mods.mudmod;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.IFuelHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
-import forestry.api.fuels.EngineCopperFuel;
-import forestry.api.fuels.FuelManager;
 
 public final class FuelHandler implements IFuelHandler {
 
@@ -28,22 +26,18 @@ public final class FuelHandler implements IFuelHandler {
 	
 	public static void register() {
     	GameRegistry.registerFuelHandler(instance);
-    	addAdditionalFuels();
 	}
 	
-	public static void addAdditionalFuels() {
-		// Forestry fuels
-		if (MudMod.enableForestryIntegration) {
-			if (FuelManager.copperEngineFuel != null) {
-				FuelManager.copperEngineFuel.put(
+	public static void registerForestryFuels() {
+		if (forestry.api.fuels.FuelManager.copperEngineFuel != null) {
+			forestry.api.fuels.FuelManager.copperEngineFuel.put(
+				new ItemStack(MudMod.peatBrick),
+				new forestry.api.fuels.EngineCopperFuel(
 					new ItemStack(MudMod.peatBrick),
-					new EngineCopperFuel(
-						new ItemStack(MudMod.peatBrick),
-						1,
-						peatForestryBurnTime
-					)
-				);
-			}
+					1,
+					peatForestryBurnTime
+				)
+			);
 		}
 	}
 }

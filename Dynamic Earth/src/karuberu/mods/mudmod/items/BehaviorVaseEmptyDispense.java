@@ -24,10 +24,10 @@ public class BehaviorVaseEmptyDispense extends BehaviorDefaultDispenseItem
      * Dispense the specified stack, play the dispense sound and spawn particles.
      */
     public ItemStack dispenseStack(IBlockSource dispenser, ItemStack itemStack) {
-        EnumFacing facing = EnumFacing.getFront(dispenser.func_82620_h());
+        EnumFacing facing = BlockDispenser.getFacing(dispenser.getBlockMetadata());
         World world = dispenser.getWorld();
         int x = dispenser.getXInt() + facing.getFrontOffsetX();
-        int y = dispenser.getYInt();
+        int y = dispenser.getYInt() + facing.getFrontOffsetY();
         int z = dispenser.getZInt() + facing.getFrontOffsetZ();
         Material material = world.getBlockMaterial(x, y, z);
         int metadata = world.getBlockMetadata(x, y, z);
@@ -38,11 +38,11 @@ public class BehaviorVaseEmptyDispense extends BehaviorDefaultDispenseItem
         } else {
             return super.dispenseStack(dispenser, itemStack);
         }
-        world.setBlockAndMetadataWithNotify(x, y, z, 0, 0);
+        world.setBlockToAir(x, y, z);
         if (--itemStack.stackSize == 0) {
             itemStack.itemID = item.itemID;
             itemStack.stackSize = 1;
-        }  else if (((TileEntityDispenser)dispenser.func_82619_j()).addItem(new ItemStack(item)) < 0) {
+        }  else if (((TileEntityDispenser)dispenser.getBlockTileEntity()).addItem(new ItemStack(item)) < 0) {
             this.defaultItemDispenseBehavior.dispense(dispenser, new ItemStack(item));
         }
         return itemStack;

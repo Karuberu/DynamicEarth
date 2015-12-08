@@ -1,19 +1,17 @@
-package karuberu.core;
+package karuberu.mods.mudmod;
 
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import karuberu.core.asm.ObfHelper;
-
 import cpw.mods.fml.common.FMLLog;
 
-public final class KaruberuLogger {
+public final class MMLogger {
 	
-	private static final boolean debugEnabled = !ObfHelper.obfuscated;
+	private static final boolean debugEnabled = false;
 	
 	private static final String
-		sourceString = "KaruberuCore";
+		sourceString = "MudMod";
 	private static final Logger
 		logger = Logger.getLogger(sourceString);
 	static {
@@ -40,9 +38,7 @@ public final class KaruberuLogger {
 		if (debugEnabled) {
 			StringBuilder message = new StringBuilder();
 			for (Object object : objects) {
-				if (object == null) {
-					message.append("null");
-				} else if (object instanceof Object[]) {
+				if (object instanceof Object[]) {
 					Object[] array = (Object[])object;
 					message.append(Arrays.toString(array));
 				} else if (object instanceof int[]) {

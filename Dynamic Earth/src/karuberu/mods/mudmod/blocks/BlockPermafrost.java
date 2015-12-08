@@ -4,9 +4,12 @@ import java.util.Random;
 
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.EnumSkyBlock;
@@ -17,21 +20,25 @@ public class BlockPermafrost extends Block {
 	public static int maximumLightLevel = 11;
 	public static float maximumTemperature = 0.15F;
 
-	public BlockPermafrost(int id,int texture) {
-		super(id, texture, Material.rock);
+	public BlockPermafrost(int id) {
+		super(id, Material.rock);
 		this.setHardness(1.5F);
 		this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-		this.setBlockName("permafrost");
+		this.setUnlocalizedName("permafrost");
         this.setTickRandomly(true);
         this.slipperiness = 0.93F;
-        this.setTextureFile(MudMod.terrainFile);
+	}
+	
+	@Override
+	public void registerIcons(IconRegister iconRegister) {
+		this.blockIcon = TextureManager.instance().getBlockTexture(Texture.PERMAFROST);
 	}
 	
     @Override
 	public void updateTick(World world, int x, int y, int z, Random random) {
 	    if (BlockPermafrost.willMelt(world, x, y, z)) {
-	    	world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0);
+	    	world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 	    }
     }
     

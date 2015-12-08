@@ -3,8 +3,11 @@ package karuberu.mods.mudmod.blocks;
 import java.util.Random;
 
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -12,15 +15,19 @@ import net.minecraftforge.common.ForgeDirection;
 
 public class BlockPeatDry extends BlockMudMod {
 
-	public BlockPeatDry(int id, int texture) {
-		super(id, texture, Material.ground);
+	public BlockPeatDry(int id) {
+		super(id, Material.ground);
 		this.setHardness(0.4F);
         this.setStepSound(Block.soundGravelFootstep);
-        this.setBlockName("peatDry");
+        this.setUnlocalizedName("peatDry");
 		this.setHydrateRadius(2);
 		this.setCreativeTab(CreativeTabs.tabBlock);
 		this.setTickRandomly(true);
-        this.setTextureFile(MudMod.terrainFile);
+	}
+	
+	@Override
+	public void registerIcons(IconRegister iconRegister) {
+		this.blockIcon = TextureManager.instance().getBlockTexture(Texture.PEATDRY);
 	}
 	
 	@Override

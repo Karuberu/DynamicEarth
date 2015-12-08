@@ -2,49 +2,60 @@ package karuberu.mods.mudmod.blocks;
 
 import java.util.Random;
 
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
+import karuberu.core.event.INeighborBlockEventHandler;
+import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import karuberu.mods.mudmod.entity.EntityFallingBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockMud extends BlockMudMod implements IFallingBlock {
+public class BlockMud extends BlockMudMod implements IFallingBlock, INeighborBlockEventHandler {
 
     public static final int
     	NORMAL = 0,
     	WET = 1,
     	FALLING = 2,
     	FALLINGWET = 3;
-    private static final int
-    	textureMud = MudMod.BlockTexture.MUD.ordinal(),
-    	textureMudWet = MudMod.BlockTexture.MUDWET.ordinal();
+    @SideOnly(Side.CLIENT)
+    private Icon
+    	textureMud,
+    	textureMudWet;
 
-    public BlockMud(int id, int texture) {
-		super(id, texture, Material.ground);
+    public BlockMud(int id) {
+		super(id, Material.ground);
         this.setHardness(0.5F);
         this.setStepSound(Block.soundGravelFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-        this.setBlockName("mud");
+        this.setUnlocalizedName("mud");
         this.setHydrateRadius(2, 1, 4, 2);
-        this.setTextureFile(MudMod.terrainFile);
+	}
+    
+	@Override
+	public void registerIcons(IconRegister iconRegister) {
+		this.blockIcon = this.textureMud = TextureManager.instance().getBlockTexture(Texture.MUD);
+		this.textureMudWet = TextureManager.instance().getBlockTexture(Texture.MUDWET);
 	}
     
     @Override
 	@SideOnly(Side.CLIENT)
-    public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
+    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata) {
 	    switch(metadata) {
 	    case WET:
 	    case FALLINGWET: return this.textureMudWet;
@@ -55,13 +66,13 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
     @Override
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
     	if (MudMod.enableDeepMud && world.getBlockMetadata(x, y, z) == WET) {
-            return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool(x, y, z, x + 1, y + 1 - 0.125F, z + 1);
+            return AxisAlignedBB.getAABBPool().getAABB(x, y, z, x + 1, y + 1 - 0.25F, z + 1);
     	}
     	return super.getCollisionBoundingBoxFromPool(world, x, y, z);
     }
-
+    	
     @Override
-    public int tickRate() {
+    public int tickRate(World world) {
     	return 1;
     }
 
@@ -131,27 +142,34 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
 	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
         entity.motionX *= 0.4D;
         entity.motionZ *= 0.4D;
+        if (entity.posY > y + 0.5D) {
+        	entity.posY -= 0.1D;
+        }
     }
     
     @Override
-    public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
+    public void onNeighborBlockChange(World world, int x, int y, int z, int neighborID) {
     	int metadata = world.getBlockMetadata(x, y, z);
     	switch (metadata) {
-    	case NORMAL:
-	    	if (this.blockWillCauseMudslide(neighborBlockID)) {
-	    		this.becomeWet(world, x, y, z);
-	    	}
-	    	break;
     	case WET:
     	case FALLING:
     	case FALLINGWET:
     		this.initiateMudSlide(world, x, y, z);
 	    }
-    	Material material = world.getBlockMaterial(x, y + 1, z);
-    	if (material == Material.fire || material == Material.lava) {
-	    	this.becomeDry(world, x, y, z);
-	    }
-    	super.onNeighborBlockChange(world, x, y, z, neighborBlockID);
+    	super.onNeighborBlockChange(world, x, y, z, neighborID);
+    }
+    
+    @Override
+    public void handleNeighborBlockChangeEvent(NeighborBlockChangeEvent event) {
+    	Block neighborBlock = Block.blocksList[event.neighborBlockID];
+    	if (neighborBlock != null) {
+    		if (neighborBlock.blockMaterial == Material.lava
+    		|| (event.side == MCHelper.SIDE_TOP && neighborBlock.blockMaterial == Material.fire)) {
+    			this.becomeDry(event.world, event.x, event.y, event.z);
+    		} else if (neighborBlock.blockMaterial == Material.water) {
+    			this.becomeWet(event.world, event.x, event.y, event.z);
+    		}
+    	}
     }
     
 	protected boolean isHydrated(World world, int x, int y, int z) {
@@ -207,7 +225,7 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
      */
     @Override
     protected void becomeWet(World world, int x, int y, int z) {
-		world.setBlockAndMetadata(x, y, z, this.blockID, WET);
+		world.setBlock(x, y, z, this.blockID, WET, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
 		this.initiateMudSlide(world, x, y, z);
     }
     
@@ -216,7 +234,7 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
     	int metadata = world.getBlockMetadata(x, y, z);
     	switch(metadata) {
     	case WET:
-    		world.setBlockAndMetadataWithUpdate(x, y, z, this.blockID, NORMAL, true);
+    		world.setBlock(x, y, z, this.blockID, NORMAL, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
     		break;
     	default:
        		super.becomeDry(world, x, y, z);
@@ -238,10 +256,10 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
             		case NORMAL: metadata = FALLING; break;
             		case WET: metadata = FALLINGWET; break;
             		}
-        			world.setBlockAndMetadata(xi, yi, zi, this.blockID, metadata);
+        			world.setBlock(xi, yi, zi, this.blockID, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
         		}
         	}
-			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate());
+			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
         } else {
         	// if the block can't fall, change its metadata back to a stable one.
         	int metadata = world.getBlockMetadata(x, y, z);
@@ -250,7 +268,7 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
         		case FALLING: metadata = NORMAL; break;
         		case FALLINGWET: metadata = WET; break;
         		}
-    			world.setBlockAndMetadataWithUpdate(x, y, z, this.blockID, metadata, true);
+    			world.setBlock(x, y, z, this.blockID, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
         	}
         }
     }
@@ -259,6 +277,7 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
     public boolean tryToFall(World world, int x, int y, int z) {
         if (this.canFall(world, x, y, z)) {
             byte radius = 32;
+
             if (BlockFalling.doSpawnEntity()
             && world.checkChunksExist(x - radius, y - radius, z - radius, x + radius, y + radius, z + radius)) {
                 if (!world.isRemote) {
@@ -266,11 +285,11 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
                     world.spawnEntityInWorld(fallingBlock);
                 }
             } else {
-                world.setBlockWithNotify(x, y, z, 0);
+                world.setBlockToAir(x, y, z);
                 while (this.canFall(world, x, y, z)) {
                     --y;
                 } if (y > 0) {
-                    world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, world.getBlockMetadata(x, y, z));
+                    world.setBlock(x, y, z, this.blockID, world.getBlockMetadata(x, y, z), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
                 }
             }
             return true;

@@ -15,7 +15,7 @@ public class RenderMudball extends Render {
 
     private int itemIconIndex;
     private String textureFile;
-        
+    
     public RenderMudball(int iconIndex) {
         this.itemIconIndex = iconIndex;
         this.textureFile = "/gui/items.png";

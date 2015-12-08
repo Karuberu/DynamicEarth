@@ -8,7 +8,10 @@ import cpw.mods.fml.relauncher.SideOnly;
 import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import karuberu.mods.mudmod.entity.EntityBomb;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -27,7 +30,7 @@ public class ItemBombLit extends ItemMudMod {
 	private boolean
 		fireCharged = false;
 
-	public ItemBombLit(int id, int icon) {
+	public ItemBombLit(int id, Texture icon) {
 		super(id, icon);
 		this.setMaxStackSize(1);
 		this.setMaxDamage(getMaxFuseBurnTime());

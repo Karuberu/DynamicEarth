@@ -19,8 +19,8 @@ public class BehaviorBombDispense extends BehaviorProjectileDispense {
 	@Override
     public ItemStack dispenseStack(IBlockSource blockSource, ItemStack itemStack) {
         World world = blockSource.getWorld();
-        IPosition iposition = BlockDispenser.func_82525_a(blockSource);
-        EnumFacing facing = EnumFacing.getFront(blockSource.func_82620_h());
+        IPosition iposition = BlockDispenser.getIPositionFromBlockSource(blockSource);
+        EnumFacing enumfacing = BlockDispenser.getFacing(blockSource.getBlockMetadata());
         EntityBomb bomb;
         if (itemStack != null && itemStack.getItem() instanceof ItemBomb) {
         	ItemStack itemBombLit = new ItemStack(MudMod.bombLit);
@@ -30,7 +30,7 @@ public class BehaviorBombDispense extends BehaviorProjectileDispense {
         } else {
         	bomb = new EntityBomb(world, iposition.getX(), iposition.getY(), iposition.getZ(), 1, 1);
         }
-    	bomb.setThrowableHeading((double)facing.getFrontOffsetX(), 0.1D, (double)facing.getFrontOffsetZ(), this.func_82500_b(), this.func_82498_a());
+    	bomb.setThrowableHeading((double)enumfacing.getFrontOffsetX(), (double)((float)enumfacing.getFrontOffsetY() + 0.1F), (double)enumfacing.getFrontOffsetZ(), this.func_82500_b(), this.func_82498_a());
         world.spawnEntityInWorld((Entity)bomb);
         itemStack.splitStack(1);
         return itemStack;
@@ -40,4 +40,6 @@ public class BehaviorBombDispense extends BehaviorProjectileDispense {
 	protected IProjectile getProjectileEntity(World world, IPosition iposition) {
 		return null;
 	}
+	
+	
 }

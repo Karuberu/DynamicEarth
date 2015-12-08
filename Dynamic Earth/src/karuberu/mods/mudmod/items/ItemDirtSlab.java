@@ -1,6 +1,5 @@
 package karuberu.mods.mudmod.items;
 
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.blocks.BlockGrassSlab;
@@ -9,6 +8,7 @@ import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -33,7 +33,7 @@ public class ItemDirtSlab extends ItemBlock {
 	
     @Override
     @SideOnly(Side.CLIENT)
-    public int getIconFromDamage(int damageValue) {
+    public Icon getIconFromDamage(int damageValue) {
         return Block.blocksList[this.itemID].getBlockTextureFromSideAndMetadata(MCHelper.SIDE_EAST, damageValue);
     }
 
@@ -43,13 +43,13 @@ public class ItemDirtSlab extends ItemBlock {
     }
 
     @Override
-    public String getItemNameIS(ItemStack itemStack) {
+    public String getUnlocalizedName(ItemStack itemStack) {
         return this.singleSlab.getFullSlabName(itemStack.getItemDamage());
     }
 
     @Override
     public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
-    	if (this.isDoubleSlab) {
+        if (this.isDoubleSlab) {
             return super.onItemUse(itemStack, player, world, x, y, z, side, hitX, hitY, hitZ);
         } else if (itemStack.stackSize == 0 || !player.canPlayerEdit(x, y, z, side, itemStack)) {
             return false;
@@ -86,14 +86,14 @@ public class ItemDirtSlab extends ItemBlock {
     	&& world.getBlockId(x, y, z) == MudMod.grassSlab.blockID) {
         	switch (MCHelper.getSlabMetadata(metadata)) {
         	case BlockGrassSlab.GRASS:
-        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.grass.blockID, 0);
+        		blockPlaced = world.setBlock(x, y, z, Block.grass.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
         		break;
         	case BlockGrassSlab.MYCELIUM:
-        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.mycelium.blockID, 0);
+        		blockPlaced = world.setBlock(x, y, z, Block.mycelium.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
         		break;
         	}
     	} else {
-    		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0);
+    		blockPlaced = world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
     	}
     	return blockPlaced;
     }
@@ -101,7 +101,7 @@ public class ItemDirtSlab extends ItemBlock {
     @SideOnly(Side.CLIENT)
     @Override
     public boolean canPlaceItemBlockOnSide(World world, int x, int y, int z, int side, EntityPlayer player, ItemStack itemStack) {
-    	int originalX = x;
+        int originalX = x;
         int originalY = y;
         int originalZ = z;
         int id = world.getBlockId(x, y, z);
@@ -120,8 +120,6 @@ public class ItemDirtSlab extends ItemBlock {
         	case MCHelper.SIDE_NORTH: --x; break;
         	case MCHelper.SIDE_SOUTH: ++x; break;
             }
-        	id = world.getBlockId(x, y, z);
-        	metadata = world.getBlockMetadata(x, y, z);
             return this.blockMatches(id, metadata) ? true : super.canPlaceItemBlockOnSide(world, originalX, originalY, originalZ, side, player, itemStack);
         }
     }
