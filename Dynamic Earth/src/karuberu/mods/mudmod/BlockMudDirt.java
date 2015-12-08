@@ -3,13 +3,17 @@ package karuberu.mods.mudmod;
 import java.util.Random;
 
 import net.minecraft.src.CreativeTabs;
+import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.Material;
 import net.minecraft.src.World;
 
-public class BlockDirt_mod extends BlockMudMod
+public class BlockMudDirt extends BlockMudMod
 {
-    protected BlockDirt_mod(int par1, int par2)
-    {
+    protected BlockMudDirt(int par1, int par2, Material material) {
+        this(par1, par2);
+    }
+    
+    protected BlockMudDirt(int par1, int par2) {
         super(par1, par2, Material.ground);
         this.setCreativeTab(CreativeTabs.tabBlock);
         this.setTickRandomly(true);
@@ -25,6 +29,7 @@ public class BlockDirt_mod extends BlockMudMod
 			this.becomeWet(world, x, y, z);
         }
     }
+    
     @Override
     public void fillWithRain(World world, int x, int y, int z) {
 		this.becomeWet(world, x, y, z);

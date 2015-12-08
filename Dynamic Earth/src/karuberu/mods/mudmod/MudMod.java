@@ -1,10 +1,16 @@
 package karuberu.mods.mudmod;
 
 import net.minecraft.src.Block;
+import net.minecraft.src.BlockDispenser;
+import net.minecraft.src.BlockHalfSlab;
+import net.minecraft.src.BlockWall;
 import net.minecraft.src.CraftingManager;
 import net.minecraft.src.Item;
+import net.minecraft.src.ItemBlock;
+import net.minecraft.src.ItemSlab;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Material;
+import net.minecraft.src.ModLoader;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -13,80 +19,152 @@ import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid = "karuberu-mudMod", name = "MudMod", version = "1.0.0")
-@NetworkMod(clientSideRequired = true, serverSideRequired = false)
+@Mod(
+	modid = "karuberu-mudMod",
+	name = "Mud Mod",
+	version = "1.2.0"
+)
+@NetworkMod(
+	clientSideRequired = true,
+	serverSideRequired = false
+)
 public class MudMod {
 
 	public static Block
-		peatGrass,
     	mud,
     	adobeWet,
      	adobe,
     	blockMudBrick,
-    	blockPeat,
+    	adobeStairs,
+    	mudBrickStairs,
+    	mudBrickWall,
     	muddyWaterStill,
     	muddyWaterMoving;
+	public static BlockHalfSlab
+		adobeSingleSlab,
+		adobeDoubleSlab;
 	public static Item
     	mudBlob,
     	mudBrick,
     	adobeBlob,
     	adobeDust,
+    	adobeSingleSlabItem,
+    	adobeDoubleSlabItem,
     	vaseRaw,
-    	vase,
-    	vaseWater,
     	vaseMilk,
     	earthbowl,
     	earthbowlRaw,
     	earthbowlSoup;
+	public static ItemVase
+		vase,
+		vaseWater;
 	public static enum BlockTexture {
-		MUD, MUDWET, ADOBEWET, ADOBEDRY, MUDBRICK, PEAT
+		MUD,
+		MUDWET,
+		ADOBEWET,
+		ADOBEDRY,
+		MUDBRICK
 	}
 	public static enum ItemIcon {
-		MUDBLOB, MUDBRICK, ADOBEDUST, ADOBEBLOB, VASERAW, VASE, VASEWATER, VASEMILK, EARTHBOWLRAW, EARTHBOWL, EARTHBOWLSOUP
+		MUDBLOB,
+		MUDBRICK,
+		ADOBEDUST,
+		ADOBEBLOB,
+		VASERAW,
+		VASE,
+		VASEWATER,
+		VASEMILK,
+		EARTHBOWLRAW,
+		EARTHBOWL,
+		EARTHBOWLSOUP
 	}
 	private static enum BlockID {
-		MUD, ADOBEWET, ADOBE, MUDBRICK, PEAT, MUDDYWATERFLOWING, MUDDYWATERSTILL, GRASS
+		MUD,
+		ADOBEWET,
+		ADOBE,
+		MUDBRICK,
+		ADOBEDOUBLESLAB,
+		ADOBESINGLESLAB,
+		ADOBESTAIRS,
+		MUDBRICKSTAIRS,
+		MUDBRICKWALL,
+		MUDDYWATERFLOWING,
+		MUDDYWATERSTILL
 	}
 	private static enum ItemID {
-		MUDBLOB, MUDBRICK, ADOBEDUST, ADOBEBLOB, VASERAW, VASE, VASEWATER, VASEMILK, EARTHBOWLRAW, EARTHBOWL, EARTHBOWLSOUP
+		MUDBLOB,
+		MUDBRICK,
+		ADOBEDUST,
+		ADOBEBLOB,
+		VASERAW,
+		VASE,
+		VASEWATER,
+		VASEMILK,
+		EARTHBOWLRAW,
+		EARTHBOWL,
+		EARTHBOWLSOUP
 	}
-	public static final int IDOFFSET = 200;
-	protected static String
+	public static final int
+		IDOFFSET = 200;
+	public static String
 		terrainFile = "/karuberu/mods/mudmod/mudTerrain.png",
-		itemsFile = "/karuberu/mods/mudmod/mudItems.png";
+		itemsFile = "/karuberu/mods/mudmod/mudItems.png",
+		clayGolemFile = "/karuberu/mods/mudmod/clayGolem.png";
 	
     @Init
 	public void load(FMLInitializationEvent event) {
-    	peatGrass = (new BlockGrass_mod(BlockID.GRASS.ordinal()+IDOFFSET)).setHardness(0.5F).setStepSound(Block.soundGravelFootstep).setBlockName("peatGrass");
-    	mud = (new BlockMud(BlockID.MUD.ordinal()+IDOFFSET, BlockTexture.MUD.ordinal())).setHardness(0.5F).setStepSound(Block.soundGravelFootstep).setBlockName("mud");
-	    adobeWet = (new BlockAdobeWet(BlockID.ADOBEWET.ordinal()+IDOFFSET, BlockTexture.ADOBEWET.ordinal())).setHardness(0.5F).setStepSound(Block.soundGravelFootstep).setBlockName("adobeWet");
-	    adobe = (new BlockAdobe(BlockID.ADOBE.ordinal()+IDOFFSET, BlockTexture.ADOBEDRY.ordinal())).setHardness(1.5F).setResistance(5.0F).setStepSound(Block.soundStoneFootstep).setBlockName("adobeDry");
-	    blockMudBrick = (new BlockMudBrick(BlockID.MUDBRICK.ordinal()+IDOFFSET, BlockTexture.MUDBRICK.ordinal())).setHardness(1.5F).setResistance(5.0F).setStepSound(Block.soundStoneFootstep).setBlockName("blockMudBrick");
-	    blockPeat = (new BlockPeat(BlockID.PEAT.ordinal()+IDOFFSET)).setHardness(0.5F).setStepSound(Block.soundGravelFootstep).setBlockName("blockPeat");
-	    muddyWaterMoving = (new BlockMuddyFlowing(BlockID.MUDDYWATERFLOWING.ordinal()+IDOFFSET, Material.water)).setHardness(100.0F).setLightOpacity(3).setBlockName("water");
-	    muddyWaterStill = (new BlockMuddyStationary(BlockID.MUDDYWATERSTILL.ordinal()+IDOFFSET, Material.water)).setHardness(100.0F).setLightOpacity(3).setBlockName("water");
+        mud = (new BlockMud(BlockID.MUD.ordinal()+IDOFFSET, BlockTexture.MUD.ordinal()));
+	    adobeWet = (new BlockAdobeWet(BlockID.ADOBEWET.ordinal()+IDOFFSET, BlockTexture.ADOBEWET.ordinal()));
+	    adobe = (new BlockAdobe(BlockID.ADOBE.ordinal()+IDOFFSET, BlockTexture.ADOBEDRY.ordinal()));
+	    blockMudBrick = (new BlockMudBrick(BlockID.MUDBRICK.ordinal()+IDOFFSET, BlockTexture.MUDBRICK.ordinal()));
+	    adobeDoubleSlab = (BlockHalfSlab) (new BlockAdobeSlab(BlockID.ADOBEDOUBLESLAB.ordinal()+IDOFFSET, true));
+	    adobeSingleSlab = (BlockHalfSlab) (new BlockAdobeSlab(BlockID.ADOBESINGLESLAB.ordinal()+IDOFFSET, false));    
+	    adobeStairs = (new BlockAdobeStairs(BlockID.ADOBESTAIRS.ordinal()+IDOFFSET, adobe, BlockTexture.ADOBEDRY.ordinal())).setBlockName("adobeStairs");
+	    mudBrickStairs = (new BlockAdobeStairs(BlockID.MUDBRICKSTAIRS.ordinal()+IDOFFSET, blockMudBrick, BlockTexture.MUDBRICK.ordinal())).setBlockName("mudBrickStairs");    
+	    mudBrickWall = (new BlockMudBrickWall(BlockID.MUDBRICKWALL.ordinal()+IDOFFSET, blockMudBrick)).setBlockName("mudBrickWall");    
+	    muddyWaterMoving = (new BlockMuddyFlowing(BlockID.MUDDYWATERFLOWING.ordinal()+IDOFFSET, Material.water));
+	    muddyWaterStill = (new BlockMuddyStationary(BlockID.MUDDYWATERSTILL.ordinal()+IDOFFSET, Material.water));
 	    mudBlob = (new ItemMudBlob(ItemID.MUDBLOB.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.MUDBLOB.ordinal(), 0).setItemName("mudBlob");
-	    mudBrick = (new ItemMudBrick(ItemID.MUDBRICK.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.MUDBRICK.ordinal(), 0).setItemName("mudBrick");
+	    mudBrick = (new ItemMudMod(ItemID.MUDBRICK.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.MUDBRICK.ordinal(), 0).setItemName("mudBrick");
 	    adobeDust = (new ItemAdobeDry(ItemID.ADOBEDUST.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.ADOBEDUST.ordinal(), 0).setItemName("adobeLump");
-	    adobeBlob = (new ItemMudBrick(ItemID.ADOBEBLOB.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.ADOBEBLOB.ordinal(), 0).setItemName("adobeBlob");
-	    vaseRaw = (new ItemMudBrick(ItemID.VASERAW.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.VASERAW.ordinal(), 0).setItemName("vaseRaw").setMaxStackSize(1);
-	    vase = (new ItemVase(ItemID.VASE.ordinal()+IDOFFSET, 0)).setIconCoord(ItemIcon.VASE.ordinal(), 0).setItemName("vase");
-	    vaseWater = (new ItemVase(ItemID.VASEWATER.ordinal()+IDOFFSET, Block.waterMoving.blockID)).setIconCoord(ItemIcon.VASEWATER.ordinal(), 0).setItemName("vaseWater").setContainerItem(vase);
-	    vaseMilk = (new ItemVaseMilk(ItemID.VASEMILK.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.VASEMILK.ordinal(), 0).setItemName("vaseMilk").setContainerItem(vase);
-	    earthbowlRaw = (new ItemMudBrick(ItemID.EARTHBOWLRAW.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.EARTHBOWLRAW.ordinal(), 0).setItemName("earthbowlRaw").setMaxStackSize(16);
-	    earthbowl = (new ItemMudBrick(ItemID.EARTHBOWL.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.EARTHBOWL.ordinal(), 0).setItemName("earthbowl");
-	    earthbowlSoup = (new ItemEarthbowlSoup(ItemID.EARTHBOWLSOUP.ordinal()+IDOFFSET, 8)).setIconCoord(ItemIcon.EARTHBOWLSOUP.ordinal(), 0).setItemName("earthbowlSoup").setContainerItem(vase);
-        LanguageRegistry.addName(peatGrass, "Peat Grass");
+	    adobeBlob = (new ItemMudMod(ItemID.ADOBEBLOB.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.ADOBEBLOB.ordinal(), 0).setItemName("adobeBlob");
+	    vaseRaw = (new ItemMudMod(ItemID.VASERAW.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.VASERAW.ordinal(), 0).setItemName("vaseRaw").setMaxStackSize(1);
+	    vase = (ItemVase) (new ItemVase(ItemID.VASE.ordinal()+IDOFFSET, 0)).setIconCoord(ItemIcon.VASE.ordinal(), 0).setItemName("vase");
+	    vaseWater = (ItemVase) (new ItemVase(ItemID.VASEWATER.ordinal()+IDOFFSET, Block.waterMoving.blockID)).setIconCoord(ItemIcon.VASEWATER.ordinal(), 0).setItemName("vaseWater");
+	    vaseMilk = (new ItemVaseMilk(ItemID.VASEMILK.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.VASEMILK.ordinal(), 0).setItemName("vaseMilk");
+	    earthbowlRaw = (new ItemMudMod(ItemID.EARTHBOWLRAW.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.EARTHBOWLRAW.ordinal(), 0).setItemName("earthbowlRaw").setMaxStackSize(16);
+	    earthbowl = (new ItemMudMod(ItemID.EARTHBOWL.ordinal()+IDOFFSET)).setIconCoord(ItemIcon.EARTHBOWL.ordinal(), 0).setItemName("earthbowl");
+	    earthbowlSoup = (new ItemEarthbowlSoup(ItemID.EARTHBOWLSOUP.ordinal()+IDOFFSET, 8)).setIconCoord(ItemIcon.EARTHBOWLSOUP.ordinal(), 0).setItemName("earthbowlSoup");
+        GameRegistry.registerBlock(mud);
+        GameRegistry.registerBlock(adobeWet);
+        GameRegistry.registerBlock(adobe);
+        GameRegistry.registerBlock(blockMudBrick);
+        GameRegistry.registerBlock(adobeSingleSlab, ItemAdobeSlab.class);
+        GameRegistry.registerBlock(adobeDoubleSlab, ItemAdobeSlab.class);
+        GameRegistry.registerBlock(adobeStairs);
+        GameRegistry.registerBlock(mudBrickStairs);
+        GameRegistry.registerBlock(mudBrickWall);
+        GameRegistry.registerBlock(muddyWaterStill);
+        GameRegistry.registerBlock(muddyWaterMoving);
+        GameRegistry.registerDispenserHandler(vase);
+        GameRegistry.registerDispenserHandler(vaseWater);
         LanguageRegistry.addName(mud, "Mud");
         LanguageRegistry.addName(mudBlob, "Mud Blob");
         LanguageRegistry.addName(mudBrick, "Mud Brick");
         LanguageRegistry.addName(adobeWet, "Moist Adobe");
         LanguageRegistry.addName(adobe, "Adobe");
         LanguageRegistry.addName(blockMudBrick, "Mud Brick");
-        LanguageRegistry.addName(blockPeat, "Peat");
+        LanguageRegistry.addName(new ItemStack(adobeSingleSlab, 1, 0), "Adobe Slab");
+        LanguageRegistry.addName(new ItemStack(adobeDoubleSlab, 1, 0), "Adobe Slab");
+        LanguageRegistry.addName(new ItemStack(adobeSingleSlab, 1, 1), "Mud Brick Slab");
+        LanguageRegistry.addName(new ItemStack(adobeDoubleSlab, 1, 1), "Mud Brick Slab");
+        LanguageRegistry.addName(adobeStairs, "Adobe Stairs");
+        LanguageRegistry.addName(mudBrickStairs, "Mud Brick Stairs");
+        LanguageRegistry.addName(mudBrickWall, "Mud Brick Wall");
         LanguageRegistry.addName(adobeBlob, "Moist Adobe Blob");
         LanguageRegistry.addName(adobeDust, "Adobe Dust");
         LanguageRegistry.addName(vaseRaw, "Unfired Vase");
@@ -96,20 +174,16 @@ public class MudMod {
         LanguageRegistry.addName(earthbowlRaw, "Unfired Bowl");
         LanguageRegistry.addName(earthbowl, "Earthenware Bowl");
         LanguageRegistry.addName(earthbowlSoup, "Mushroom Stew");
-        GameRegistry.registerBlock(peatGrass);
-        GameRegistry.registerBlock(mud);
-        GameRegistry.registerBlock(adobeWet);
-        GameRegistry.registerBlock(adobe);
-        GameRegistry.registerBlock(blockMudBrick);
-        GameRegistry.registerBlock(blockPeat);
-        GameRegistry.registerBlock(muddyWaterStill);
-        GameRegistry.registerBlock(muddyWaterMoving);
-        MinecraftForgeClient.preloadTexture(MudMod.terrainFile);
-        MinecraftForgeClient.preloadTexture(MudMod.itemsFile);
+        LanguageRegistry.instance().addStringLocalization("entity.karuberu-mudMod.clayGolem.name", "en_US", "Clay Golem");
         OreDictionary.registerOre(OreDictionary.getOreID("bucketWater"), Item.bucketWater);
         OreDictionary.registerOre(OreDictionary.getOreID("bucketWater"), vaseWater);
         OreDictionary.registerOre(OreDictionary.getOreID("bucketMilk"), Item.bucketMilk);
         OreDictionary.registerOre(OreDictionary.getOreID("bucketMilk"), vaseMilk);
+        EntityRegistry.registerModEntity(EntityMudball.class, "mudball", 0, this, 250, 1, true);
+        EntityRegistry.registerModEntity(EntityClayGolem.class, "clayGolem", 1, this, 250, 5, true);
+        MinecraftForgeClient.preloadTexture(MudMod.terrainFile);
+        MinecraftForgeClient.preloadTexture(MudMod.itemsFile);
+        ClientProxy.registerRenderInformation();
         
         GameRegistry.addRecipe(
             	new ItemStack(mud, 1),
@@ -185,7 +259,57 @@ public class MudMod {
 		            '#', mudBrick
 		        }
 	        );
-        
+
+        GameRegistry.addRecipe(
+	        	new ItemStack(adobeSingleSlab, 6, 0),
+	        	new Object[] {
+		            "###",
+		            '#', adobe
+		        }
+	        );
+        GameRegistry.addRecipe(
+	        	new ItemStack(adobeSingleSlab, 6, 1),
+	        	new Object[] {
+		            "###",
+		            '#', blockMudBrick
+		        }
+	        );
+        GameRegistry.addRecipe(
+	        	new ItemStack(adobeStairs, 4),
+	        	new Object[] {
+		            "#  ",
+		            "## ",
+		            "###",
+		            '#', adobe
+		        }
+	        );
+        GameRegistry.addRecipe(
+	        	new ItemStack(adobeStairs, 4),
+	        	new Object[] {
+		            "  #",
+		            " ##",
+		            "###",
+		            '#', adobe
+		        }
+	        );
+        GameRegistry.addRecipe(
+	        	new ItemStack(mudBrickStairs, 4),
+	        	new Object[] {
+	        		"#  ",
+	        		"## ",
+		            "###",
+		            '#', blockMudBrick
+		        }
+	        );
+        GameRegistry.addRecipe(
+	        	new ItemStack(mudBrickStairs, 4),
+	        	new Object[] {
+	        		"  #",
+	        		" ##",
+		            "###",
+		            '#', blockMudBrick
+		        }
+	        );
         GameRegistry.addRecipe(
 	        	new ItemStack(adobeWet, 1),
 	        	new Object[] {

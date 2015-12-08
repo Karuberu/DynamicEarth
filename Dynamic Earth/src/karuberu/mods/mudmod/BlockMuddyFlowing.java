@@ -8,10 +8,13 @@ public class BlockMuddyFlowing extends BlockFlowing {
 
 	protected BlockMuddyFlowing(int par1, Material par2Material) {
 		super(par1, par2Material);
+		this.setHardness(100.0F);
+		this.setLightOpacity(3);
+		this.setBlockName("muddyWaterFlowing");
 	}
-
-	@Override
-	public int colorMultiplier(IBlockAccess iblockaccess, int i, int j, int k) {
-	    return 0xbd9e82;
-	}
+	
+//    @Override
+//    public String getTextureFile() {
+//        return MudMod.terrainFile;
+//    }
 }

@@ -14,6 +14,7 @@ public class ItemVaseMilk extends ItemBucketMilk
         super(par1);
         this.setMaxStackSize(1);
         this.setCreativeTab(CreativeTabs.tabMisc);
+        this.setContainerItem(MudMod.vase);
     }
     
     @Override
