@@ -78,7 +78,7 @@ public class RecipeWetBlocks implements IRecipe {
 			if (result.itemID == MudMod.adobeBlob.itemID
 			&& count % 4 == 0) {
 				result = new ItemStack(MudMod.adobeWet, count / 4);
-			} else if (result.itemID == MudMod.adobeBlob.itemID
+			} else if (result.itemID == MudMod.mudBlob.itemID
 			&& count % 4 == 0) {
 				result = new ItemStack(MudMod.mud, count / 4);
 			} else {

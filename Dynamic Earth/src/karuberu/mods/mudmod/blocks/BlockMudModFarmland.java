@@ -43,7 +43,9 @@ public class BlockMudModFarmland extends BlockMudMod implements ITextureOverlay 
 		PEAT_7 = PEAT_6 + 1;
 	private Icon
 		textureFarmlandDry,
-		textureFarmlandWet;
+		textureFarmlandWet,
+		texturePeatFarmlandDry,
+		texturePeatFarmlandWet;
 	@SuppressWarnings("unused")
 	private static ItemStack
 		dirt,
@@ -79,8 +81,10 @@ public class BlockMudModFarmland extends BlockMudMod implements ITextureOverlay 
 	
 	@Override
 	public void registerIcons(IconRegister iconRegister) {
-		this.blockIcon = this.textureFarmlandDry = TextureManager.instance().getBlockTexture(Texture.PEATFARMLAND);
-		this.textureFarmlandWet = TextureManager.instance().getBlockTexture(Texture.PEATFARMLANDWET);
+		this.blockIcon = this.textureFarmlandDry = iconRegister.registerIcon("farmland_dry");
+		this.textureFarmlandWet = iconRegister.registerIcon("farmland_wet");
+		this.texturePeatFarmlandDry = TextureManager.instance().getBlockTexture(Texture.PEATFARMLAND);
+		this.texturePeatFarmlandWet = TextureManager.instance().getBlockTexture(Texture.PEATFARMLANDWET);
 	}
 
     @Override
@@ -89,9 +93,9 @@ public class BlockMudModFarmland extends BlockMudMod implements ITextureOverlay 
     	if (side == MCHelper.SIDE_TOP) {
     		switch (metadata) {
     		case SANDY_DRY:
-    		case SOIL_DRY: return Block.tilledField.getIcon(side, 0);
+    		case SOIL_DRY: return this.textureFarmlandDry;
     		case MUD:
-    		case SOIL_WET: return Block.tilledField.getIcon(side, 1);
+    		case SOIL_WET: return this.textureFarmlandWet;
     		case PEAT_1:
     		case PEAT_2:
     		case PEAT_3:
@@ -99,14 +103,14 @@ public class BlockMudModFarmland extends BlockMudMod implements ITextureOverlay 
     		case PEAT_5:
     		case PEAT_6:
     		case PEAT_7:
-    		case PEAT_WET: return this.textureFarmlandWet;
-    		case PEAT_DRY: return this.textureFarmlandDry;
+    		case PEAT_WET: return this.texturePeatFarmlandWet;
+    		case PEAT_DRY: return this.texturePeatFarmlandDry;
     		default: return Block.dirt.getBlockTextureFromSide(side);
     		}
     	} else {
     		ItemStack itemStack = BlockMudModFarmland.getAssociatedBlock(metadata);
     		Block block = Block.blocksList[itemStack.itemID];
-    		return block == null ? Block.dirt.getIcon(side, metadata) : block.getIcon(side, itemStack.getItemDamage());
+    		return block == null ? Block.dirt.getBlockTextureFromSide(side) : block.getIcon(side, itemStack.getItemDamage());
     	}
     }
     

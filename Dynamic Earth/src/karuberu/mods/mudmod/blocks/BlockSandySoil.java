@@ -25,7 +25,7 @@ import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 
-public class BlockSandySoil extends Block implements ITextureOverlay, ITillable, IGrassyBlock {
+public class BlockSandySoil extends Block implements ITextureOverlay, ITillable, IGrassyBlock, ISoil {
 	public static final int
 		DIRT = 0,
 		GRASS = 1,
@@ -86,7 +86,7 @@ public class BlockSandySoil extends Block implements ITextureOverlay, ITillable,
     		default: return myceliumSide;
     		}
         }
-        return super.getIcon(side, metadata);
+        return dirt;
     }
     
 	@Override
@@ -224,6 +224,16 @@ public class BlockSandySoil extends Block implements ITextureOverlay, ITillable,
     }
     
 	@Override
+	public boolean canSpread(World world, int x, int y, int z) {
+		EnumGrassType type = this.getType(world, x, y, z);
+		if ((type == EnumGrassType.GRASS || type == EnumGrassType.MYCELIUM)
+		&& world.getBlockLightValue(x, y + 1, z) >= 9) {
+			return true;
+		}
+		return false;
+	}
+    
+	@Override
 	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {
 		if (this.getType(world, x, y, z) == EnumGrassType.DIRT
 		&& this.isLightSufficient(world, x, y, z)) {
@@ -299,6 +309,18 @@ public class BlockSandySoil extends Block implements ITextureOverlay, ITillable,
 			}
 		}
 		return super.canSustainPlant(world, x, y, z, direction, plant);
+	}
+	
+	@Override
+	public boolean willForcePlantToStay(World world, int x, int y, int z, IPlantable plant) {
+		int metadata = world.getBlockMetadata(x, y, z);
+		switch (metadata) {
+		case MYCELIUM:
+			if (plant.getPlantType(world, x, y + 1, z) == EnumPlantType.Cave) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	@Override

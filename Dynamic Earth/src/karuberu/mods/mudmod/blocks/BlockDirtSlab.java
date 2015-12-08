@@ -50,8 +50,10 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
     @Override
     public Icon getIcon(int side, int metadata) {
         switch (MCHelper.getSlabMetadata(metadata)) {
-        case DIRT: return Block.dirt.getBlockTextureFromSide(side);
-        default: return super.getIcon(side, metadata);
+        case DIRT:
+        	return Block.dirt.getBlockTextureFromSide(side);
+        default:
+        	return Block.dirt.getBlockTextureFromSide(side);
         }
     }
     
@@ -71,6 +73,11 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
     	return world.getBlockLightValue(x, y + 1, z) >= 4
         && world.getBlockLightOpacity(x, y + 1, z) <= 2;
     }
+    
+	@Override
+	public boolean canSpread(World world, int x, int y, int z) {
+		return false;
+	}
 	
 	@Override
 	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {

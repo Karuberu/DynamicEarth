@@ -45,7 +45,7 @@ public class BlockAdobeSlab extends BlockHalfSlab {
         case 1:
             return MudMod.blockMudBrick.getBlockTextureFromSide(side);
         default:
-        	return super.getIcon(side, metadata);
+        	return MudMod.adobe.getBlockTextureFromSide(side);
         }
     }
     

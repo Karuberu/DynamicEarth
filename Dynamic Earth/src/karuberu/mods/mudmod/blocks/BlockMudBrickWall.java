@@ -27,9 +27,6 @@ public class BlockMudBrickWall extends BlockWall {
     
     @Override
     public Icon getIcon(int side, int metadata){
-    	switch(metadata) {
-    	case 0: return MudMod.blockMudBrick.getBlockTextureFromSide(side);
-    	}
-    	return super.getIcon(side, metadata);
+    	return MudMod.blockMudBrick.getBlockTextureFromSide(side);
     }
 }

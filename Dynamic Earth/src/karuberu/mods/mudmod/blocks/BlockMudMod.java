@@ -245,6 +245,7 @@ public abstract class BlockMudMod extends Block {
 	 */
 	public static boolean isBlockGettingRainedOn(World world, int x, int y, int z) {
 		return world.isRaining()
+		&& world.provider.isSurfaceWorld()
 		&& world.canBlockSeeTheSky(x, y + 1, z)
 		&& world.getPrecipitationHeight(x, z) <= y + 1
 		&& !world.getBiomeGenForCoords(x, z).getEnableSnow();

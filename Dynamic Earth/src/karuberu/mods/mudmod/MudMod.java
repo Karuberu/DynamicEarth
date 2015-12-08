@@ -65,7 +65,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 	useMetadata=true,
 	modid = "DynamicEarth",
 	name = "Dynamic Earth",
-	version = "1.7.0",
+	version = "1.7.1.1",
 	dependencies = "required-after:Forge; required-after:karuberu-core; after:Thaumcraft; after:Forestry; after:ThermalExpansion")
 @NetworkMod(
 	clientSideRequired = true,

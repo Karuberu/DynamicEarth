@@ -22,12 +22,13 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.ColorizerGrass;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IGrassyBlock {
+public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IGrassyBlock, ISoil {
 
     public static final String[]
     	slabType = new String[] {"grass", "mycelium"};
@@ -80,6 +81,16 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
             world.setBlock(x, y, z, MudMod.dirtSlab.blockID, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT), MCHelper.NOTIFY_WITHOUT_UPDATE);
 		}
     }
+    
+	@Override
+	public boolean canSpread(World world, int x, int y, int z) {
+		EnumGrassType type = this.getType(world, x, y, z);
+		if ((type == EnumGrassType.GRASS || type == EnumGrassType.MYCELIUM)
+		&& world.getBlockLightValue(x, y + 1, z) >= 9) {
+			return true;
+		}
+		return false;
+	}
 	
 	@Override
 	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {}
@@ -110,6 +121,20 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
 	@Override
 	public boolean canSustainPlant(World world, int x, int y, int z, ForgeDirection direction, IPlantable plant) {
 		return MudMod.dirtSlab.canSustainPlant(world, x, y, z, direction, plant);
+	}
+	
+	@Override
+	public boolean willForcePlantToStay(World world, int x, int y, int z, IPlantable plant) {
+		int metadata = world.getBlockMetadata(x, y, z);
+		if (MCHelper.isTopSlab(metadata)) {
+			switch (MCHelper.getSlabMetadata(metadata)) {
+			case MYCELIUM:
+				if (plant.getPlantType(world, x, y + 1, z) == EnumPlantType.Cave) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	    
     @Override
@@ -152,7 +177,7 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
     		default: return this.textureMyceliumSide;
     		}
         }
-        return super.getIcon(side, metadata);
+        return Block.grass.getBlockTextureFromSide(side);
     }
     
     private boolean isSnowAdjacent(IBlockAccess blockAccess, int x, int y, int z) {

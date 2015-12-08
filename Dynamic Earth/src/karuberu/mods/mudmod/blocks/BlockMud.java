@@ -322,7 +322,8 @@ public class BlockMud extends BlockMudMod implements IFallingBlock, INeighborBlo
 				int xi = coordinates[0],
 					yi = coordinates[1],
 					zi = coordinates[2];
-				if (world.getBlockId(xi, yi, zi) == this.blockID) {
+				if (world.getBlockId(xi, yi, zi) == this.blockID
+				&& ((BlockMud)MudMod.mud).canFall(world, xi, yi, zi)) {
 					int metadata = world.getBlockMetadata(x, y, z);
 					switch(metadata) {
 					case NORMAL: metadata = FALLING; break;
@@ -330,20 +331,20 @@ public class BlockMud extends BlockMudMod implements IFallingBlock, INeighborBlo
 					case FERTILE: metadata = FALLING_FERTILE; break;
 					case FERTILE_WET: metadata = FALLING_FERTILE_WET; break;
 					}
-					world.setBlock(xi, yi, zi, this.blockID, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
+					world.setBlockMetadataWithNotify(xi, yi, zi, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
 				}
 			}
 			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
 		} else {
 			// if the block can't fall, change its metadata back to a stable one.
 			int metadata = world.getBlockMetadata(x, y, z);
-			if (metadata == FALLING || metadata == FALLING_WET) {
-				switch(metadata) {
-				case FALLING: metadata = NORMAL; break;
-				case FALLING_WET: metadata = WET; break;
-				case FALLING_FERTILE: metadata = FERTILE; break;
-				case FALLING_FERTILE_WET: metadata = FERTILE_WET; break;
-				}
+			switch(metadata) {
+			case FALLING: metadata = NORMAL; break;
+			case FALLING_WET: metadata = WET; break;
+			case FALLING_FERTILE: metadata = FERTILE; break;
+			case FALLING_FERTILE_WET: metadata = FERTILE_WET; break;
+			}
+			if (metadata != world.getBlockMetadata(x, y, z)) {
 				world.setBlock(x, y, z, this.blockID, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
 			}
 		}

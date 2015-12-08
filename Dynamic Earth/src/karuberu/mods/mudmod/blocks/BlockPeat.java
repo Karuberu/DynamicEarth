@@ -87,7 +87,7 @@ public class BlockPeat extends BlockMudMod implements ITextureOverlay, ITillable
     @SideOnly(Side.CLIENT)
     public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
 		int metadata = blockAccess.getBlockMetadata(x, y, z);
-    	return getIcon(side, metadata);
+    	return this.getIcon(side, metadata);
 	}
     
     @Override

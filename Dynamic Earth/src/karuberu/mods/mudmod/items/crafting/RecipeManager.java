@@ -12,6 +12,7 @@ import karuberu.mods.mudmod.liquids.LiquidHandler;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraftforge.liquids.LiquidDictionary;
 import cpw.mods.fml.common.registry.GameRegistry;
 
@@ -40,15 +41,25 @@ public final class RecipeManager {
 	}
 
 	public static void addSmelting() {
-	    GameRegistry.addSmelting(MudMod.mud.blockID, new ItemStack(Block.dirt), 0.1F);
+		FurnaceRecipes.smelting().addSmelting(MudMod.mud.blockID, BlockMud.NORMAL, new ItemStack(Block.dirt), 0.1F);
+		FurnaceRecipes.smelting().addSmelting(MudMod.mud.blockID, BlockMud.WET, new ItemStack(Block.dirt), 0.1F);
 	    if (MudMod.includeMudBrick) {
 	    	GameRegistry.addSmelting(MudMod.mudBlob.itemID, new ItemStack(MudMod.mudBrick), 0.1F);
+	    }
+	    if (MudMod.includeAdobe) {
+		    GameRegistry.addSmelting(MudMod.adobeWet.blockID, new ItemStack(MudMod.adobe), 0.1F);
+		    GameRegistry.addSmelting(MudMod.vaseRaw.itemID, new ItemStack(MudMod.vase), 0.1F);
+		    GameRegistry.addSmelting(MudMod.earthbowlRaw.itemID, new ItemStack(MudMod.earthbowl), 0.1F);
 	    }
 	    if (MudMod.includePermafrost) {
 	    	GameRegistry.addSmelting(MudMod.permafrost.blockID, new ItemStack(Block.dirt), 0.1F);
 	    }
 	    if (MudMod.includePeat) {
 	    	GameRegistry.addSmelting(MudMod.peatClump.itemID, ModHandler.getPeatBrick(), 0.1F);
+	    }
+	    if (MudMod.includeFertileSoil) {
+			FurnaceRecipes.smelting().addSmelting(MudMod.mud.blockID, BlockMud.FERTILE, new ItemStack(MudMod.fertileSoil), 0.1F);
+			FurnaceRecipes.smelting().addSmelting(MudMod.mud.blockID, BlockMud.FERTILE_WET, new ItemStack(MudMod.fertileSoil), 0.1F);
 	    }
 	}
 	
@@ -163,9 +174,6 @@ public final class RecipeManager {
 	    if (MudMod.includeBombs && RecipeManager.canCraftBombs) {
 		    GameRegistry.addRecipe(RecipeBombs.instance);
 	    }
-	    GameRegistry.addSmelting(MudMod.adobeWet.blockID, new ItemStack(MudMod.adobe), 0.1F);
-	    GameRegistry.addSmelting(MudMod.vaseRaw.itemID, new ItemStack(MudMod.vase), 0.1F);
-	    GameRegistry.addSmelting(MudMod.earthbowlRaw.itemID, new ItemStack(MudMod.earthbowl), 0.1F);
 	}
 	
 	private static void addPeatRecipes() {

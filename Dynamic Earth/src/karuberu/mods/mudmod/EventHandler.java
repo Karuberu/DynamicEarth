@@ -194,7 +194,7 @@ public class EventHandler {
 						block = (IGrassyBlock)Block.blocksList[blockId];
 					}
 					EnumGrassType type = block.getType(world, x, y, z);
-					if (type != EnumGrassType.DIRT) {
+					if (block.canSpread(world, x, y, z)) {
 						for (int i = 0; i < 4; ++i) {
 							int xi = x + world.rand.nextInt(3) - 1;
 							int yi = y + world.rand.nextInt(5) - 3;
@@ -261,6 +261,7 @@ public class EventHandler {
 		if (block != null) {
 			if (MudMod.enableMyceliumTilling
 			&& block.blockID == Block.mycelium.blockID) {
+				world.setBlock(x, y, z, Block.tilledField.blockID);
 				tilled = true;
 			} else if (block instanceof ITillable
 			&& ((ITillable)block).onTilled(world, x, y, z)) {
@@ -269,6 +270,7 @@ public class EventHandler {
 			if (tilled) {
 				event.entityPlayer.swingItem();
 				event.current.attemptDamageItem(1, world.rand);
+				block = Block.blocksList[world.getBlockId(x, y, z)];
 				world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), block.stepSound.getStepSound(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
 			}
 		}
