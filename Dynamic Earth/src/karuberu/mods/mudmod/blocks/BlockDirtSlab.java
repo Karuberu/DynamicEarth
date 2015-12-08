@@ -3,14 +3,16 @@ package karuberu.mods.mudmod.blocks;
 import java.util.List;
 import java.util.Random;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.Reference;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import net.minecraft.world.ColorizerGrass;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -23,8 +25,6 @@ public class BlockDirtSlab extends BlockHalfSlab {
     	slabType = new String[] {"dirt"};
     public static final int
     	DIRT = 0;
-    private static final int
-    	TEXTURE_DIRT = 2;
 
     public BlockDirtSlab(int id, boolean par2) {
 		super(id, par2, Material.ground);
@@ -35,13 +35,16 @@ public class BlockDirtSlab extends BlockHalfSlab {
         this.useNeighborBrightness[id] = true;
 	}
     
+	@Override
+	public void func_94332_a(IconRegister iconRegister) {}
+
     @Override
     public void onBlockAdded(World world, int x, int y, int z) {
     	if (this.isOpaqueCube()) {
         	int metadata = world.getBlockMetadata(x, y, z);
-        	switch(metadata & 7) {
+        	switch(MCHelper.getSlabMetadata(metadata)) {
         	case DIRT:
-        		world.setBlock(x, y, z, Block.dirt.blockID);
+        		world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
         		break;
         	}
     	}
@@ -50,7 +53,7 @@ public class BlockDirtSlab extends BlockHalfSlab {
     @Override
 	public void updateTick(World world, int x, int y, int z, Random random) {
     	int metadata = world.getBlockMetadata(x, y, z);
-    	switch(metadata & 7) {
+    	switch(MCHelper.getSlabMetadata(metadata)) {
     	case DIRT:
     		this.tryToGrowGrass(world, x, y, z, random);
     		break;
@@ -60,7 +63,8 @@ public class BlockDirtSlab extends BlockHalfSlab {
 	protected void tryToGrowGrass(World world, int x, int y, int z, Random random) {
         if (!world.isRemote) {
         	int metadata = world.getBlockMetadata(x, y, z);
-        	if (world.getBlockLightValue(x, y + 1, z) >= 4 && world.getBlockLightOpacity(x, y + 1, z) <= 2) {
+        	if (world.getBlockLightValue(x, y + 1, z) >= 4
+        	&& world.getBlockLightOpacity(x, y + 1, z) <= 2) {
                 for (int i = 0; i < 4; i++) {
                     int xi = x + random.nextInt(3) - 1,
                     	yi = y + random.nextInt(5) - 1,
@@ -70,7 +74,7 @@ public class BlockDirtSlab extends BlockHalfSlab {
                     && world.getBlockLightValue(xi, yi + 1, zi) >= 9
                     && world.getBlockLightOpacity(xi, yi + 1, zi) <= 2) {
                 		int slabType = metadata - DIRT;
-                        world.setBlockAndMetadataWithNotify(x, y, z, MudMod.grassSlab.blockID, BlockGrassSlab.GRASS + slabType);
+                        world.setBlockAndMetadataWithNotify(x, y, z, MudMod.grassSlab.blockID, BlockGrassSlab.GRASS + slabType, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
                     }
                 }
             }
@@ -78,16 +82,16 @@ public class BlockDirtSlab extends BlockHalfSlab {
     }
 	
     @Override
-    public int getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
+    public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
     	int metadata = blockAccess.getBlockMetadata(x, y, z);
     	return this.getBlockTextureFromSideAndMetadata(side, metadata);
     }
     
     @Override
-    public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
-        switch (metadata & 7) {
-        case DIRT: return TEXTURE_DIRT;
-        default: return TEXTURE_DIRT;
+    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata) {
+        switch (MCHelper.getSlabMetadata(metadata)) {
+        case DIRT: return Block.dirt.getBlockTextureFromSide(side);
+        default: return super.getBlockTextureFromSideAndMetadata(side, metadata);
         }
     }
     
@@ -106,7 +110,7 @@ public class BlockDirtSlab extends BlockHalfSlab {
         if (metadata < 0 || metadata >= slabType.length) {
             metadata = 0;
         }
-        return super.getBlockName() + "." + slabType[metadata];
+        return super.getUnlocalizedName() + "." + slabType[metadata];
 	}
 	
 	@Override

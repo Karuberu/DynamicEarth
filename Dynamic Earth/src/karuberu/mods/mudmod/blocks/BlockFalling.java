@@ -2,6 +2,7 @@ package karuberu.mods.mudmod.blocks;
 
 import java.util.Random;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.entity.EntityFallingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
@@ -13,10 +14,6 @@ public class BlockFalling extends Block implements IFallingBlock {
 	
 	public BlockFalling(int id, Material material) {
 		super(id, material);
-	}
-	
-	public BlockFalling(int id, int textureIndex, Material material) {
-		super(id, textureIndex, material);
 	}
 	
 	@Override
@@ -31,11 +28,11 @@ public class BlockFalling extends Block implements IFallingBlock {
                     world.spawnEntityInWorld(fallingBlock);
                 }
             } else {
-                world.setBlockWithNotify(x, y, z, 0);
+                world.func_94571_i(x, y, z);
                 while (this.canFallBelow(world, x, y, z)) {
                     --y;
                 } if (y > 0) {
-                    world.setBlockWithNotify(x, y, z, this.blockID);
+                    world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, world.getBlockMetadata(x, y, z), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
                 }
             }
             return true;

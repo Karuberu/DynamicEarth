@@ -1,7 +1,9 @@
 package karuberu.mods.mudmod.items;
 
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import karuberu.mods.mudmod.entity.EntityBomb;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,13 +11,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-public class ItemBomb extends Item {
+public class ItemBomb extends ItemMudMod {
 	
-	public ItemBomb(int i) {
-		super(i);
+	public ItemBomb(int id, Texture icon) {
+		super(id, icon);
 		this.setCreativeTab(CreativeTabs.tabCombat);
 		this.setMaxStackSize(16);
-        this.setTextureFile(MudMod.itemsFile);
 	}
 	
     @Override

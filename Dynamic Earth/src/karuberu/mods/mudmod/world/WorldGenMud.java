@@ -2,6 +2,7 @@ package karuberu.mods.mudmod.world;
 
 import java.util.Random;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.blocks.BlockMud;
 
@@ -16,8 +17,8 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 import cpw.mods.fml.common.IWorldGenerator;
 
 public class WorldGenMud implements IWorldGenerator {
-    public static int depth = 4;
-        
+    private static int depth = 4;
+    
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
 		assert WorldGenMudMod.doGenerateMud;
@@ -33,8 +34,10 @@ public class WorldGenMud implements IWorldGenerator {
 				            while (yi > yi - this.depth && yi > 0) {
 				            	yi--;
 				                int id = world.getBlockId(xi, yi, zi);
-				                if (id == Block.dirt.blockID || id == Block.grass.blockID) {
-				                    world.setBlock(xi, yi, zi, MudMod.mud.blockID);
+				                if (id == Block.dirt.blockID
+				                || id == Block.grass.blockID
+				                || id == Block.mycelium.blockID) {
+				                    world.setBlockAndMetadataWithNotify(xi, yi, zi, MudMod.mud.blockID, BlockMud.WET, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
 				                } else if (world.getBlockMaterial(xi, yi, zi) != Material.water) {
 				                	break;
 				                }

@@ -23,7 +23,7 @@ public class EntityBomb extends EntityThrowable {
 
     public EntityBomb(World world, EntityLiving entityLiving) {
         super(world, entityLiving);
-        this.fuse = ItemBombLit.maxFuseLength;
+        this.fuse = ItemBombLit.fuseLength;
     }
     
     public EntityBomb(World world, EntityLiving entityLiving, int fuse) {
@@ -36,7 +36,7 @@ public class EntityBomb extends EntityThrowable {
     
     public EntityBomb(World world, double x, double y, double z) {
         super(world, x, y, z);
-        this.fuse = ItemBombLit.maxFuseLength;
+        this.fuse = ItemBombLit.fuseLength;
     }
     
     public EntityBomb(World world, double x, double y, double z, int fuse) {

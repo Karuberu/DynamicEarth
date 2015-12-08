@@ -4,7 +4,8 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 
 public class MaterialPeatMoss extends Material {
-	public static final MaterialPeatMoss material = new MaterialPeatMoss();
+	public static final MaterialPeatMoss
+		material = new MaterialPeatMoss();
 
 	public MaterialPeatMoss() {
 		super(MapColor.foliageColor);

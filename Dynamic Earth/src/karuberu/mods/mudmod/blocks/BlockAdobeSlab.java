@@ -3,14 +3,16 @@ package karuberu.mods.mudmod.blocks;
 import java.util.List;
 import java.util.Random;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.MudMod.BlockTexture;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -24,20 +26,22 @@ public class BlockAdobeSlab extends BlockHalfSlab {
 		this.setResistance(5.0F);
 		this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-		this.setBlockName("adobeSlab");
+		this.setUnlocalizedName("adobeSlab");
         this.useNeighborBrightness[id] = true;
-        this.setTextureFile(MudMod.terrainFile);
 	}
     
+	@Override
+	public void func_94332_a(IconRegister iconRegister) {}
+
     @Override
-    public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
-        switch (metadata & 7) {
-            case 0:
-                return MudMod.BlockTexture.ADOBEDRY.ordinal();
-            case 1:
-                return MudMod.BlockTexture.MUDBRICK.ordinal();
-            default:
-                return 0;
+    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata) {
+        switch (MCHelper.getSlabMetadata(metadata)) {
+        case 0:
+            return MudMod.adobe.getBlockTextureFromSide(side);
+        case 1:
+            return MudMod.blockMudBrick.getBlockTextureFromSide(side);
+        default:
+        	return super.getBlockTextureFromSideAndMetadata(side, metadata);
         }
     }
     
@@ -56,7 +60,7 @@ public class BlockAdobeSlab extends BlockHalfSlab {
         if (metadata < 0 || metadata >= slabType.length) {
             metadata = 0;
         }
-        return super.getBlockName() + "." + slabType[metadata];
+        return super.getUnlocalizedName() + "." + slabType[metadata];
 	}
 	
 	@Override
@@ -71,8 +75,7 @@ public class BlockAdobeSlab extends BlockHalfSlab {
     }
 	
     @SideOnly(Side.CLIENT)
-    private static boolean isBlockSingleSlab(int blockId)
-    {
+    private static boolean isBlockSingleSlab(int blockId) {
         return blockId == MudMod.adobeSingleSlab.blockID;
     }
 }

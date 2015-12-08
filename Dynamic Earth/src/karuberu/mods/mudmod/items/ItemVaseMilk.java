@@ -1,8 +1,12 @@
 package karuberu.mods.mudmod.items;
 
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBucketMilk;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -14,17 +18,21 @@ public class ItemVaseMilk extends ItemBucketMilk
         this.setMaxStackSize(1);
         this.setCreativeTab(CreativeTabs.tabMisc);
         this.setContainerItem(MudMod.vase);
-        this.setTextureFile(MudMod.itemsFile);
     }
     
+	@Override
+	public void func_94581_a(IconRegister iconRegister) {
+		this.iconIndex = TextureManager.instance().getItemTexture(Texture.VASEMILK);
+	}
+	
     @Override
-    public ItemStack onFoodEaten(ItemStack itemStack, World world, EntityPlayer player) {
+    public ItemStack onEaten(ItemStack itemStack, World world, EntityPlayer player) {
         if (!player.capabilities.isCreativeMode) {
             --itemStack.stackSize;
         }
 
         if (!world.isRemote) {
-            player.curePotionEffects(itemStack);
+            player.curePotionEffects(new ItemStack(Item.bucketMilk));
         }
 
         return itemStack.stackSize <= 0 ? new ItemStack(this.getContainerItem()) : itemStack;

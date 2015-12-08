@@ -9,6 +9,7 @@ import java.util.Iterator;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.blocks.IFallingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
@@ -20,6 +21,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.IPlantable;
 
 public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawnData
 {
@@ -126,7 +128,7 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
                         this.setDead();
                         return;
                     }
-                    this.worldObj.setBlockWithNotify(x, y, z, 0);
+                    this.worldObj.func_94571_i(x, y, z);
                 }
 
                 if (this.onGround) {
@@ -138,9 +140,9 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
                         this.setDead();
 
                         if (!this.blockDestroyed
-                        && this.worldObj.canPlaceEntityOnSide(this.blockID, x, y, z, true, 1, (Entity)null)
+                        && this.worldObj.canPlaceEntityOnSide(this.blockID, x, y, z, true, 1, (Entity)null, (ItemStack)null)
                         && !BlockSand.canFallBelow(this.worldObj, x, y - 1, z)
-                        && this.worldObj.setBlockAndMetadataWithNotify(x, y, z, this.blockID, this.metadata)) {
+                        && this.worldObj.setBlockAndMetadataWithNotify(x, y, z, this.blockID, this.metadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
                         	if (Block.blocksList[this.blockID] instanceof IFallingBlock) {
                                 ((IFallingBlock)Block.blocksList[this.blockID]).onFinishFalling(this.worldObj, x, y, z, this.metadata);
                             }
@@ -192,7 +194,7 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound tagCompound) {
-        tagCompound.setByte(BLOCKID, (byte)this.blockID);
+        tagCompound.setInteger(BLOCKID, this.blockID);
         tagCompound.setByte(METADATA, (byte)this.metadata);
         tagCompound.setByte(FALLTIME, (byte)this.fallTime);
         tagCompound.setBoolean(SHOULDDROPITEM, this.shouldDropItem);
@@ -203,7 +205,7 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound tagCompound) {
-        this.blockID = tagCompound.getByte(BLOCKID) & 255;
+        this.blockID = tagCompound.getInteger(BLOCKID);
         this.metadata = tagCompound.getByte(METADATA) & 255;
         this.fallTime = tagCompound.getByte(FALLTIME) & 255;
         if (tagCompound.hasKey(DEALSFALLDAMAGE)) {

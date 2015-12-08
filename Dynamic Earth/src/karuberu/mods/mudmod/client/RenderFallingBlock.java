@@ -33,9 +33,9 @@ public class RenderFallingBlock extends Render
         World world = entityFallingBlock.getWorld();
     	GL11.glPushMatrix();
         GL11.glTranslatef((float)x, (float)y, (float)z);
+        this.loadTexture("/terrain.png");
         GL11.glDisable(GL11.GL_LIGHTING);
         Tessellator tessellator;
-        this.loadTexture(block.getTextureFile());
 
         if (block instanceof BlockAnvil && block.getRenderType() == 35) {
             this.renderBlocks.blockAccess = world;

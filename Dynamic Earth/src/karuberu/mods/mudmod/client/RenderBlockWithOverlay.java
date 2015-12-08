@@ -2,13 +2,14 @@ package karuberu.mods.mudmod.client;
 
 import org.lwjgl.opengl.GL11;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.Reference;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.ForgeHooksClient;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
@@ -34,7 +35,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
         float normalX = 0.0F;
         float normalY = 0.0F;
         float normalZ = 0.0F;
-        int blockTexture;
+        Icon blockTexture;
            
         renderer.setRenderBoundsFromBlock(block);
         block.setBlockBoundsForItemRender();
@@ -45,32 +46,32 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
         for (int side = 0; side < 6; side++) {
         	blockTexture = block.getBlockTextureFromSideAndMetadata(side, metadata);
         	switch (side) {
-        	case Reference.SIDE_BOTTOM:
+        	case MCHelper.SIDE_BOTTOM:
         		normalX = 0.0F;
         		normalY = -1.0F;
         		normalZ = 0.0F;
         		break;
-        	case Reference.SIDE_TOP:
+        	case MCHelper.SIDE_TOP:
         		normalX = 0.0F;
         		normalY = 1.0F;
         		normalZ = 0.0F;
         		break;
-        	case Reference.SIDE_EAST:
+        	case MCHelper.SIDE_EAST:
         		normalX = 0.0F;
         		normalY = 0.0F;
         		normalZ = -1.0F;
         		break;
-        	case Reference.SIDE_WEST:
+        	case MCHelper.SIDE_WEST:
         		normalX = 0.0F;
         		normalY = 0.0F;
         		normalZ = 1.0F;
         		break;
-        	case Reference.SIDE_NORTH:
+        	case MCHelper.SIDE_NORTH:
         		normalX = -1.0F;
         		normalY = 0.0F;
         		normalZ = 0.0F;
         		break;
-        	case Reference.SIDE_SOUTH:
+        	case MCHelper.SIDE_SOUTH:
         		normalX = 1.0F;
         		normalY = 0.0F;
         		normalZ = 0.0F;
@@ -84,17 +85,17 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
             tessellator.startDrawingQuads();
             tessellator.setNormal(normalX, normalY, normalZ);
             switch (side) {
-        	case Reference.SIDE_BOTTOM:
+        	case MCHelper.SIDE_BOTTOM:
         		renderer.renderBottomFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case Reference.SIDE_TOP:
+        	case MCHelper.SIDE_TOP:
         		renderer.renderTopFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case Reference.SIDE_EAST:
+        	case MCHelper.SIDE_EAST:
         		renderer.renderEastFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case Reference.SIDE_WEST:
+        	case MCHelper.SIDE_WEST:
         		renderer.renderWestFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case Reference.SIDE_NORTH:
+        	case MCHelper.SIDE_NORTH:
         		renderer.renderNorthFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case Reference.SIDE_SOUTH:
+        	case MCHelper.SIDE_SOUTH:
         		renderer.renderSouthFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
             }
             tessellator.draw();
@@ -142,50 +143,47 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
         int checkY = y;
         int checkZ = z;
         boolean brightnessCheck = true;
-        float sideColor = 0.0F;
-        int blockTexture;
-        int overlayTexture;
+        float sideColor = 0.0F;    
         
+        Icon texture;
         for(int side = 0; side < 6; side++) {
-    		blockTexture = block.getBlockTexture(blockAccess, x, y, z, side);
-    		overlayTexture = textureOverlay.getOverlayTexture(blockAccess, x, y, z, side);
         	switch(side) {
-        	case Reference.SIDE_BOTTOM:
+        	case MCHelper.SIDE_BOTTOM:
         		checkX = x;
         		checkY = y - 1;
         		checkZ = z;
         		brightnessCheck = renderer.renderMinY > 0.0D;
         		sideColor = 0.5F;
         		break;
-        	case Reference.SIDE_TOP:
+        	case MCHelper.SIDE_TOP:
         		checkX = x;
         		checkY = y + 1;
         		checkZ = z;
         		brightnessCheck = renderer.renderMaxY < 1.0D;
         		sideColor = 1.0F;
         		break;
-        	case Reference.SIDE_EAST:
+        	case MCHelper.SIDE_EAST:
         		checkX = x;
         		checkY = y;
         		checkZ = z - 1;
         		brightnessCheck = renderer.renderMinZ > 0.0D;
         		sideColor = 0.8F;
         		break;
-        	case Reference.SIDE_WEST:
+        	case MCHelper.SIDE_WEST:
         		checkX = x;
         		checkY = y;
         		checkZ = z + 1;
         		brightnessCheck = renderer.renderMaxZ < 1.0D;
         		sideColor = 0.8F;
         		break;
-        	case Reference.SIDE_NORTH:
+        	case MCHelper.SIDE_NORTH:
         		checkX = x - 1;
         		checkY = y;
         		checkZ = z;
         		brightnessCheck = renderer.renderMinX > 0.0D;
         		sideColor = 0.6F;
         		break;
-        	case Reference.SIDE_SOUTH:
+        	case MCHelper.SIDE_SOUTH:
         		checkX = x + 1;
         		checkY = y;
         		checkZ = z;
@@ -199,44 +197,34 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
             	} else {
             		tessellator.setBrightness(block.getMixedBrightnessForBlock(blockAccess, checkX, checkY, checkZ));
             	}
-            	if (textureOverlay.willColorizeBaseTexture(blockAccess, x, y, z, side)) {
-            		tessellator.setColorOpaque_F(r * sideColor, g * sideColor, b * sideColor);
-            	} else {
-            		tessellator.setColorOpaque_F(sideColor, sideColor, sideColor);
-            	}
-            	switch(side) {
-            	case Reference.SIDE_BOTTOM:
-            		renderer.renderBottomFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_TOP:
-            		renderer.renderTopFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_EAST:
-            		renderer.renderEastFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_WEST:
-            		renderer.renderWestFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_NORTH:
-            		renderer.renderNorthFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_SOUTH:
-            		renderer.renderSouthFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	}
-                if (textureOverlay.doTextureOverlay(blockMetadata) && overlayTexture > -1) {
-                	switch(side) {
-                	case Reference.SIDE_BOTTOM:
-                		renderer.renderBottomFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_TOP:
-                		renderer.renderTopFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_EAST:
-                		renderer.renderEastFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_WEST:
-                		renderer.renderWestFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_NORTH:
-                		renderer.renderNorthFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_SOUTH:
-                		renderer.renderSouthFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	}
-    				tessellator.setColorOpaque_F(r * sideColor, g * sideColor, b * sideColor);
-    	        }
-                blockRendered = true;
-            }
+        		texture = block.getBlockTexture(blockAccess, x, y, z, side);
+        		int numberOfPasses = textureOverlay.getNumberOfPasses(blockAccess.getBlockMetadata(x, y, z));
+        		for (int pass = 0; pass < numberOfPasses; pass++) {
+        			if (pass > 0) {
+    		            texture = textureOverlay.getOverlayTexture(blockAccess, x, y, z, side, pass);        				
+        			}
+        			if (texture != null) {
+	                	if (textureOverlay.willColorizeTexture(blockAccess, x, y, z, side, pass)) {
+	        				tessellator.setColorOpaque_F(r * sideColor, g * sideColor, b * sideColor);	            		
+	                	}
+		            	switch(side) {
+		            	case MCHelper.SIDE_BOTTOM:
+		            		renderer.renderBottomFace(block, (double)x, (double)y, (double)z, texture); break;
+		            	case MCHelper.SIDE_TOP:
+		            		renderer.renderTopFace(block, (double)x, (double)y, (double)z, texture); break;
+		            	case MCHelper.SIDE_EAST:
+		            		renderer.renderEastFace(block, (double)x, (double)y, (double)z, texture); break;
+		            	case MCHelper.SIDE_WEST:
+		            		renderer.renderWestFace(block, (double)x, (double)y, (double)z, texture); break;
+		            	case MCHelper.SIDE_NORTH:
+		            		renderer.renderNorthFace(block, (double)x, (double)y, (double)z, texture); break;
+		            	case MCHelper.SIDE_SOUTH:
+		            		renderer.renderSouthFace(block, (double)x, (double)y, (double)z, texture); break;
+		            	}
+		                blockRendered = true;
+        			}
+	            }
+    		}
         }
         return blockRendered;
 	}
@@ -247,8 +235,8 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
 		ITextureOverlay textureOverlay = (ITextureOverlay)block;
         int blockMetadata = blockAccess.getBlockMetadata(x, y, z);
         boolean doTextureOverlay;
-        int blockTexture;
-        int overlayTexture;
+        Icon blockTexture;
+        Icon texture;
         int side;
 
 		renderer.enableAO = true;
@@ -313,30 +301,30 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
         float sideColor = 0.0F;
     	float lightValue = 0.0F;
     	int brightness = 0;
-    	boolean willColorizeBaseTexture = false;
+    	boolean willColorizeTexture = false;
         for (side = 0; side < 6; side++) {
         	switch(side) {
-        	case Reference.SIDE_BOTTOM:
+        	case MCHelper.SIDE_BOTTOM:
         		checkX = x; checkY = y - 1; checkZ = z;
         		sideColor = 0.5F;
         		break;
-        	case Reference.SIDE_TOP:
+        	case MCHelper.SIDE_TOP:
         		checkX = x; checkY = y + 1; checkZ = z;
         		sideColor = 1.0F;
         		break;
-        	case Reference.SIDE_EAST:
+        	case MCHelper.SIDE_EAST:
         		checkX = x; checkY = y; checkZ = z - 1;
         		sideColor = 0.8F;
         		break;
-        	case Reference.SIDE_WEST:
+        	case MCHelper.SIDE_WEST:
         		checkX = x; checkY = y; checkZ = z + 1;
         		sideColor = 0.8F;
         		break;
-        	case Reference.SIDE_NORTH:
+        	case MCHelper.SIDE_NORTH:
         		checkX = x - 1; checkY = y; checkZ = z;
         		sideColor = 0.6F;
         		break;
-        	case Reference.SIDE_SOUTH:
+        	case MCHelper.SIDE_SOUTH:
         		checkX = x + 1; checkY = y; checkZ = z;
         		sideColor = 0.6F;
         		break;
@@ -344,27 +332,27 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
             if (renderer.renderAllFaces || block.shouldSideBeRendered(blockAccess, checkX, checkY, checkZ, side)) {
                 if (renderer.aoType > 0) {
                 	switch (side) {
-                	case Reference.SIDE_BOTTOM:
+                	case MCHelper.SIDE_BOTTOM:
                         if (renderer.renderMinY <= 0.0D) { --y; }
                         break;
-                	case Reference.SIDE_TOP:
+                	case MCHelper.SIDE_TOP:
                         if (renderer.renderMaxY >= 1.0D) { ++y; }
                         break;
-                	case Reference.SIDE_EAST:
+                	case MCHelper.SIDE_EAST:
                         if (renderer.renderMinZ <= 0.0D) { --z; }
                         break;
-                	case Reference.SIDE_WEST:
+                	case MCHelper.SIDE_WEST:
                         if (renderer.renderMaxZ >= 1.0D) { ++z; }
                         break;
-                	case Reference.SIDE_NORTH:
+                	case MCHelper.SIDE_NORTH:
                         if (renderer.renderMinX <= 0.0D) { --x; }
                         break;
-                	case Reference.SIDE_SOUTH:
+                	case MCHelper.SIDE_SOUTH:
                         if (renderer.renderMaxX >= 1.0D) { ++x; }
                         break;
                 	}
                 	switch (side) {
-                	case Reference.SIDE_BOTTOM:
+                	case MCHelper.SIDE_BOTTOM:
                         renderer.aoBrightnessXYNN = block.getMixedBrightnessForBlock(blockAccess, x - 1, y, z);
                         renderer.aoBrightnessYZNN = block.getMixedBrightnessForBlock(blockAccess, x, y, z - 1);
                         renderer.aoBrightnessYZNP = block.getMixedBrightnessForBlock(blockAccess, x, y, z + 1);
@@ -374,7 +362,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
                         renderer.aoLightValueScratchYZNP = block.getAmbientOcclusionLightValue(blockAccess, x, y, z + 1);
                         renderer.aoLightValueScratchXYPN = block.getAmbientOcclusionLightValue(blockAccess, x + 1, y, z);
                         break;
-                	case Reference.SIDE_TOP:
+                	case MCHelper.SIDE_TOP:
                         renderer.aoBrightnessXYNP = block.getMixedBrightnessForBlock(blockAccess, x - 1, y, z);
                         renderer.aoBrightnessXYPP = block.getMixedBrightnessForBlock(blockAccess, x + 1, y, z);
                         renderer.aoBrightnessYZPN = block.getMixedBrightnessForBlock(blockAccess, x, y, z - 1);
@@ -384,7 +372,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
                         renderer.aoLightValueScratchYZPN = block.getAmbientOcclusionLightValue(blockAccess, x, y, z - 1);
                         renderer.aoLightValueScratchYZPP = block.getAmbientOcclusionLightValue(blockAccess, x, y, z + 1);
                         break;
-    				case Reference.SIDE_EAST:
+    				case MCHelper.SIDE_EAST:
     					renderer.aoLightValueScratchXZNN = block.getAmbientOcclusionLightValue(blockAccess, x - 1, y, z);
     					renderer.aoLightValueScratchYZNN = block.getAmbientOcclusionLightValue(blockAccess, x, y - 1, z);
     					renderer.aoLightValueScratchYZPN = block.getAmbientOcclusionLightValue(blockAccess, x, y + 1, z);
@@ -394,7 +382,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     					renderer.aoBrightnessYZPN = block.getMixedBrightnessForBlock(blockAccess, x, y + 1, z);
     					renderer.aoBrightnessXZPN = block.getMixedBrightnessForBlock(blockAccess, x + 1, y, z);
     					break;
-    				case Reference.SIDE_WEST:
+    				case MCHelper.SIDE_WEST:
     					renderer.aoLightValueScratchXZNP = block.getAmbientOcclusionLightValue(blockAccess, x - 1, y, z);
     					renderer.aoLightValueScratchXZPP = block.getAmbientOcclusionLightValue(blockAccess, x + 1, y, z);
     					renderer.aoLightValueScratchYZNP = block.getAmbientOcclusionLightValue(blockAccess, x, y - 1, z);
@@ -404,7 +392,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     					renderer.aoBrightnessYZNP = block.getMixedBrightnessForBlock(blockAccess, x, y - 1, z);
     					renderer.aoBrightnessYZPP = block.getMixedBrightnessForBlock(blockAccess, x, y + 1, z);
     					break;
-    				case Reference.SIDE_NORTH:
+    				case MCHelper.SIDE_NORTH:
     					renderer.aoLightValueScratchXYNN = block.getAmbientOcclusionLightValue(blockAccess, x, y - 1, z);
     					renderer.aoLightValueScratchXZNN = block.getAmbientOcclusionLightValue(blockAccess, x, y, z - 1);
     					renderer.aoLightValueScratchXZNP = block.getAmbientOcclusionLightValue(blockAccess, x, y, z + 1);
@@ -414,7 +402,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     					renderer.aoBrightnessXZNP = block.getMixedBrightnessForBlock(blockAccess, x, y, z + 1);
     					renderer.aoBrightnessXYNP = block.getMixedBrightnessForBlock(blockAccess, x, y + 1, z);
     					break;
-    				case Reference.SIDE_SOUTH:
+    				case MCHelper.SIDE_SOUTH:
     					renderer.aoLightValueScratchXYPN = block.getAmbientOcclusionLightValue(blockAccess, x, y - 1, z);
     					renderer.aoLightValueScratchXZPN = block.getAmbientOcclusionLightValue(blockAccess, x, y, z - 1);
     					renderer.aoLightValueScratchXZPP = block.getAmbientOcclusionLightValue(blockAccess, x, y, z + 1);
@@ -426,7 +414,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     					break;
     				}
                 	switch (side) {
-                	case Reference.SIDE_BOTTOM:
+                	case MCHelper.SIDE_BOTTOM:
                         if (!renderer.aoGrassXYZCNN && !renderer.aoGrassXYZNNC) {
                             renderer.aoLightValueScratchXYZNNN = renderer.aoLightValueScratchXYNN;
                             renderer.aoBrightnessXYZNNN = renderer.aoBrightnessXYNN;
@@ -456,7 +444,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
                             renderer.aoBrightnessXYZPNP = block.getMixedBrightnessForBlock(blockAccess, x + 1, y, z + 1);
                         }
                         break;
-                	case Reference.SIDE_TOP:
+                	case MCHelper.SIDE_TOP:
                         if (!renderer.aoGrassXYZCPN && !renderer.aoGrassXYZNPC) {
                             renderer.aoLightValueScratchXYZNPN = renderer.aoLightValueScratchXYNP;
                             renderer.aoBrightnessXYZNPN = renderer.aoBrightnessXYNP;
@@ -486,7 +474,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
                             renderer.aoBrightnessXYZPPP = block.getMixedBrightnessForBlock(blockAccess, x + 1, y, z + 1);
                         }
                         break;
-                	case Reference.SIDE_EAST:
+                	case MCHelper.SIDE_EAST:
     					if (!renderer.aoGrassXYZNCN && !renderer.aoGrassXYZCNN) {
     						renderer.aoLightValueScratchXYZNNN = renderer.aoLightValueScratchXZNN;
     						renderer.aoBrightnessXYZNNN = renderer.aoBrightnessXZNN;
@@ -516,7 +504,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     						renderer.aoBrightnessXYZPPN = block.getMixedBrightnessForBlock(blockAccess, x + 1, y + 1, z);
     					}
     					break;
-                	case Reference.SIDE_WEST:
+                	case MCHelper.SIDE_WEST:
     					if (!renderer.aoGrassXYZNCP && !renderer.aoGrassXYZCNP) {
     						renderer.aoLightValueScratchXYZNNP = renderer.aoLightValueScratchXZNP;
     						renderer.aoBrightnessXYZNNP = renderer.aoBrightnessXZNP;
@@ -546,7 +534,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     						renderer.aoBrightnessXYZPPP = block.getMixedBrightnessForBlock(blockAccess, x + 1, y + 1, z);
     					}
                 		break;
-                	case Reference.SIDE_NORTH:
+                	case MCHelper.SIDE_NORTH:
     					if (!renderer.aoGrassXYZNCN && !renderer.aoGrassXYZNNC) {
     						renderer.aoLightValueScratchXYZNNN = renderer.aoLightValueScratchXZNN;
     						renderer.aoBrightnessXYZNNN = renderer.aoBrightnessXZNN;
@@ -576,7 +564,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     						renderer.aoBrightnessXYZNPP = block.getMixedBrightnessForBlock(blockAccess, x, y + 1, z + 1);
     					}
                 		break;
-                	case Reference.SIDE_SOUTH:
+                	case MCHelper.SIDE_SOUTH:
     					if (!renderer.aoGrassXYZPNC && !renderer.aoGrassXYZPCN) {
     						renderer.aoLightValueScratchXYZPNN = renderer.aoLightValueScratchXZPN;
     						renderer.aoBrightnessXYZPNN = renderer.aoBrightnessXZPN;
@@ -608,27 +596,27 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     					break;
                 	}
                 	switch (side) {
-                	case Reference.SIDE_BOTTOM:
+                	case MCHelper.SIDE_BOTTOM:
                         if (renderer.renderMinY <= 0.0D) { ++y; }
                         break;
-                	case Reference.SIDE_TOP:
+                	case MCHelper.SIDE_TOP:
                         if (renderer.renderMaxY >= 1.0D) { --y; }
                         break;
-                	case Reference.SIDE_EAST:
+                	case MCHelper.SIDE_EAST:
                         if (renderer.renderMinZ <= 0.0D) { ++z; }
                         break;
-                	case Reference.SIDE_WEST:
+                	case MCHelper.SIDE_WEST:
                         if (renderer.renderMaxZ >= 1.0D) { --z; }
                         break;
-                	case Reference.SIDE_NORTH:
+                	case MCHelper.SIDE_NORTH:
                         if (renderer.renderMinX <= 0.0D) { ++x; }
                         break;
-                	case Reference.SIDE_SOUTH:
+                	case MCHelper.SIDE_SOUTH:
                         if (renderer.renderMaxX >= 1.0D) { --x; }
                         break;
                 	}
                 	switch (side) {
-                	case Reference.SIDE_BOTTOM:
+                	case MCHelper.SIDE_BOTTOM:
                         lightValueTopLeft = (renderer.aoLightValueScratchXYZNNP + renderer.aoLightValueScratchXYNN + renderer.aoLightValueScratchYZNP + renderer.aoLightValueYNeg) / 4.0F;
                         lightValueTopRight = (renderer.aoLightValueScratchYZNP + renderer.aoLightValueYNeg + renderer.aoLightValueScratchXYZPNP + renderer.aoLightValueScratchXYPN) / 4.0F;
                         lightValueBottomRight = (renderer.aoLightValueYNeg + renderer.aoLightValueScratchYZNN + renderer.aoLightValueScratchXYPN + renderer.aoLightValueScratchXYZPNN) / 4.0F;
@@ -638,7 +626,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
                         renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessYZNN, renderer.aoBrightnessXYPN, renderer.aoBrightnessXYZPNN, mixedBrightnessMinY);
                         renderer.brightnessBottomLeft = renderer.getAoBrightness(renderer.aoBrightnessXYNN, renderer.aoBrightnessXYZNNN, renderer.aoBrightnessYZNN, mixedBrightnessMinY);
                         break;
-                	case Reference.SIDE_TOP:
+                	case MCHelper.SIDE_TOP:
                         lightValueTopRight = (renderer.aoLightValueScratchXYZNPP + renderer.aoLightValueScratchXYNP + renderer.aoLightValueScratchYZPP + renderer.aoLightValueYPos) / 4.0F;
                         lightValueTopLeft = (renderer.aoLightValueScratchYZPP + renderer.aoLightValueYPos + renderer.aoLightValueScratchXYZPPP + renderer.aoLightValueScratchXYPP) / 4.0F;
                         lightValueBottomLeft = (renderer.aoLightValueYPos + renderer.aoLightValueScratchYZPN + renderer.aoLightValueScratchXYPP + renderer.aoLightValueScratchXYZPPN) / 4.0F;
@@ -648,7 +636,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
                         renderer.brightnessBottomLeft = renderer.getAoBrightness(renderer.aoBrightnessYZPN, renderer.aoBrightnessXYPP, renderer.aoBrightnessXYZPPN, mixedBrightnessMaxY);
                         renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessXYNP, renderer.aoBrightnessXYZNPN, renderer.aoBrightnessYZPN, mixedBrightnessMaxY);
                         break;
-    				case Reference.SIDE_EAST:
+    				case MCHelper.SIDE_EAST:
     					lightValueTopLeft = (renderer.aoLightValueScratchXZNN + renderer.aoLightValueScratchXYZNPN + renderer.aoLightValueZNeg + renderer.aoLightValueScratchYZPN) / 4.0F;
     					lightValueBottomLeft = (renderer.aoLightValueZNeg + renderer.aoLightValueScratchYZPN + renderer.aoLightValueScratchXZPN + renderer.aoLightValueScratchXYZPPN) / 4.0F;
     					lightValueBottomRight = (renderer.aoLightValueScratchYZNN + renderer.aoLightValueZNeg + renderer.aoLightValueScratchXYZPNN + renderer.aoLightValueScratchXZPN) / 4.0F;
@@ -658,7 +646,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     					renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessYZNN, renderer.aoBrightnessXYZPNN, renderer.aoBrightnessXZPN, mixedBrightnessMinZ);
     					renderer.brightnessTopRight = renderer.getAoBrightness(renderer.aoBrightnessXYZNNN, renderer.aoBrightnessXZNN, renderer.aoBrightnessYZNN, mixedBrightnessMinZ);
     					break;
-    				case Reference.SIDE_WEST:
+    				case MCHelper.SIDE_WEST:
     					lightValueTopLeft = (renderer.aoLightValueScratchXZNP + renderer.aoLightValueScratchXYZNPP + renderer.aoLightValueZPos + renderer.aoLightValueScratchYZPP) / 4.0F;
     					lightValueTopRight = (renderer.aoLightValueZPos + renderer.aoLightValueScratchYZPP + renderer.aoLightValueScratchXZPP + renderer.aoLightValueScratchXYZPPP) / 4.0F;
     					lightValueBottomRight = (renderer.aoLightValueScratchYZNP + renderer.aoLightValueZPos + renderer.aoLightValueScratchXYZPNP + renderer.aoLightValueScratchXZPP) / 4.0F;
@@ -668,7 +656,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     					renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessYZNP, renderer.aoBrightnessXYZPNP, renderer.aoBrightnessXZPP, mixedBrightnessMaxZ);
     					renderer.brightnessBottomLeft = renderer.getAoBrightness(renderer.aoBrightnessXYZNNP, renderer.aoBrightnessXZNP, renderer.aoBrightnessYZNP, mixedBrightnessMaxZ);
     					break;
-    				case Reference.SIDE_NORTH:
+    				case MCHelper.SIDE_NORTH:
     					lightValueTopRight = (renderer.aoLightValueScratchXYNN + renderer.aoLightValueScratchXYZNNP + renderer.aoLightValueXNeg + renderer.aoLightValueScratchXZNP) / 4.0F;
     					lightValueTopLeft = (renderer.aoLightValueXNeg + renderer.aoLightValueScratchXZNP + renderer.aoLightValueScratchXYNP + renderer.aoLightValueScratchXYZNPP) / 4.0F;
     					lightValueBottomLeft = (renderer.aoLightValueScratchXZNN + renderer.aoLightValueXNeg + renderer.aoLightValueScratchXYZNPN + renderer.aoLightValueScratchXYNP) / 4.0F;
@@ -678,7 +666,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     					renderer.brightnessBottomLeft = renderer.getAoBrightness(renderer.aoBrightnessXZNN, renderer.aoBrightnessXYZNPN, renderer.aoBrightnessXYNP, mixedBrightnessMinX);
     					renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessXYZNNN, renderer.aoBrightnessXYNN, renderer.aoBrightnessXZNN, mixedBrightnessMinX);
     					break;
-    				case Reference.SIDE_SOUTH:
+    				case MCHelper.SIDE_SOUTH:
     					lightValueTopLeft = (renderer.aoLightValueScratchXYPN + renderer.aoLightValueScratchXYZPNP + renderer.aoLightValueXPos + renderer.aoLightValueScratchXZPP) / 4.0F;
     					lightValueTopRight = (renderer.aoLightValueXPos + renderer.aoLightValueScratchXZPP + renderer.aoLightValueScratchXYPP + renderer.aoLightValueScratchXYZPPP) / 4.0F;
     					lightValueBottomRight = (renderer.aoLightValueScratchXZPN + renderer.aoLightValueXPos + renderer.aoLightValueScratchXYZPPN + renderer.aoLightValueScratchXYPP) / 4.0F;
@@ -691,27 +679,27 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
     				}
                 } else {
                 	switch (side) {
-                	case Reference.SIDE_BOTTOM:
+                	case MCHelper.SIDE_BOTTOM:
                 		lightValue = renderer.aoLightValueYNeg;
                 		brightness = renderer.aoBrightnessXYNN;
                 		break;
-                	case Reference.SIDE_TOP:
+                	case MCHelper.SIDE_TOP:
                 		lightValue = renderer.aoLightValueYPos;
                 		brightness = mixedBrightnessMaxY;
                 		break;
-                	case Reference.SIDE_EAST:
+                	case MCHelper.SIDE_EAST:
                 		lightValue = renderer.aoLightValueZNeg;
                 		brightness = mixedBrightnessMinZ;
                 		break;
-                	case Reference.SIDE_WEST:
+                	case MCHelper.SIDE_WEST:
                 		lightValue = renderer.aoLightValueZPos;
                 		brightness = mixedBrightnessMaxZ;
                 		break;
-                	case Reference.SIDE_NORTH:
+                	case MCHelper.SIDE_NORTH:
                 		lightValue = renderer.aoLightValueXNeg;
                 		brightness = mixedBrightnessMinX;
                 		break;
-                	case Reference.SIDE_SOUTH:
+                	case MCHelper.SIDE_SOUTH:
                 		lightValue = renderer.aoLightValueXPos;
                 		brightness = mixedBrightnessMaxX;
                 		break;
@@ -725,79 +713,46 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
                     renderer.brightnessBottomRight = brightness;
                     renderer.brightnessTopRight = brightness;
                 }
-
-                willColorizeBaseTexture = textureOverlay.willColorizeBaseTexture(blockAccess, x, y, z, side);
-                renderer.colorRedTopLeft = renderer.colorRedBottomLeft = renderer.colorRedBottomRight = renderer.colorRedTopRight = (willColorizeBaseTexture ? r : 1.0F) * sideColor;
-                renderer.colorGreenTopLeft = renderer.colorGreenBottomLeft = renderer.colorGreenBottomRight = renderer.colorGreenTopRight = (willColorizeBaseTexture ? g : 1.0F) * sideColor;
-                renderer.colorBlueTopLeft = renderer.colorBlueBottomLeft = renderer.colorBlueBottomRight = renderer.colorBlueTopRight = (willColorizeBaseTexture ? b : 1.0F) * sideColor;
-                renderer.colorRedTopLeft *= lightValueTopLeft;
-                renderer.colorGreenTopLeft *= lightValueTopLeft;
-                renderer.colorBlueTopLeft *= lightValueTopLeft;
-                renderer.colorRedBottomLeft *= lightValueBottomLeft;
-                renderer.colorGreenBottomLeft *= lightValueBottomLeft;
-                renderer.colorBlueBottomLeft *= lightValueBottomLeft;
-                renderer.colorRedBottomRight *= lightValueBottomRight;
-                renderer.colorGreenBottomRight *= lightValueBottomRight;
-                renderer.colorBlueBottomRight *= lightValueBottomRight;
-                renderer.colorRedTopRight *= lightValueTopRight;
-                renderer.colorGreenTopRight *= lightValueTopRight;
-                renderer.colorBlueTopRight *= lightValueTopRight;
-                String textureFile = block.getTextureFile();
-                if (block instanceof ICamouflageBlock) {
-                	Block donorBlock = Block.blocksList[((ICamouflageBlock)block).getDonorBlockID(blockAccess, x, y, z)];
-                	ForgeHooksClient.bindTexture(donorBlock.getTextureFile(), 0);
-                	blockTexture = donorBlock.getBlockTexture(blockAccess, x, y, z, side);
-                } else {
-                	blockTexture = block.getBlockTexture(blockAccess, x, y, z, side);
-                }
-            	switch(side) {
-            	case Reference.SIDE_BOTTOM:
-            		renderer.renderBottomFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_TOP:
-            		renderer.renderTopFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_EAST:
-            		renderer.renderEastFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_WEST:
-            		renderer.renderWestFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_NORTH:
-            		renderer.renderNorthFace(block, (double)x, (double)y, (double)z, blockTexture); break;
-            	case Reference.SIDE_SOUTH:
-            		renderer.renderSouthFace(block, (double)x, (double)y, (double)z, blockTexture); break;
+               	texture = block.getBlockTexture(blockAccess, x, y, z, side);
+                int numberOfPasses = textureOverlay.getNumberOfPasses(blockAccess.getBlockMetadata(x, y, z));
+            	for (int pass = 0; pass <= numberOfPasses; pass++) {
+            		if (pass > 0) {
+	                	texture = textureOverlay.getOverlayTexture(blockAccess, x, y, z, side, pass);
+            		}
+            		if (texture != null) {
+                        willColorizeTexture = textureOverlay.willColorizeTexture(blockAccess, x, y, z, side, pass);
+                        renderer.colorRedTopLeft = renderer.colorRedBottomLeft = renderer.colorRedBottomRight = renderer.colorRedTopRight = (willColorizeTexture ? r : 1.0F) * sideColor;
+                        renderer.colorGreenTopLeft = renderer.colorGreenBottomLeft = renderer.colorGreenBottomRight = renderer.colorGreenTopRight = (willColorizeTexture ? g : 1.0F) * sideColor;
+                        renderer.colorBlueTopLeft = renderer.colorBlueBottomLeft = renderer.colorBlueBottomRight = renderer.colorBlueTopRight = (willColorizeTexture ? b : 1.0F) * sideColor;
+                        renderer.colorRedTopLeft *= lightValueTopLeft;
+                        renderer.colorGreenTopLeft *= lightValueTopLeft;
+                        renderer.colorBlueTopLeft *= lightValueTopLeft;
+                        renderer.colorRedBottomLeft *= lightValueBottomLeft;
+                        renderer.colorGreenBottomLeft *= lightValueBottomLeft;
+                        renderer.colorBlueBottomLeft *= lightValueBottomLeft;
+                        renderer.colorRedBottomRight *= lightValueBottomRight;
+                        renderer.colorGreenBottomRight *= lightValueBottomRight;
+                        renderer.colorBlueBottomRight *= lightValueBottomRight;
+                        renderer.colorRedTopRight *= lightValueTopRight;
+                        renderer.colorGreenTopRight *= lightValueTopRight;
+                        renderer.colorBlueTopRight *= lightValueTopRight;
+                        switch(side) {
+	                	case MCHelper.SIDE_BOTTOM:
+	                		renderer.renderBottomFace(block, (double)x, (double)y, (double)z, texture); break;
+	                	case MCHelper.SIDE_TOP:
+	                		renderer.renderTopFace(block, (double)x, (double)y, (double)z, texture); break;
+	                	case MCHelper.SIDE_EAST:
+	                		renderer.renderEastFace(block, (double)x, (double)y, (double)z, texture); break;
+	                	case MCHelper.SIDE_WEST:
+	                		renderer.renderWestFace(block, (double)x, (double)y, (double)z, texture); break;
+	                	case MCHelper.SIDE_NORTH:
+	                		renderer.renderNorthFace(block, (double)x, (double)y, (double)z, texture); break;
+	                	case MCHelper.SIDE_SOUTH:
+	                		renderer.renderSouthFace(block, (double)x, (double)y, (double)z, texture); break;
+	                	}
+	                	blockRendered = true;
+            		}
             	}
-            	overlayTexture = textureOverlay.getOverlayTexture(blockAccess, x, y, z, side);
-                if (textureOverlay.doTextureOverlay(blockMetadata) && overlayTexture > -1) {
-                    if (block instanceof ICamouflageBlock) {
-                    	System.out.println(textureFile);
-                     	ForgeHooksClient.bindTexture(textureFile, 0);
-                    }
-                    renderer.colorRedTopLeft *= r;
-                    renderer.colorRedBottomLeft *= r;
-                    renderer.colorRedBottomRight *= r;
-                    renderer.colorRedTopRight *= r;
-                    renderer.colorGreenTopLeft *= g;
-                    renderer.colorGreenBottomLeft *= g;
-                    renderer.colorGreenBottomRight *= g;
-                    renderer.colorGreenTopRight *= g;
-                    renderer.colorBlueTopLeft *= b;
-                    renderer.colorBlueBottomLeft *= b;
-                    renderer.colorBlueBottomRight *= b;
-                    renderer.colorBlueTopRight *= b;
-                	switch(side) {
-                	case Reference.SIDE_BOTTOM:
-                		renderer.renderBottomFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_TOP:
-                		renderer.renderTopFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_EAST:
-                		renderer.renderEastFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_WEST:
-                		renderer.renderWestFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_NORTH:
-                		renderer.renderNorthFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	case Reference.SIDE_SOUTH:
-                		renderer.renderSouthFace(block, (double)x, (double)y, (double)z, overlayTexture); break;
-                	}
-                }
-                blockRendered = true;
             }
         }
        

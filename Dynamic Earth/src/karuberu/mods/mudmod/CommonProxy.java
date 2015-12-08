@@ -1,14 +1,16 @@
 package karuberu.mods.mudmod;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class CommonProxy implements IGuiHandler {
 	
 	@SidedProxy(
-		clientSide="karuberu.mods.mudmod.client.ClientProxy",
+		clientSide="karuberu.mods.mudmod.ClientProxy",
 		serverSide="karuberu.mods.mudmod.CommonProxy"
 	)
 	public static CommonProxy proxy;
@@ -16,6 +18,9 @@ public class CommonProxy implements IGuiHandler {
 	public void registerNames() {}
 	public void registerLocalizations() {}
 	public void registerRenderInformation() {}
+	public Minecraft getMinecraftClient() {
+		return FMLClientHandler.instance().getClient();
+	}
 	
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {

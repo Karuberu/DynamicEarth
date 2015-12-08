@@ -7,14 +7,20 @@ import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.Reference;
 import karuberu.mods.mudmod.blocks.BlockMudMod.Rate;
 import karuberu.mods.mudmod.client.ITextureOverlay;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.ColorizerFoliage;
 import net.minecraft.world.IBlockAccess;
@@ -24,10 +30,6 @@ import net.minecraftforge.common.ForgeDirection;
 
 public class BlockPeat extends BlockMudMod implements ITextureOverlay {
 	
-	public boolean doTextureOverlay = false;
-	public final int
-		TEXTURE_OVERLAY_TOP = MudMod.BlockTexture.PEATMOSSYTOPOVERLAY.ordinal(),
-		TEXTURE_OVERLAY_SIDE = MudMod.BlockTexture.PEATMOSSYSIDEOVERLAY.ordinal();
 	public static final int
 		META_FULL = 0,
 		META_NONE = 1,
@@ -38,82 +40,128 @@ public class BlockPeat extends BlockMudMod implements ITextureOverlay {
 		META_5EIGHTHS = 6,
 		META_6EIGHTHS = 7,
 		META_7EIGHTHS = 8;
+	@SideOnly(Side.CLIENT)
+	private Icon
+		texture,
+		textureSide1,
+		textureSide2,
+		textureSide3,
+		textureSide4,
+		textureSide5,
+		textureSide6,
+		textureSide7,
+		textureOverlayTop,
+		textureOverlaySide;
 	
-	public BlockPeat(int id, int textureIndex) {
-		super(id, textureIndex, Material.ground);
+	public BlockPeat(int id) {
+		super(id, Material.ground);
 		this.setHardness(0.4F);
-        this.setBlockName("peat");
+        this.setUnlocalizedName("peat");
 		this.setStepSound(Block.soundGravelFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-        this.setTextureFile(MudMod.terrainFile);
         this.setHydrateRadius(2);
 	}
 	
+	@Override
+	public void func_94332_a(IconRegister iconRegister) {
+		this.field_94336_cN = this.texture = TextureManager.instance().getBlockTexture(Texture.PEAT);
+		this.textureSide1 = TextureManager.instance().getBlockTexture(Texture.PEATSIDE1);
+		this.textureSide2 = TextureManager.instance().getBlockTexture(Texture.PEATSIDE2);
+		this.textureSide3 = TextureManager.instance().getBlockTexture(Texture.PEATSIDE3);
+		this.textureSide4 = TextureManager.instance().getBlockTexture(Texture.PEATSIDE4);
+		this.textureSide5 = TextureManager.instance().getBlockTexture(Texture.PEATSIDE5);
+		this.textureSide6 = TextureManager.instance().getBlockTexture(Texture.PEATSIDE6);
+		this.textureSide7 = TextureManager.instance().getBlockTexture(Texture.PEATSIDE7);
+		this.textureOverlayTop = TextureManager.instance().getBlockTexture(Texture.PEATMOSSYOVERLAYTOP);
+		this.textureOverlaySide = TextureManager.instance().getBlockTexture(Texture.PEATMOSSYOVERLAYSIDE);
+	}
+
+    @Override
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+    	int metadata = world.getBlockMetadata(x, y, z);
+    	if (MudMod.enableDeepPeat && metadata != META_NONE) {
+    		return AxisAlignedBB.getAABBPool().getAABB(x, y, z, x + 1, y + 1 - 0.125F, z + 1);
+    	}
+    	return super.getCollisionBoundingBoxFromPool(world, x, y, z);
+    }
+    
+    @Override
+	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
+        entity.motionX *= 0.4D;
+        entity.motionZ *= 0.4D;
+    }
+    
     @Override
     @SideOnly(Side.CLIENT)
-    public int getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
+    public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
 		int metadata = blockAccess.getBlockMetadata(x, y, z);
-		if (side != Reference.SIDE_BOTTOM) {
-	    	int topBlockID = blockAccess.getBlockId(x, y + 1, z);
-	    	int topBlockMeta = blockAccess.getBlockMetadata(x, y + 1, z);
-	    	if (topBlockID == MudMod.peatMoss.blockID && topBlockMeta > 3) {
-	    		this.doTextureOverlay = true;
-	    	} else {
-	    		this.doTextureOverlay = false;
-	    	}
-		}
     	return getBlockTextureFromSideAndMetadata(side, metadata);
 	}
     
     @Override
     @SideOnly(Side.CLIENT)
-    public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
-    	if (side == Reference.SIDE_TOP) {
+    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata) {
+    	if (side == MCHelper.SIDE_TOP) {
     		switch (metadata) {
-    		case META_NONE: return MudMod.BlockTexture.DIRT.ordinal();
-    		default: return MudMod.BlockTexture.PEAT.ordinal();
-    		}
-    	} else if (side == Reference.SIDE_BOTTOM ) {
-    		switch (metadata) {
-    		case META_FULL: return MudMod.BlockTexture.PEAT.ordinal();
-    		default: return MudMod.BlockTexture.DIRT.ordinal();
+    		case META_NONE: return Block.dirt.getBlockTextureFromSide(side);
+    		default: return this.texture;
     		}
     	} else {
     		switch (metadata) {
-    		case META_FULL: return MudMod.BlockTexture.PEAT.ordinal();
-    		case META_NONE: return MudMod.BlockTexture.DIRT.ordinal();
-    		case META_1EIGHTH: return MudMod.BlockTexture.PEATSIDE1.ordinal();
-    		case META_2EIGHTHS: return MudMod.BlockTexture.PEATSIDE2.ordinal();
-    		case META_3EIGHTHS: return MudMod.BlockTexture.PEATSIDE3.ordinal();
-    		case META_HALF: return MudMod.BlockTexture.PEATSIDE4.ordinal();
-    		case META_5EIGHTHS: return MudMod.BlockTexture.PEATSIDE5.ordinal();
-    		case META_6EIGHTHS: return MudMod.BlockTexture.PEATSIDE6.ordinal();
-    		case META_7EIGHTHS: return MudMod.BlockTexture.PEATSIDE7.ordinal();
-    		default: return MudMod.BlockTexture.PEAT.ordinal();
+    		case META_FULL: return this.texture;
+    		default: return Block.dirt.getBlockTextureFromSide(side);
     		}
     	}
     }
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public int getOverlayTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
-		if (side == Reference.SIDE_TOP) {
-			return TEXTURE_OVERLAY_TOP;
-		} else if (side != Reference.SIDE_BOTTOM) {
-			return TEXTURE_OVERLAY_SIDE;
-		} else {
-			return -1;
+	public Icon getOverlayTexture(IBlockAccess blockAccess, int x, int y, int z, int side, int pass) {
+		switch(pass) {
+		case 1:
+			if (side != MCHelper.SIDE_TOP
+			&& side != MCHelper.SIDE_BOTTOM) {
+				int metadata = blockAccess.getBlockMetadata(x, y, z);
+	    		switch (metadata) {
+	    		case META_1EIGHTH: return this.textureSide1;
+	    		case META_2EIGHTHS: return this.textureSide2;
+	    		case META_3EIGHTHS: return this.textureSide3;
+	    		case META_HALF: return this.textureSide4;
+	    		case META_5EIGHTHS: return this.textureSide5;
+	    		case META_6EIGHTHS: return this.textureSide6;
+	    		case META_7EIGHTHS: return this.textureSide7;
+	    		default: return null;
+	    		}
+			} else {
+				return null;
+			}
+		case 2:
+	    	int topBlockID = blockAccess.getBlockId(x, y + 1, z);
+	    	int topBlockMeta = blockAccess.getBlockMetadata(x, y + 1, z);
+	    	if (topBlockID == MudMod.peatMoss.blockID
+	    	&& topBlockMeta == BlockPeatMoss.GROWTHSTAGE_FULLGROWN) {
+				if (side == MCHelper.SIDE_TOP) {
+					return this.textureOverlayTop;
+				} else if (side != MCHelper.SIDE_BOTTOM) {
+					return this.textureOverlaySide;
+				} else {
+					return null;
+				}
+	    	} else {
+	    		return null;
+	    	}
+		default: return null;
 		}
 	}
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean doTextureOverlay(int metadata) {
-		return this.doTextureOverlay;
+	public int getNumberOfPasses(int metadata) {
+		return 2;
 	}
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean willColorizeBaseTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
-		return willColorizeInventoryBaseTexture(side, blockAccess.getBlockMetadata(x, y, z));
+	public boolean willColorizeTexture(IBlockAccess blockAccess, int x, int y, int z, int side, int pass) {
+		return false;
 	}
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -133,8 +181,8 @@ public class BlockPeat extends BlockMudMod implements ITextureOverlay {
 		if (metadata == META_NONE
 		&& id != MudMod.peatMoss.blockID
 		&& id != MudMod.peat.blockID) {
-			world.setBlockWithNotify(x, y, z, Block.dirt.blockID);
-		}		
+			world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
+		}
 	}
 	
 	@Override

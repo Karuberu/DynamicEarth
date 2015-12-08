@@ -1,5 +1,11 @@
 package karuberu.mods.mudmod;
 
+import java.util.List;
+import java.util.Map.Entry;
+
+import karuberu.mods.craftsmanship.blocks.BlockBale;
+import karuberu.mods.mudmod.blocks.BlockGrassSlab;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,6 +19,8 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.IFuelHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
+import forestry.api.recipes.ISqueezerManager;
+import forestry.api.recipes.RecipeManagers;
 
 public class RecipeManager {
 	
@@ -33,8 +41,9 @@ public class RecipeManager {
         	RecipeManager.addPeatRecipes();
         }
 	    RecipeManager.addStairAndSlabRecipes();
+	    RecipeManager.addModRecipes();
 	}
-	
+
 	public static void addSmelting() {
 	    GameRegistry.addSmelting(MudMod.mud.blockID, new ItemStack(Block.dirt), 0.1F);
 	    if (MudMod.includeMudBrick) {
@@ -354,5 +363,51 @@ public class RecipeManager {
 		        }
 	        );
 	    }
+	}
+	
+	private static void addModRecipes() {
+		// Forestry recipes
+		if (MudMod.enableForestryIntegration) {
+		    if (RecipeManagers.squeezerManager != null) {
+				RecipeManagers.squeezerManager.addRecipe(
+					10,
+					new ItemStack[] {
+						new ItemStack(MudMod.mudBlob)
+					},
+					LiquidDictionary.getLiquid("Water", 100)
+				);
+				if (MudMod.includeAdobe) {
+					RecipeManagers.squeezerManager.addRecipe(
+						10,
+						new ItemStack[] {
+							new ItemStack(MudMod.adobeBlob)
+						},
+						LiquidDictionary.getLiquid("Water", 100),
+						new ItemStack(MudMod.adobeDust),
+						80
+					);
+				}
+				if (MudMod.includePeat) {
+					RecipeManagers.squeezerManager.addRecipe(
+						10,
+						new ItemStack[] {
+							new ItemStack(MudMod.peatClump)
+						},
+						LiquidDictionary.getLiquid("Water", 100),
+						new ItemStack(MudMod.peatBrick),
+						100
+					);
+				}
+		    }
+		    if (RecipeManagers.moistenerManager != null) {
+		    	if (MudMod.includeDirtSlabs) {
+				    RecipeManagers.moistenerManager.addRecipe(
+				    	new ItemStack(MudMod.dirtSlab),
+				    	new ItemStack(MudMod.grassSlab, 1, BlockGrassSlab.MYCELIUM),
+				    	5000
+				    );
+		    	}
+		    }
+		}
 	}
 }

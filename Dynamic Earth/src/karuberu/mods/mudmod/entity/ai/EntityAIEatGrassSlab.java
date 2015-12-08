@@ -1,5 +1,6 @@
 package karuberu.mods.mudmod.entity.ai;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.blocks.BlockDirtSlab;
 import karuberu.mods.mudmod.blocks.BlockGrassSlab;
@@ -33,7 +34,8 @@ public class EntityAIEatGrassSlab extends EntityAIBase {
             for (int yi = y; yi >= y - 1; yi--) {
 	            int blockId = this.theWorld.getBlockId(x, yi, z);
 	            int metadata = this.theWorld.getBlockMetadata(x, yi, z);
-	            if (blockId == MudMod.grassSlab.blockID && (metadata & 7) == BlockGrassSlab.GRASS) {
+	            if (blockId == MudMod.grassSlab.blockID
+	            && MCHelper.getSlabMetadata(metadata) == BlockGrassSlab.GRASS) {
 	            	return true;
 	            }
             }
@@ -68,9 +70,10 @@ public class EntityAIEatGrassSlab extends EntityAIBase {
             for (int yi = y; yi >= y - 1; yi--) {
                 int blockId = this.theWorld.getBlockId(x, yi, z);
                 int metadata = this.theWorld.getBlockMetadata(x, yi, z);
-                if (blockId == MudMod.grassSlab.blockID && (metadata & 7) == BlockGrassSlab.GRASS) {
+                if (blockId == MudMod.grassSlab.blockID
+                && MCHelper.getSlabMetadata(metadata) == BlockGrassSlab.GRASS) {
                     this.theWorld.playAuxSFX(2001, x, yi, z, MudMod.grassSlab.blockID);
-                    this.theWorld.setBlockAndMetadataWithNotify(x, yi, z, MudMod.dirtSlab.blockID, metadata - (metadata & 7) + BlockDirtSlab.DIRT);
+                    this.theWorld.setBlockAndMetadataWithNotify(x, yi, z, MudMod.dirtSlab.blockID, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
                     this.theEntity.eatGrassBonus();
                 }
             }

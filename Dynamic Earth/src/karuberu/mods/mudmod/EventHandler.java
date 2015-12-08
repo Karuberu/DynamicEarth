@@ -1,10 +1,21 @@
 package karuberu.mods.mudmod;
 
+import java.util.Random;
+
+import karuberu.core.MCHelper;
+import karuberu.core.event.BlockUpdateEvent;
+import karuberu.core.event.INeighborBlockEventHandler;
+import karuberu.core.event.NeighborBlockChangeEvent;
+import karuberu.mods.mudmod.blocks.BlockAdobe;
+import karuberu.mods.mudmod.blocks.BlockMud;
+import karuberu.mods.mudmod.blocks.BlockMudMod;
 import karuberu.mods.mudmod.blocks.BlockPeat;
 import karuberu.mods.mudmod.blocks.BlockPeatMoss;
+import karuberu.mods.mudmod.blocks.BlockPermafrost;
 import karuberu.mods.mudmod.entity.ai.EntityAIEatGrassSlab;
 import karuberu.mods.mudmod.world.WorldGenMudMod;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockPumpkin;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityCow;
@@ -16,6 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
@@ -24,6 +36,13 @@ import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 
 public class EventHandler {
+	public static EventHandler
+		instance = new EventHandler();
+	
+	public static void register() {
+		 MinecraftForge.EVENT_BUS.register(instance);
+	}
+	
 	@ForgeSubscribe
 	public void itemTossed(ItemTossEvent itemTossEvent) {
 		if (MudMod.includeBombs) {
@@ -84,10 +103,58 @@ public class EventHandler {
 					for (int yi = 127; yi > 0; yi--) {
 		                int id = chunk.getBlockID(xi, yi, zi);
 		                if (id == MudMod.mud.blockID || id == MudMod.permafrost.blockID) {
-		                    chunk.setBlockID(xi, yi, zi, Block.dirt.blockID);
+		                    chunk.setBlockIDWithMetadata(xi, yi, zi, Block.dirt.blockID, 0);
 		                }
 					}
 				}
+			}
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onBlockUpdated(BlockUpdateEvent event) {
+		World world = event.world;
+		int x = event.x;
+		int y = event.y;
+		int z = event.z;
+		
+		int blockID = world.getBlockId(x, y, z);
+		if (!MudMod.restoreDirtOnChunkLoad
+		&& blockID == Block.dirt.blockID) {
+			if (BlockMudMod.willBlockHydrate(world, x, y, z, 1, 0, 1, 1)) {
+				world.setBlockAndMetadataWithNotify(x, y, z, MudMod.mud.blockID, BlockMud.NORMAL, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+			} else if (MudMod.includePermafrost
+			&& BlockPermafrost.canForm(world, x, y, z)) {
+		    	int metadata = world.getBlockMetadata(x, y, z);
+				if (metadata >= 5) {
+					world.setBlockAndMetadataWithNotify(x, y, z, MudMod.permafrost.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+		    	} else {
+		    		world.setBlockMetadataWithNotify(x, y, z, metadata + 1, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+		    	}
+			}
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onNeighborBlockChange(NeighborBlockChangeEvent event) {
+		World world = event.world;
+		int x = event.x;
+		int y = event.y;
+		int z = event.z;
+		int neighborBlockID = event.neighborBlockID;
+		int side = event.side;
+		
+		Block block = Block.blocksList[world.getBlockId(x, y, z)];
+		if (block instanceof INeighborBlockEventHandler) {
+			((INeighborBlockEventHandler)block).handleNeighborBlockChangeEvent(event);
+		}
+		
+		int blockID = world.getBlockId(x, y, z);
+		if (MudMod.enableGrassBurning
+		&& (blockID == Block.grass.blockID)) {
+			Material material = world.getBlockMaterial(x, y + 1, z);
+			if (material == Material.fire || material == Material.lava) {
+				world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 			}
 		}
 	}

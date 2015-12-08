@@ -37,7 +37,7 @@ public class BehaviorVaseEmptyDispense extends BehaviorDefaultDispenseItem
         } else {
             return super.dispenseStack(dispenser, itemStack);
         }
-        world.setBlockWithNotify(x, y, z, 0);
+        world.func_94571_i(x, y, z);
         if (--itemStack.stackSize == 0) {
             itemStack.itemID = item.itemID;
             itemStack.stackSize = 1;

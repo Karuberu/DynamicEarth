@@ -1,13 +1,14 @@
 package karuberu.mods.mudmod.items;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.Reference;
 import karuberu.mods.mudmod.blocks.BlockGrassSlab;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -32,8 +33,8 @@ public class ItemDirtSlab extends ItemBlock {
 	
     @Override
     @SideOnly(Side.CLIENT)
-    public int getIconFromDamage(int damageValue) {
-        return Block.blocksList[this.itemID].getBlockTextureFromSideAndMetadata(2, damageValue);
+    public Icon getIconFromDamage(int damageValue) {
+        return Block.blocksList[this.itemID].getBlockTextureFromSideAndMetadata(MCHelper.SIDE_EAST, damageValue);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class ItemDirtSlab extends ItemBlock {
     }
 
     @Override
-    public String getItemNameIS(ItemStack itemStack) {
+    public String getUnlocalizedName(ItemStack itemStack) {
         return this.singleSlab.getFullSlabName(itemStack.getItemDamage());
     }
 
@@ -58,7 +59,7 @@ public class ItemDirtSlab extends ItemBlock {
             int slabType = slabMetadata & 7;
             boolean isTopSlab = (slabMetadata & 8) != 0;
 
-            if ((side == Reference.SIDE_TOP && !isTopSlab || side == Reference.SIDE_BOTTOM && isTopSlab)
+            if ((side == MCHelper.SIDE_TOP && !isTopSlab || side == MCHelper.SIDE_BOTTOM && isTopSlab)
             && this.blockMatches(slabID, slabType)) {
                 if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
                 	if (this.tryFormDoubleSlab(itemStack, world, x, y, z, side)) {
@@ -87,14 +88,14 @@ public class ItemDirtSlab extends ItemBlock {
     	if (isTopSlab && world.getBlockId(x, y, z) == MudMod.grassSlab.blockID) {
         	switch (slabMetadata & 7) {
         	case BlockGrassSlab.GRASS:
-        		blockPlaced = world.setBlockWithNotify(x, y, z, Block.grass.blockID);
+        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.grass.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
         		break;
         	case BlockGrassSlab.MYCELIUM:
-        		blockPlaced = world.setBlockWithNotify(x, y, z, Block.mycelium.blockID);
+        		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.mycelium.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
         		break;
         	}
     	} else {
-    		blockPlaced = world.setBlockWithNotify(x, y, z, Block.dirt.blockID);
+    		blockPlaced = world.setBlockAndMetadataWithNotify(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
     	}
     	return blockPlaced;
     }
@@ -115,12 +116,12 @@ public class ItemDirtSlab extends ItemBlock {
             return true;
         } else {
         	switch (side) {
-        	case Reference.SIDE_BOTTOM: --y; break;
-        	case Reference.SIDE_TOP: ++y; break;
-        	case Reference.SIDE_EAST: --z; break;
-        	case Reference.SIDE_WEST: ++z; break;
-        	case Reference.SIDE_NORTH: --x; break;
-        	case Reference.SIDE_SOUTH: ++x; break;
+        	case MCHelper.SIDE_BOTTOM: --y; break;
+        	case MCHelper.SIDE_TOP: ++y; break;
+        	case MCHelper.SIDE_EAST: --z; break;
+        	case MCHelper.SIDE_WEST: ++z; break;
+        	case MCHelper.SIDE_NORTH: --x; break;
+        	case MCHelper.SIDE_SOUTH: ++x; break;
             }
             slabID = world.getBlockId(x, y, z);
             slabMetadata = world.getBlockMetadata(x, y, z);
@@ -132,12 +133,12 @@ public class ItemDirtSlab extends ItemBlock {
 
     private boolean makeDoubleSlab(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side) {
     	switch (side) {
-    	case Reference.SIDE_BOTTOM: --y; break;
-    	case Reference.SIDE_TOP: ++y; break;
-    	case Reference.SIDE_EAST: --z; break;
-    	case Reference.SIDE_WEST: ++z; break;
-    	case Reference.SIDE_NORTH: --x; break;
-    	case Reference.SIDE_SOUTH: ++x; break;
+    	case MCHelper.SIDE_BOTTOM: --y; break;
+    	case MCHelper.SIDE_TOP: ++y; break;
+    	case MCHelper.SIDE_EAST: --z; break;
+    	case MCHelper.SIDE_WEST: ++z; break;
+    	case MCHelper.SIDE_NORTH: --x; break;
+    	case MCHelper.SIDE_SOUTH: ++x; break;
         }
         int blockId = world.getBlockId(x, y, z);
         int metadata = world.getBlockMetadata(x, y, z);

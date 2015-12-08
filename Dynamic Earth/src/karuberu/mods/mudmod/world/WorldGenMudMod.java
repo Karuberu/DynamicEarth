@@ -16,6 +16,8 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class WorldGenMudMod implements IWorldGenerator {
+	public static WorldGenMudMod
+		instance = new WorldGenMudMod();
 	public static boolean
 		doGenerateMud,
 		doGeneratePermafrost,
@@ -25,6 +27,10 @@ public class WorldGenMudMod implements IWorldGenerator {
 		mud = new WorldGenMud(),
 		peat = new WorldGenPeat();
 
+	public static void register() {
+		GameRegistry.registerWorldGenerator(instance);
+	}
+	
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
 		if (!MudMod.restoreDirtOnChunkLoad

@@ -1,19 +1,24 @@
 package karuberu.mods.mudmod.items;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
-public class ItemAdobeDry extends ItemMudMod {
+public class ItemAdobeDust extends ItemMudMod {
 
-    public ItemAdobeDry(int par1) {
-		super(par1);
+    public ItemAdobeDust(int id, Texture icon) {
+		super(id, icon);
 		this.setCreativeTab(CreativeTabs.tabMaterials);
 	}
     
@@ -22,7 +27,7 @@ public class ItemAdobeDry extends ItemMudMod {
         if (world.getBlockId(x, y, z) == Block.cauldron.blockID) {
         	int cauldronMeta = world.getBlockMetadata(x, y, z);
         	if (cauldronMeta > 0) {
-        		world.setBlockMetadataWithNotify(x, y, z, cauldronMeta - 1);
+        		world.setBlockMetadataWithNotify(x, y, z, cauldronMeta - 1, MCHelper.NOTIFY_WITHOUT_UPDATE);
 	        	if (!player.inventory.addItemStackToInventory(new ItemStack(MudMod.adobeBlob, 1))) {
 	                player.dropPlayerItem(new ItemStack(MudMod.adobeBlob.itemID, 1, 0));
 	            }

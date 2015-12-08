@@ -2,62 +2,77 @@ package karuberu.mods.mudmod.blocks;
 
 import java.util.Random;
 
+import karuberu.core.MCHelper;
+import karuberu.core.event.INeighborBlockEventHandler;
+import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.MudMod.BlockTexture;
+import karuberu.mods.mudmod.client.TextureManager;
+import karuberu.mods.mudmod.client.TextureManager.Texture;
 import karuberu.mods.mudmod.entity.EntityFallingBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockMud extends BlockMudMod implements IFallingBlock {
+public class BlockMud extends BlockMudMod implements IFallingBlock, INeighborBlockEventHandler {
 
-    private static final int
+    public static final int
     	NORMAL = 0,
     	WET = 1,
     	FALLING = 2,
     	FALLINGWET = 3;
+    @SideOnly(Side.CLIENT)
+    private Icon
+    	textureMud,
+    	textureMudWet;
 
-    public BlockMud(int i, int j) {
-		super(i, j, Material.ground);
+    public BlockMud(int id) {
+		super(id, Material.ground);
         this.setHardness(0.5F);
         this.setStepSound(Block.soundGravelFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-        this.setBlockName("mud");
-        this.setTextureFile(MudMod.terrainFile);
+        this.setUnlocalizedName("mud");
         this.setHydrateRadius(2, 1, 4, 2);
+	}
+    
+	@Override
+	public void func_94332_a(IconRegister iconRegister) {
+		this.field_94336_cN = this.textureMud = TextureManager.instance().getBlockTexture(Texture.MUD);
+		this.textureMudWet = TextureManager.instance().getBlockTexture(Texture.MUDWET);
 	}
     
     @Override
 	@SideOnly(Side.CLIENT)
-    public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
+    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata) {
 	    switch(metadata) {
 	    case WET:
-	    case FALLINGWET: return MudMod.BlockTexture.MUDWET.ordinal();
-	    default: return MudMod.BlockTexture.MUD.ordinal();
+	    case FALLINGWET: return this.textureMudWet;
+	    default: return textureMud;
 	    }
     }
     
     @Override
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
     	if (MudMod.enableDeepMud && world.getBlockMetadata(x, y, z) == WET) {
-            return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool(x, y, z, x + 1, y + 1 - 0.125F, z + 1);
+            return AxisAlignedBB.getAABBPool().getAABB(x, y, z, x + 1, y + 1 - 0.125F, z + 1);
     	}
-    	return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool(x, y, z, x + 1, y + 1, z + 1);
+    	return super.getCollisionBoundingBoxFromPool(world, x, y, z);
     }
 
     @Override
-    public int tickRate() {
+    public int tickRate(World world) {
     	return 1;
     }
 
@@ -84,6 +99,11 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
     	case NORMAL: return true;
     	default: return false;
     	}
+    }
+    
+    @Override
+    protected boolean canDry(int metadata) {
+    	return true;
     }
     
     @Override
@@ -123,47 +143,65 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
         entity.motionX *= 0.4D;
         entity.motionZ *= 0.4D;
     }
-        
+    
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, int neighborID) {
     	int metadata = world.getBlockMetadata(x, y, z);
     	switch (metadata) {
-    	case NORMAL:
-	    	if (this.blockWillCauseMudslide(neighborID)) {
-	    		this.becomeWet(world, x, y, z);
-	    	}
-	    	break;
     	case WET:
     	case FALLING:
     	case FALLINGWET:
     		this.initiateMudSlide(world, x, y, z);
 	    }
-    	Material material = world.getBlockMaterial(x, y + 1, z);
-    	if (material == Material.fire || material == Material.lava) {
-	    	this.becomeDry(world, x, y, z);
-	    }
     	super.onNeighborBlockChange(world, x, y, z, neighborID);
     }
     
+    @Override
+    public void handleNeighborBlockChangeEvent(NeighborBlockChangeEvent event) {
+    	Block neighborBlock = Block.blocksList[event.neighborBlockID];
+    	if (neighborBlock != null) {
+    		if (neighborBlock.blockMaterial == Material.lava
+    		|| (event.side == MCHelper.SIDE_TOP && neighborBlock.blockMaterial == Material.fire)) {
+    			this.becomeDry(event.world, event.x, event.y, event.z);
+    		} else if (neighborBlock.blockMaterial == Material.water) {
+    			this.becomeWet(event.world, event.x, event.y, event.z);
+    		}
+    	}
+    }
+    
+	protected boolean isHydrated(World world, int x, int y, int z) {
+    	int metadata = world.getBlockMetadata(x, y, z);
+    	switch (metadata) {
+    	case WET:
+    		int hydrationDistance = this.getHydrationDistance(world, x, y, z);
+    		return hydrationDistance == 0 || this.isMuddy(world, x, y, z);
+    	default:
+    		return super.isHydrated(world, x, y, z);
+    	}
+	}
+    
     /**
-     * returns true if there is water above the block (within hydration range) and
-     * there is only water, air, and/or mud between them. Also returns true if this block
+     * Returns true if there is water above the block (within hydration range) and
+     * there is only water, air, or mud between them. Also returns true if this block
      * is horizontally adjacent to water (including diagonally).
      */
     protected boolean isMuddy(World world, int x, int y, int z) {
+    	Material material;
         for (int xi = x - 1; xi <= x + 1; xi++) {
             for (int zi = z - 1; zi <= z + 1; zi++) {
-                if (world.getBlockMaterial(xi, y, zi) == Material.water) {
+            	material = world.getBlockMaterial(xi, y, zi);
+                if (material == Material.water) {
                     return true;
                 }
             }
         }
-    	Material material;
     	for (int yi = y + 1; yi <= y + this.hydrateRadiusYDown; yi++) {
     		material = world.getBlockMaterial(x, yi, z);
     		if (material == Material.water) {
     			return true;
-    		} else if (material != Material.air && world.getBlockId(x, yi, z) != MudMod.mud.blockID) {
+    		}
+    		if (!world.isAirBlock(x, yi, z)
+    		&& world.getBlockId(x, yi, z) != MudMod.mud.blockID) {
     			return false;
     		}
     	}
@@ -171,33 +209,8 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
     }
     
     @Override
-	public int getDryRate(World world, int x, int y, int z) {
-    	int rate = super.getDryRate(world, x, y, z);
-    	int[][] surroundingBlocks = new int[][] {
-    		{x-1, y, z},
-    		{x+1, y, z},
-    		{x, y-1, z},
-    		{x, y+1, z},
-    		{x, y, z-1},
-    		{x, y, z+1}
-    	};
-    	for (int i = 0; i < surroundingBlocks.length; i++) {
-    		int xi = surroundingBlocks[i][0],
-    			yi = surroundingBlocks[i][1],
-    			zi = surroundingBlocks[i][2];
-    		int id = world.getBlockId(xi, yi, zi);
-    		if (id == MudMod.mud.blockID
-    		|| id == MudMod.adobeWet.blockID
-    		|| id == MudMod.peat.blockID) {
-    			return rate++;
-    		}
-    	}
-    	return rate;
-    }
-    
-    @Override
     protected boolean willHydrate(World world, int x, int y, int z) {
-    	if (this.isGettingRainedOn(world, x, y, z)) {
+    	if (this.isBlockGettingRainedOn(world, x, y, z)) {
     		return true;
     	} else {
         	return super.willHydrate(world, x, y, z) && this.isMuddy(world, x, y, z);
@@ -205,25 +218,11 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
     }
     
     /**
-     * returns true if the block given will trigger a mudslide (currently just water)
-     */
-    private boolean blockWillCauseMudslide(int blockID) {
-    	Block block = Block.blocksList[blockID];
-    	if (block != null) {
-		    Material neighborMaterial = block.blockMaterial;
-		    if (neighborMaterial == Material.water) {
-	       		return true;
-		    }
-    	}
-       	return false;
-    }
-    
-    /**
      * Changes the block's metadata and attempts to start a mudslide
      */
     @Override
     protected void becomeWet(World world, int x, int y, int z) {
-		world.setBlockAndMetadataWithUpdate(x, y, z, this.blockID, WET, true);
+		world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, WET, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
 		this.initiateMudSlide(world, x, y, z);
     }
     
@@ -232,7 +231,7 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
     	int metadata = world.getBlockMetadata(x, y, z);
     	switch(metadata) {
     	case WET:
-    		world.setBlockAndMetadataWithUpdate(x, y, z, this.blockID, NORMAL, true);
+    		world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, NORMAL, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
     		break;
     	default:
        		super.becomeDry(world, x, y, z);
@@ -243,28 +242,21 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
         if (this.canFall(world, x, y, z)) {
         	// if the block will fall, trigger surrounding blocks to mudslide as well,
         	// then schedule a block update to actually fall.
-        	int[][] surroundingBlocks = new int[][] {
-        		{x-1, y, z},
-        		{x+1, y, z},
-        		{x, y-1, z},
-        		{x, y+1, z},
-        		{x, y, z-1},
-        		{x, y, z+1}
-        	};
-        	for (int i = 0; i < surroundingBlocks.length; i++) {
-        		int xi = surroundingBlocks[i][0],
-        			yi = surroundingBlocks[i][1],
-        			zi = surroundingBlocks[i][2];
+        	int[][] surroundingBlocks = MCHelper.getSurroundingBlocks(x, y, z);
+        	for (int[] coordinates : surroundingBlocks) {
+        		int xi = coordinates[0],
+        			yi = coordinates[1],
+        			zi = coordinates[2];
             	if (world.getBlockId(xi, yi, zi) == this.blockID) {
                 	int metadata = world.getBlockMetadata(x, y, z);
             		switch(metadata) {
             		case NORMAL: metadata = FALLING; break;
             		case WET: metadata = FALLINGWET; break;
             		}
-        			world.setBlockAndMetadata(xi, yi, zi, this.blockID, metadata);
+        			world.setBlockAndMetadataWithNotify(xi, yi, zi, this.blockID, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
         		}
         	}
-			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate());
+			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
         } else {
         	// if the block can't fall, change its metadata back to a stable one.
         	int metadata = world.getBlockMetadata(x, y, z);
@@ -273,7 +265,7 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
         		case FALLING: metadata = NORMAL; break;
         		case FALLINGWET: metadata = WET; break;
         		}
-    			world.setBlockAndMetadataWithUpdate(x, y, z, this.blockID, metadata, true);
+    			world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
         	}
         }
     }
@@ -290,11 +282,11 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
                     world.spawnEntityInWorld(fallingBlock);
                 }
             } else {
-                world.setBlockWithNotify(x, y, z, 0);
+                world.func_94571_i(x, y, z);
                 while (this.canFall(world, x, y, z)) {
                     --y;
                 } if (y > 0) {
-                    world.setBlockWithNotify(x, y, z, this.blockID);
+                    world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, world.getBlockMetadata(x, y, z), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
                 }
             }
             return true;
@@ -347,5 +339,19 @@ public class BlockMud extends BlockMudMod implements IFallingBlock {
     @Override
     public int quantityDropped(Random random) {
     	return 4;
+    }
+    
+    /**
+     * returns true if the block given will trigger a mudslide (currently just water)
+     */
+    public static boolean blockWillCauseMudslide(int blockID) {
+    	Block block = Block.blocksList[blockID];
+    	if (block != null) {
+		    Material neighborMaterial = block.blockMaterial;
+		    if (neighborMaterial == Material.water) {
+	       		return true;
+		    }
+    	}
+       	return false;
     }
 }

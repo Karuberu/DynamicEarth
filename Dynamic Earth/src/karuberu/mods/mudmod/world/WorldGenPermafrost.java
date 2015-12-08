@@ -2,6 +2,7 @@ package karuberu.mods.mudmod.world;
 
 import java.util.Random;
 
+import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 
 import net.minecraft.block.Block;
@@ -32,18 +33,20 @@ public class WorldGenPermafrost implements IWorldGenerator {
 				if (temperature <= 0.15F) {
 					for (int yi = 127; yi > 60; yi--) {
 				        if (!world.canBlockSeeTheSky(xi, yi, zi)) {
-				        	if (world.getBlockId(xi, yi, zi) == Block.dirt.blockID) {
-					            while (world.getBlockId(xi, yi, zi) == Block.dirt.blockID) {
-					                if (world.getBlockMaterial(xi, yi+1, zi) != Material.wood) {
-					                    world.setBlock(xi, yi, zi, MudMod.permafrost.blockID);
-					                }
-					            	yi--;
-					            }
-				        	}
+				            while (blockShouldBeConverted(world.getBlockId(xi, yi, zi))) {
+				                if (world.getBlockMaterial(xi, yi+1, zi) != Material.wood) {
+				                    world.setBlockAndMetadataWithNotify(xi, yi, zi, MudMod.permafrost.blockID, 0, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+				                }
+				            	yi--;
+				            }
 				        }
 					}
 				}
 			}
 		}
+	}
+	
+	private boolean blockShouldBeConverted(int blockID) {
+		return blockID == Block.dirt.blockID;
 	}
 }

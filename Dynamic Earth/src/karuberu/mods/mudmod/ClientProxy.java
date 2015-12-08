@@ -1,12 +1,15 @@
-package karuberu.mods.mudmod.client;
+package karuberu.mods.mudmod;
 
-import karuberu.mods.mudmod.CommonProxy;
-import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.MudMod.ItemIcon;
+import karuberu.mods.craftsmanship.blocks.BlockBale;
+import karuberu.mods.mudmod.blocks.BlockGrassSlab;
+import karuberu.mods.mudmod.client.RenderBlockWithOverlay;
+import karuberu.mods.mudmod.client.RenderFallingBlock;
 import karuberu.mods.mudmod.entity.EntityBomb;
 import karuberu.mods.mudmod.entity.EntityFallingBlock;
 import karuberu.mods.mudmod.entity.EntityMudball;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.ForgeHooksClient;
@@ -54,8 +57,8 @@ public class ClientProxy extends CommonProxy {
         }
         if (MudMod.includeDirtSlabs) {
 	        LanguageRegistry.addName(new ItemStack(MudMod.dirtSlab, 1, 0), "Dirt Slab");
-	        LanguageRegistry.addName(new ItemStack(MudMod.grassSlab, 1, 0), "Grass Slab");
-	        LanguageRegistry.addName(new ItemStack(MudMod.grassSlab, 1, 1), "Mycelium Slab");
+	        LanguageRegistry.addName(new ItemStack(MudMod.grassSlab, 1, BlockGrassSlab.GRASS), "Grass Slab");
+	        LanguageRegistry.addName(new ItemStack(MudMod.grassSlab, 1, BlockGrassSlab.MYCELIUM), "Mycelium Slab");
         }
         if (MudMod.includePeat) {
 	        LanguageRegistry.addName(MudMod.peatMoss, "Peat Moss");
@@ -79,12 +82,10 @@ public class ClientProxy extends CommonProxy {
 	
 	@Override
 	public void registerRenderInformation() {
-		MinecraftForgeClient.preloadTexture(MudMod.terrainFile);
-        MinecraftForgeClient.preloadTexture(MudMod.itemsFile);
- 		RenderingRegistry.registerEntityRenderingHandler(EntityMudball.class, new RenderMudball(MudMod.itemsFile, MudMod.ItemIcon.MUDBLOB.ordinal()));
+ 		RenderingRegistry.registerEntityRenderingHandler(EntityMudball.class, new RenderSnowball(MudMod.mudBlob, 0));
 		RenderingRegistry.registerEntityRenderingHandler(EntityFallingBlock.class, new RenderFallingBlock());
 		if (MudMod.includeBombs) {
-			RenderingRegistry.registerEntityRenderingHandler(EntityBomb.class, new RenderMudball(MudMod.itemsFile, MudMod.ItemIcon.BOMB.ordinal()));
+			RenderingRegistry.registerEntityRenderingHandler(EntityBomb.class, new RenderSnowball(MudMod.bombLit, 0));
 		}
 		if (MudMod.includeDirtSlabs || MudMod.includePeat) {
 			MudMod.overlayBlockRenderID = RenderingRegistry.getNextAvailableRenderId();
