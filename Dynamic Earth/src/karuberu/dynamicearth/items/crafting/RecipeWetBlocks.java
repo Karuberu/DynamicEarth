@@ -31,20 +31,22 @@ public class RecipeWetBlocks implements IRecipe {
 						}
 						hasWater = true;
 					}
-				} else if (item.itemID == DynamicEarth.dirtClod.itemID) {
-					if (count == 0) {
-						result = new ItemStack(DynamicEarth.mudBlob, 1);
-					} else if (result.itemID != DynamicEarth.mudBlob.itemID) {
-						return false;
+				} else if (DynamicEarth.includeMud) {
+					if (item.itemID == DynamicEarth.dirtClod.itemID) {
+						if (count == 0) {
+							result = new ItemStack(DynamicEarth.mudBlob, 1);
+						} else if (result.itemID != DynamicEarth.mudBlob.itemID) {
+							return false;
+						}
+						count++;
+					} else if (item.itemID == Block.dirt.blockID) {
+						if (count == 0) {
+							result = new ItemStack(DynamicEarth.mudBlob, 4);
+						} else if (result.itemID != DynamicEarth.mudBlob.itemID) {
+							return false;
+						}
+						count += 4;
 					}
-					count++;
-				} else if (item.itemID == Block.dirt.blockID) {
-					if (count == 0) {
-						result = new ItemStack(DynamicEarth.mudBlob, 4);
-					} else if (result.itemID != DynamicEarth.mudBlob.itemID) {
-						return false;
-					}
-					count += 4;
 				} else if (DynamicEarth.includeAdobe) {
 					if (item.itemID == DynamicEarth.earthbowlRaw.itemID) {
 						if (count == 0) {
@@ -74,10 +76,12 @@ public class RecipeWetBlocks implements IRecipe {
 			}
 		}
 		if (count > 0 && hasWater) {
-			if (result.itemID == DynamicEarth.adobeBlob.itemID
+			if (DynamicEarth.includeAdobe
+			&& result.itemID == DynamicEarth.adobeBlob.itemID
 			&& count % 4 == 0) {
 				result = new ItemStack(DynamicEarth.adobeWet, count / 4);
-			} else if (result.itemID == DynamicEarth.mudBlob.itemID
+			} else if (DynamicEarth.includeMud
+			&& result.itemID == DynamicEarth.mudBlob.itemID
 			&& count % 4 == 0) {
 				result = new ItemStack(DynamicEarth.mud, count / 4);
 			} else {

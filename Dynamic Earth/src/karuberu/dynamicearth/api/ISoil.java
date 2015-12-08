@@ -1,4 +1,4 @@
-package karuberu.dynamicearth.blocks;
+package karuberu.dynamicearth.api;
 
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;

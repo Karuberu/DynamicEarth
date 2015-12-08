@@ -1,9 +1,8 @@
 package karuberu.dynamicearth.entity.ai;
 
-import karuberu.core.MCHelper;
-import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.blocks.IGrassyBlock;
-import karuberu.dynamicearth.blocks.IGrassyBlock.EnumGrassType;
+import karuberu.core.util.Helper;
+import karuberu.dynamicearth.api.grass.IGrassyBlock;
+import karuberu.dynamicearth.api.grass.IGrassyBlock.GrassType;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -34,7 +33,7 @@ public class EntityAIEatGrassyBlock extends EntityAIBase {
             for (int yi = y; yi >= y - 1; yi--) {
 	            Block block = Block.blocksList[this.theWorld.getBlockId(x, yi, z)];
 	            if (block instanceof IGrassyBlock
-	            && ((IGrassyBlock)block).getType(this.theWorld, x, yi, z) == EnumGrassType.GRASS) {
+	            && ((IGrassyBlock)block).getType(this.theWorld, x, yi, z) == GrassType.GRASS) {
 	            	return true;
 	            }
             }
@@ -66,13 +65,14 @@ public class EntityAIEatGrassyBlock extends EntityAIBase {
             int x = MathHelper.floor_double(this.theEntity.posX);
             int y = MathHelper.floor_double(this.theEntity.posY);
             int z = MathHelper.floor_double(this.theEntity.posZ);
+            Block block;
             for (int yi = y; yi >= y - 1; yi--) {
-	            Block block = Block.blocksList[this.theWorld.getBlockId(x, yi, z)];
+ 	            block = Block.blocksList[this.theWorld.getBlockId(x, yi, z)];
 	            if (block instanceof IGrassyBlock
-	            && ((IGrassyBlock)block).getType(this.theWorld, x, yi, z) == EnumGrassType.GRASS) {
-                    ItemStack itemStack = ((IGrassyBlock)block).getBlockForType(this.theWorld, x, yi, z, EnumGrassType.DIRT);
-                    this.theWorld.playAuxSFX(2001, x, yi, z, DynamicEarth.grassSlab.blockID);
-                    this.theWorld.setBlock(x, yi, z, itemStack.itemID, itemStack.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+	            && ((IGrassyBlock)block).getType(this.theWorld, x, yi, z) == GrassType.GRASS) {
+                    ItemStack itemStack = ((IGrassyBlock)block).getBlockForType(this.theWorld, x, yi, z, GrassType.DIRT);
+                    this.theWorld.playAuxSFX(2001, x, yi, z, Block.grass.blockID);
+                    this.theWorld.setBlock(x, yi, z, itemStack.itemID, itemStack.getItemDamage(), Helper.NOTIFY_AND_UPDATE_REMOTE);
                     this.theEntity.eatGrassBonus();
 	            }
             }

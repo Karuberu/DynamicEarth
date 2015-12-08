@@ -1,6 +1,8 @@
 package karuberu.dynamicearth.items;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Coordinates;
+import karuberu.core.util.Helper;
+import karuberu.core.util.block.BlockSide;
 import karuberu.dynamicearth.DynamicEarth;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
@@ -54,99 +56,75 @@ public class ItemAdobeSlab extends ItemBlock {
 			return false;
 		} else if (!player.canPlayerEdit(x, y, z, side, itemStack)) {
 			return false;
-		} else {
-			int blockId = world.getBlockId(x, y, z);
-			int metadata = world.getBlockMetadata(x, y, z);
-			int slabType = metadata & 7;
-			boolean var14 = (metadata & 8) != 0;
-
-			if ((side == 1 && !var14 || side == 0 && var14)
-					&& blockId == this.singleSlab.blockID
-					&& slabType == itemStack.getItemDamage()) {
-				if (world.checkBlockCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlock(x, y, z, this.doubleSlab.blockID, slabType, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
+		} else {	
+			if (this.canMakeDoubleSlab(side, world.getBlockMetadata(x, y, z))) {
+				boolean blockPlaced = this.tryToMakeDoubleSlab(itemStack, player, world, x, y, z);
+				if (blockPlaced) {
+					return true;
+				}
+			}
+			Coordinates coords = Coordinates.getCoordsForBlockPlacement(x, y, z, side);
+			boolean blockPlaced = this.tryToMakeDoubleSlab(itemStack, player, world, coords.x, coords.y, coords.z);
+			if (blockPlaced) {
+				return true;
+			} else {
+				return super.onItemUse(itemStack, player, world, x, y, z, side, hitX, hitY, hitZ);
+			}
+		}
+	}
+	
+	private boolean canMakeDoubleSlab(int side, int metadata) {
+		boolean isTopSlab = Helper.isTopSlab(metadata);
+		return (side == BlockSide.BOTTOM.code && isTopSlab)
+		|| (side == BlockSide.TOP.code && !isTopSlab);
+	}
+	
+	private boolean tryToMakeDoubleSlab(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z) {		
+		int blockId = world.getBlockId(x, y, z);
+		int metadata = world.getBlockMetadata(x, y, z);
+		int slabType = Helper.getSlabMetadata(metadata);
+		if (this.slabMatches(blockId, metadata, itemStack.getItemDamage())) {
+			boolean colliding = world.checkBlockCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z));
+			if (colliding) {
+				boolean blockSet = world.setBlock(x, y, z, this.doubleSlab.blockID, slabType, Helper.NOTIFY_AND_UPDATE_REMOTE);
+				if (blockSet) {
 					world.playSoundEffect(x + 0.5F, y + 0.5F, z + 0.5F, this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
 					--itemStack.stackSize;
 				}
-				return true;
-			} else {
-				return this.makeDoubleSlab(itemStack, player, world, x, y, z, side) ? true : super.onItemUse(itemStack, player, world, x, y, z, side, hitX, hitY, hitZ);
 			}
+			return true;
+		} else {
+			return false;
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
 	public boolean canPlaceItemBlockOnSide(World world, int x, int y, int z, int side, EntityPlayer player, ItemStack itemStack) {
+		int itemDamage = itemStack.getItemDamage();
 		int originalX = x;
 		int originalY = y;
 		int originalZ = z;
 		int blockId = world.getBlockId(x, y, z);
 		int metadata = world.getBlockMetadata(x, y, z);
-		int slabType = metadata & 7;
-		boolean var14 = (metadata & 8) != 0;
 
-		if ((side == 1 && !var14 || side == 0 && var14)
-				&& blockId == this.singleSlab.blockID
-				&& slabType == itemStack.getItemDamage()) {
+		if (this.canMakeDoubleSlab(side, metadata)
+		&& this.slabMatches(blockId, metadata, itemDamage)) {
 			return true;
 		} else {
-			if (side == 0) {
-				--y;
+			Coordinates coords = Coordinates.getCoordsForBlockPlacement(x, y, z, side);
+			blockId = coords.getBlockID(world);
+			metadata = coords.getBlockMetadata(world);
+			if (this.slabMatches(blockId, metadata, itemDamage)) {
+				return true;
+			} else {
+				return super.canPlaceItemBlockOnSide(world, originalX, originalY, originalZ, side, player, itemStack);
 			}
-			if (side == 1) {
-				++y;
-			}
-			if (side == 2) {
-				--z;
-			}
-			if (side == 3) {
-				++z;
-			}
-			if (side == 4) {
-				--x;
-			}
-			if (side == 5) {
-				++x;
-			}
-			blockId = world.getBlockId(x, y, z);
-			metadata = world.getBlockMetadata(x, y, z);
-			slabType = metadata & 7;
-			var14 = (metadata & 8) != 0;
-			return blockId == this.singleSlab.blockID && slabType == itemStack.getItemDamage() ? true : super.canPlaceItemBlockOnSide(world, originalX, originalY, originalZ, side, player, itemStack);
 		}
 	}
-
-	private boolean makeDoubleSlab(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side) {
-		if (side == 0) {
-			--y;
-		}
-		if (side == 1) {
-			++y;
-		}
-		if (side == 2) {
-			--z;
-		}
-		if (side == 3) {
-			++z;
-		}
-		if (side == 4) {
-			--x;
-		}
-		if (side == 5) {
-			++x;
-		}
-		int blockId = world.getBlockId(x, y, z);
-		int metadata = world.getBlockMetadata(x, y, z);
-		int slabType = metadata & 7;
-
-		if (blockId == this.singleSlab.blockID && slabType == itemStack.getItemDamage()) {
-			if (world.checkBlockCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlock(x, y, z, this.doubleSlab.blockID, slabType, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
-				world.playSoundEffect(x + 0.5F, y + 0.5F, z + 0.5F, this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
-				--itemStack.stackSize;
-			}
-			return true;
-		} else {
-			return false;
-		}
+	
+	private boolean slabMatches(int blockId, int blockMetadata, int itemDamage) {
+		return blockId == this.singleSlab.blockID
+		&& Helper.getSlabMetadata(blockMetadata) == itemDamage;
 	}
 }

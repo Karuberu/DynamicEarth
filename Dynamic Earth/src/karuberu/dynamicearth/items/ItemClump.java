@@ -1,6 +1,6 @@
 package karuberu.dynamicearth.items;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.client.TextureManager.ItemIcon;
 import karuberu.dynamicearth.entity.EntityMudball;
 import net.minecraft.block.Block;
@@ -19,7 +19,7 @@ public class ItemClump extends ItemDynamicEarth {
 		ADOBEDUST = 2,
 		ADOBEBLOB = 3,
 		PEATCLUMP = 4;
-	private int
+	private ItemStack
 		wetClump;
 	private boolean
 		isThrowable;
@@ -30,20 +30,15 @@ public class ItemClump extends ItemDynamicEarth {
 		super(id, icon);
 		this.setCreativeTab(creativeTab);
 	}
-
+	
 	@Override
 	public boolean onItemUseFirst(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
-		if (this.wetClump > 0
-				&& world.getBlockId(x, y, z) == Block.cauldron.blockID) {
+		if (this.wetClump != null
+		&& world.getBlockId(x, y, z) == Block.cauldron.blockID) {
 			int cauldronMeta = world.getBlockMetadata(x, y, z);
 			if (cauldronMeta > 0) {
-				world.setBlockMetadataWithNotify(x, y, z, cauldronMeta - 1, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-				if (!player.inventory.addItemStackToInventory(new ItemStack(this.wetClump, 1, 0))) {
-					player.dropPlayerItem(new ItemStack(this.wetClump, 1, 0));
-				}
-				if (!player.capabilities.isCreativeMode) {
-					itemStack.stackSize--;
-				}
+				world.setBlockMetadataWithNotify(x, y, z, cauldronMeta - 1, Helper.NOTIFY_AND_UPDATE_REMOTE);
+				this.hydrateClump(player, itemStack);
 				return false;
 			}
 		}
@@ -60,7 +55,7 @@ public class ItemClump extends ItemDynamicEarth {
 			if (!world.isRemote) {
 				world.spawnEntityInWorld(new EntityMudball(world, player));
 			}
-		} else if (this.wetClump > 0) {
+		} else if (this.wetClump != null) {
 			MovingObjectPosition movingObjectPos = this.getMovingObjectPositionFromPlayer(world, player, true);
 			if (movingObjectPos == null) {
 				return itemStack;
@@ -76,12 +71,7 @@ public class ItemClump extends ItemDynamicEarth {
 						return itemStack;
 					}
 					if (world.getBlockMaterial(x, y, z) == Material.water) {
-						if (!player.inventory.addItemStackToInventory(new ItemStack(this.wetClump, 1, 0))) {
-							player.dropPlayerItem(new ItemStack(this.wetClump, 1, 0));
-						}
-						if (!player.capabilities.isCreativeMode) {
-							itemStack.stackSize--;
-						}
+						this.hydrateClump(player, itemStack);
 					}
 				}
 				return itemStack;
@@ -89,9 +79,18 @@ public class ItemClump extends ItemDynamicEarth {
 		}
 		return itemStack;
 	}
+	
+	protected void hydrateClump(EntityPlayer player, ItemStack itemStack) {
+		if (!player.inventory.addItemStackToInventory(this.wetClump.copy())) {
+			player.dropPlayerItem(this.wetClump.copy());
+		}
+		if (!player.capabilities.isCreativeMode) {
+			itemStack.stackSize--;
+		}
+	}
 
-	public ItemClump setWetClump(int id) {
-		this.wetClump = id;
+	public ItemClump setWetClump(ItemStack itemStack) {
+		this.wetClump = itemStack;
 		return this;
 	}
 

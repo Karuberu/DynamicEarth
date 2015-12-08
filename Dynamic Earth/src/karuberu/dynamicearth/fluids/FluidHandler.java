@@ -1,6 +1,5 @@
 package karuberu.dynamicearth.fluids;
 
-import karuberu.dynamicearth.DELogger;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 import karuberu.dynamicearth.items.ItemVase;
@@ -31,7 +30,7 @@ public class FluidHandler {
 	    		milk = new FluidDynamicEarth(FluidReference.MILK.name);
 	    		milk.setDensity(1035); // density of whole milk in kg/m^3
 	    		milk.setViscosity(1035); // average viscosity of milk; ranges 1.02 - 1.05
-//	    		milk.setColor(0xFEFEFE);
+	    		// milk.setColor(0xFEFEFE);
 	    		milk.setRarity(EnumRarity.common);
 				FluidRegistry.registerFluid(milk);
 	    	}
@@ -39,22 +38,34 @@ public class FluidHandler {
 	    		soup = new FluidDynamicEarth(FluidReference.SOUP.name);
 	    		soup.setDensity(1025); // average density of soup according to online sources
 	    		soup.setViscosity(1025); // complete guess
-//	    		soup.setColor(0xCC9978);
+	    		// soup.setColor(0xCC9978);
 	    		soup.setRarity(EnumRarity.common);
 				FluidRegistry.registerFluid(soup);
 	    	}
 	    	FluidContainerData[] data = FluidContainerRegistry.getRegisteredFluidContainerData();
 	    	for (FluidContainerData dataPoint : data) {
 	    		if (dataPoint.fluid.getFluid() == FluidRegistry.WATER) {
-	    			dataPoint.fluid.amount = 250;
+	    			dataPoint.fluid.amount = FluidHelper.BOTTLE_VOLUME;
 	    			break;
 	    		}
 	    	}
-	    	FluidContainerRegistry.registerFluidContainer(new FluidContainerData(FluidReference.MILK.getFluidStack(1000), new ItemStack(Item.bucketMilk), new ItemStack(Item.bucketEmpty)));
-	    	FluidContainerRegistry.registerFluidContainer(new FluidContainerData(FluidReference.SOUP.getFluidStack(250), new ItemStack(Item.bowlSoup), new ItemStack(Item.bowlEmpty)));
-	    	FluidContainerRegistry.registerFluidContainer(new FluidContainerData(FluidReference.SOUP.getFluidStack(250), new ItemStack(DynamicEarth.earthbowlSoup), new ItemStack(DynamicEarth.earthbowl)));
-	    	for (Fluid liquid : FluidRegistry.getRegisteredFluids().values()) {
-        		FluidHandler.addVaseLiquid(liquid);
+	    	FluidContainerRegistry.registerFluidContainer(new FluidContainerData(
+	    		FluidReference.MILK.getBucketVolumeStack(),
+	    		new ItemStack(Item.bucketMilk),
+	    		new ItemStack(Item.bucketEmpty))
+	    	);
+	    	FluidContainerRegistry.registerFluidContainer(new FluidContainerData(
+	    		FluidReference.SOUP.getBowlVolumeStack(),
+	    		new ItemStack(Item.bowlSoup),
+	    		new ItemStack(Item.bowlEmpty))
+	    	);
+	    	FluidContainerRegistry.registerFluidContainer(new FluidContainerData(
+	    		FluidReference.SOUP.getBowlVolumeStack(),
+	    		new ItemStack(DynamicEarth.earthbowlSoup),
+	    		new ItemStack(DynamicEarth.earthbowl))
+	    	);
+	    	for (Fluid fluid : FluidRegistry.getRegisteredFluids().values()) {
+        		FluidHandler.addVaseLiquid(fluid);
         	}
 		}
 	}
@@ -90,10 +101,10 @@ public class FluidHandler {
 		ItemStack itemStack = new ItemStack(DynamicEarth.vase, 1, ItemVase.getDamage(FluidStack));
 		ItemVase.liquids.add(ItemVase.getDamage(FluidStack));
 		FluidContainerRegistry.registerFluidContainer(new FluidContainerData(FluidStack, itemStack, new ItemStack(DynamicEarth.vase)));
-		DELogger.finer("Fluid \"" + name + "\" was added as a vase fluid.");
+		DynamicEarth.logger.finer("Fluid \"" + name + "\" was added as a vase fluid.");
 	}
 	
 	private static void logSkippedFluid(String fluidName, String reason) {
-		DELogger.finer("Fluid \"" + fluidName + "\" could not be added as a vase fluid. Reason: " + reason);
+		DynamicEarth.logger.finer("Fluid \"" + fluidName + "\" could not be added as a vase fluid. Reason: " + reason);
 	}
 }

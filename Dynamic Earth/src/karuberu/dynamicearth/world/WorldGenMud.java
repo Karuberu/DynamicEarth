@@ -2,10 +2,8 @@ package karuberu.dynamicearth.world;
 
 import java.util.Random;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.blocks.BlockMud;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
@@ -17,7 +15,7 @@ public class WorldGenMud implements IWorldGenerator {
     
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
-		assert WorldGenMudMod.doGenerateMud;
+		assert WorldGenDynamicEarth.doGenerateMud;
 		assert !world.isRemote;
 
 		int x = chunkX * 16,
@@ -33,7 +31,7 @@ public class WorldGenMud implements IWorldGenerator {
 				                if (id == Block.dirt.blockID
 				                || id == Block.grass.blockID
 				                || id == Block.mycelium.blockID) {
-				                    world.setBlock(xi, yi, zi, DynamicEarth.mud.blockID, BlockMud.WET, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+				                    world.setBlock(xi, yi, zi, DynamicEarth.mud.blockID, DynamicEarth.mud.WET, Helper.DO_NOT_NOTIFY_OR_UPDATE);
 				                } else if (world.getBlockMaterial(xi, yi, zi) != Material.water) {
 				                	break;
 				                }

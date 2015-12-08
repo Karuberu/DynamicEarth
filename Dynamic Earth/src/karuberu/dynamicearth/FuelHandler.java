@@ -9,8 +9,7 @@ public final class FuelHandler implements IFuelHandler {
 	public static FuelHandler
 		instance = new FuelHandler();
 	public static int
-		peatBurnTime = 1200,
-		peatForestryBurnTime = 4500;
+		peatBurnTime = 1200;
 	
 	@Override
 	public int getBurnTime(ItemStack fuel) {
@@ -26,18 +25,5 @@ public final class FuelHandler implements IFuelHandler {
 	
 	public static void register() {
     	GameRegistry.registerFuelHandler(instance);
-	}
-	
-	public static void registerForestryFuels() {
-		if (forestry.api.fuels.FuelManager.copperEngineFuel != null) {
-			forestry.api.fuels.FuelManager.copperEngineFuel.put(
-				new ItemStack(DynamicEarth.peatBrick),
-				new forestry.api.fuels.EngineCopperFuel(
-					new ItemStack(DynamicEarth.peatBrick),
-					1,
-					peatForestryBurnTime
-				)
-			);
-		}
 	}
 }

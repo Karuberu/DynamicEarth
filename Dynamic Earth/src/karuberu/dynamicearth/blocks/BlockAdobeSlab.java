@@ -3,7 +3,7 @@ package karuberu.dynamicearth.blocks;
 import java.util.List;
 import java.util.Random;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
 
 import net.minecraft.block.Block;
@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
+import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -37,17 +38,19 @@ public class BlockAdobeSlab extends BlockHalfSlab {
 	}
     
 	@Override
-	public void registerIcons(IconRegister iconRegister) {}
+	public void registerIcons(IconRegister iconRegister) {
+		this.blockIcon = iconRegister.registerIcon("MISSING_ICON_TILE_" + this.blockID + "_" + this.getUnlocalizedName());
+	}
 
     @Override
     public Icon getIcon(int side, int metadata) {
-        switch (MCHelper.getSlabMetadata(metadata)) {
-        case ADOBE:
+    	int slabMeta = Helper.getSlabMetadata(metadata);
+    	if (DynamicEarth.includeAdobe && slabMeta == ADOBE) {
             return DynamicEarth.adobe.getBlockTextureFromSide(side);
-        case MUDBRICK:
+    	} else if (DynamicEarth.includeMudBrick && slabMeta == MUDBRICK) {
             return DynamicEarth.blockMudBrick.getBlockTextureFromSide(side);
-        default:
-        	return DynamicEarth.adobe.getBlockTextureFromSide(side);
+    	} else {
+        	return this.blockIcon;
         }
     }
     
@@ -73,16 +76,24 @@ public class BlockAdobeSlab extends BlockHalfSlab {
 	@SideOnly(Side.CLIENT)
 	@SuppressWarnings({ "unchecked", "rawtypes" })
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
-		int numSubBlocks = BlockAdobeSlab.slabType.length;
 		if (blockId != DynamicEarth.adobeDoubleSlab.blockID) {
-            for (int i = 0; i < numSubBlocks; ++i) {
-                list.add(new ItemStack(blockId, 1, i));
+			if (DynamicEarth.includeAdobe) {
+                list.add(new ItemStack(blockId, 1, ADOBE));
             }
+			if (DynamicEarth.includeMudBrick) {
+				list.add(new ItemStack(blockId, 1, MUDBRICK));
+			}
         }
     }
 	
     @SideOnly(Side.CLIENT)
     private static boolean isBlockSingleSlab(int blockId) {
         return blockId == DynamicEarth.adobeSingleSlab.blockID;
+    }
+    
+    @SideOnly(Side.CLIENT)
+    @Override
+    public int idPicked(World world, int x, int y, int z) {
+    	return this.blockID;
     }
 }

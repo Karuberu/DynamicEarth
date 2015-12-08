@@ -3,7 +3,6 @@ package karuberu.dynamicearth;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.network.IGuiHandler;
 
@@ -19,8 +18,9 @@ public class CommonProxy implements IGuiHandler {
 	public void registerLocalizations() {}
 	public void registerRenderInformation() {}
 	public void registerLiquidIcons() {}
+	
 	public Minecraft getMinecraftClient() {
-		return FMLClientHandler.instance().getClient();
+		return null;
 	}
 	
 	@Override

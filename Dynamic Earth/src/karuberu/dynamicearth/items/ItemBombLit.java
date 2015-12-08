@@ -1,7 +1,7 @@
 package karuberu.dynamicearth.items;
 
 import java.util.List;
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.client.TextureManager.ItemIcon;
 import karuberu.dynamicearth.entity.EntityBomb;
@@ -92,7 +92,7 @@ public class ItemBombLit extends ItemDynamicEarth {
 			EntityPlayer player = (EntityPlayer)entity;
 			int damage = itemStack.getItemDamage();
 			if (damage + this.getDamagePerTick() > itemStack.getMaxDamage()) {
-				int slot = MCHelper.getItemIndexInInventory(player.inventory, itemStack);
+				int slot = Helper.getItemIndexInInventory(player.inventory, itemStack);
 				if (slot > -1) {
 					ItemStack bombStack = ItemBombLit.getUnlitBombStack(itemStack);
 					if (bombStack.stackSize <= 0) {

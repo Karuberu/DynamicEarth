@@ -7,9 +7,13 @@ import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
+import karuberu.core.util.block.BlockSide;
+import karuberu.core.util.client.render.ITextureOverlay;
+import karuberu.core.util.client.render.RenderLayeredBlock;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.client.ITextureOverlay;
+import karuberu.dynamicearth.api.ITillable;
+import karuberu.dynamicearth.api.IVanillaReplaceable;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -25,9 +29,10 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.ForgeDirection;
 
-public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITillable {
+public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITillable, IVanillaReplaceable {
 	
 	public static final int
 		WET = 0,
@@ -54,6 +59,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 		textureOverlaySide,
 		textureDry;
 	private static ItemStack
+		dirt,
 		wetPeat,
 		dryPeat;
     public static CreativeTabs
@@ -94,7 +100,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
     @Override
     @SideOnly(Side.CLIENT)
     public Icon getIcon(int side, int metadata) {
-    	if (side == MCHelper.SIDE_TOP) {
+    	if (side == BlockSide.TOP.code) {
     		switch (metadata) {
     		case ZERO_EIGHTHS: return Block.dirt.getBlockTextureFromSide(side);
     		case DRY: return this.textureDry;
@@ -114,8 +120,8 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 	public Icon getOverlayTexture(IBlockAccess blockAccess, int x, int y, int z, int metadata, int side, int pass) {
 		switch(pass) {
 		case 1:
-			if (side != MCHelper.SIDE_TOP
-			&& side != MCHelper.SIDE_BOTTOM) {
+			if (side != BlockSide.TOP.code
+			&& side != BlockSide.BOTTOM.code) {
 	    		switch (metadata) {
 	    		case ONE_EIGHTH: return this.textureSide1;
 	    		case TWO_EIGHTHS: return this.textureSide2;
@@ -134,9 +140,9 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 	    	int topBlockMeta = blockAccess.getBlockMetadata(x, y + 1, z);
 	    	if (topBlockID == DynamicEarth.peatMoss.blockID
 	    	&& BlockPeatMoss.isFullGrown(topBlockMeta)) {
-				if (side == MCHelper.SIDE_TOP) {
+				if (side == BlockSide.TOP.code) {
 					return this.textureOverlayTop;
-				} else if (side != MCHelper.SIDE_BOTTOM) {
+				} else if (side != BlockSide.BOTTOM.code) {
 					return this.textureOverlaySide;
 				} else {
 					return null;
@@ -150,7 +156,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public int getNumberOfPasses(int metadata) {
+	public int getNumberOfAdditionalRenderPasses(int metadata) {
 		return 2;
 	}
 	
@@ -169,7 +175,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getRenderType() {
-		return DynamicEarth.overlayBlockRenderID;
+		return RenderLayeredBlock.renderID;
 	}
 	
 	@Override
@@ -244,7 +250,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 		if (metadata == ZERO_EIGHTHS
 		&& id != DynamicEarth.peatMoss.blockID
 		&& id != DynamicEarth.peat.blockID) {
-			world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
+			world.setBlock(x, y, z, Block.dirt.blockID, 0, Helper.UPDATE_WITHOUT_NOTIFY_REMOTE);
 		}
 	}
 	
@@ -253,7 +259,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 		int metadata = world.getBlockMetadata(x, y, z);
     	switch (metadata) {
     	case ZERO_EIGHTHS:
-    		world.setBlock(x, y, z, Block.tilledField.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+    		world.setBlock(x, y, z, Block.tilledField.blockID, 0, Helper.NOTIFY_AND_UPDATE_REMOTE);
     		return true;
     	case DRY: metadata = BlockDynamicFarmland.PEAT_DRY; break;
     	case ONE_EIGHTH: metadata = BlockDynamicFarmland.PEAT_1; break;
@@ -265,7 +271,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
     	case SEVEN_EIGHTHS: metadata = BlockDynamicFarmland.PEAT_7; break;
     	case WET: metadata = BlockDynamicFarmland.PEAT_WET; break;
     	}
-    	world.setBlock(x, y, z, DynamicEarth.farmland.blockID, metadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+    	world.setBlock(x, y, z, DynamicEarth.farmland.blockID, metadata, Helper.NOTIFY_AND_UPDATE_REMOTE);
 		return true;
 	}
 	
@@ -288,32 +294,32 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 	protected void becomeDry(World world, int x, int y, int z) {
 		int metadata = world.getBlockMetadata(x, y, z);
 		switch(metadata) {
-		case WET:				metadata = DRY; break;
-		default: return;
+		case WET:
+			metadata = DRY; break;
+		default:
+			return;
 		}
-		world.setBlock(x, y, z, DynamicEarth.peat.blockID, metadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+		world.setBlock(x, y, z, DynamicEarth.peat.blockID, metadata, Helper.NOTIFY_AND_UPDATE_REMOTE);
 	}
 	
 	protected void becomeWet(World world, int x, int y, int z) {
 		int metadata = world.getBlockMetadata(x, y, z);
 		switch(metadata) {
-		case DRY:				metadata = WET; break;
-		default: return;
+		case DRY:
+			metadata = WET; break;
+		default:
+			return;
 		}
-		world.setBlock(x, y, z, DynamicEarth.peat.blockID, metadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+		world.setBlock(x, y, z, DynamicEarth.peat.blockID, metadata, Helper.NOTIFY_AND_UPDATE_REMOTE);
 	}
 	
 	@Override
     protected boolean isHydrated(World world, int x, int y, int z) {
-		int metadata = world.getBlockMetadata(x, y, z);
-		switch (metadata) {
-		default:
-			int id = world.getBlockId(x, y + 1, z);
-	    	return id == DynamicEarth.peat.blockID
-	    		|| id == DynamicEarth.mud.blockID
-	    		|| id == DynamicEarth.peatMoss.blockID
-	    		|| super.isHydrated(world, x, y, z);
-		}
+		int id = world.getBlockId(x, y + 1, z);
+    	return id == DynamicEarth.peat.blockID
+    		|| (DynamicEarth.includeMud && id == DynamicEarth.mud.blockID)
+    		|| id == DynamicEarth.peatMoss.blockID
+    		|| super.isHydrated(world, x, y, z);
     }
 	
 	@Override
@@ -410,6 +416,29 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 			return new ItemStack(this.idPicked(world, x, y, z), 1, metadata);
 		default:
 			return new ItemStack(this.idPicked(world, x, y, z), 1, WET);
+		}
+	}
+	
+	@Override
+	public ItemStack getVanillaBlockReplacement(Chunk chunk, int x, int y, int z) {
+		return dirt == null ? dirt = new ItemStack(Block.dirt.blockID, 1, 0) : dirt;
+	}
+	
+	public static int getMetaForFractionFormed(int eighths) {
+		switch (eighths) {
+    	case 0: return ZERO_EIGHTHS;
+    	case 1: return ONE_EIGHTH;
+    	case 2: return TWO_EIGHTHS;
+    	case 3: return THREE_EIGHTHS;
+    	case 4: return FOUR_EIGHTHS;
+    	case 5: return FIVE_EIGHTHS;
+    	case 6: return SIX_EIGHTHS;
+    	case 7: return SEVEN_EIGHTHS;
+    	default:
+    		if (eighths >= 8) {
+    			return WET;
+    		}
+    		return ZERO_EIGHTHS;
 		}
 	}
 	

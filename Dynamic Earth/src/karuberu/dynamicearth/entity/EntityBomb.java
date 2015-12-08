@@ -6,8 +6,9 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import karuberu.core.util.client.fx.FXHelper;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.client.FXManager;
+import karuberu.dynamicearth.client.fx.FXManager;
 import karuberu.dynamicearth.items.ItemBombLit;
 
 import net.minecraft.entity.Entity;
@@ -177,7 +178,7 @@ public class EntityBomb extends EntityThrowable {
 						}
 					}
 				}
-				FXManager.potionSplash(this.worldObj, (int)Math.round(this.posX), (int)Math.round(this.posY), (int)Math.round(this.posZ), ItemBombLit.getPotionDamage(bomb.getTagCompound()));
+				FXHelper.potionSplash(this.worldObj, (int)Math.round(this.posX), (int)Math.round(this.posY), (int)Math.round(this.posZ), ItemBombLit.getPotionDamage(bomb.getTagCompound()));
 			}
 		}
 	}

@@ -2,9 +2,9 @@ package karuberu.dynamicearth.blocks;
 
 import java.util.Random;
 
-import karuberu.core.MCHelper;
 import karuberu.core.event.INeighborBlockEventHandler;
 import karuberu.core.event.NeighborBlockChangeEvent;
+import karuberu.core.util.block.BlockSide;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import karuberu.dynamicearth.entity.EntityAdobeGolem;
@@ -42,7 +42,7 @@ public class BlockAdobe extends Block implements INeighborBlockEventHandler {
 	@Override
 	public void handleNeighborBlockChangeEvent(NeighborBlockChangeEvent event) {
 		if (DynamicEarth.includeAdobeGolems
-		&& event.side == MCHelper.SIDE_TOP
+		&& event.side == BlockSide.TOP
 		&& Block.blocksList[event.neighborBlockID] instanceof BlockPumpkin) {
 			this.tryToSpawnClayGolem(event.world, event.x, event.y, event.z);
 		}

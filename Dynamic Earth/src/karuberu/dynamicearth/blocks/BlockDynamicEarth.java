@@ -1,8 +1,12 @@
 package karuberu.dynamicearth.blocks;
 
 import java.util.Random;
-import karuberu.core.MCHelper;
+import karuberu.core.util.Coordinates;
+import karuberu.core.util.Helper;
+import karuberu.core.util.block.BlockSide;
 import karuberu.dynamicearth.DynamicEarth;
+import karuberu.dynamicearth.GameruleHelper;
+import karuberu.dynamicearth.api.mud.IMudBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -11,7 +15,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
 public abstract class BlockDynamicEarth extends Block {
-	public int
+	private int
 		hydrateRadiusX,
 		hydrateRadiusYUp,
 		hydrateRadiusYDown,
@@ -33,13 +37,15 @@ public abstract class BlockDynamicEarth extends Block {
 	@Override
 	public void updateTick(World world, int x, int y, int z, Random random) {
 		super.updateTick(world, x, y, z, random);
-		if (this.willDry(world, x, y, z)) {
-			this.becomeDry(world, x, y, z);
-		} else {
-			if (this.willHydrate(world, x, y, z)) {
-				this.becomeWet(world, x, y, z);
+		if (world.getGameRules().getGameRuleBooleanValue("doMudTick")) {
+			if (this.willDry(world, x, y, z)) {
+				this.becomeDry(world, x, y, z);
+			} else {
+				if (this.willHydrate(world, x, y, z)) {
+					this.becomeWet(world, x, y, z);
+				}
+				this.tryToSpread(world, x, y, z);
 			}
-			this.tryToSpread(world, x, y, z);
 		}
 	}
 	   
@@ -70,6 +76,14 @@ public abstract class BlockDynamicEarth extends Block {
 		return null;
 	}
 	
+	protected boolean isWetBlock(World world, int x, int y, int z, int metadata) {
+		ItemStack itemStack = this.getWetBlock(metadata);
+		if (itemStack != null) {
+			return world.getBlockId(x, y, z) == itemStack.itemID && world.getBlockMetadata(x, y, z) == itemStack.getItemDamage();
+		}
+		return false;
+	}
+	
 	protected boolean canDry(int metadata) {
 		ItemStack dryBlock = this.getDryBlock(metadata);
 		return dryBlock != null  && Block.blocksList[dryBlock.itemID] != null;
@@ -80,7 +94,7 @@ public abstract class BlockDynamicEarth extends Block {
 		return wetBlock != null  && Block.blocksList[wetBlock.itemID] != null;
 	}
 	 
-	protected boolean canSpread(int metadata) {
+	protected boolean canSpreadHydration(int metadata) {
 		return false;
 	}
 	
@@ -90,6 +104,18 @@ public abstract class BlockDynamicEarth extends Block {
 	
 	protected boolean useSimpleHydration() {
 		return this.useSimpleHydration;
+	}
+	
+	public int getHydrationRange(World world, int x, int y, int z, int side) {
+		switch (BlockSide.get(side)) {
+		case BOTTOM: return this.hydrateRadiusYDown;
+		case TOP: return this.hydrateRadiusYUp;
+		case EAST: 
+		case WEST: return this.hydrateRadiusX;
+		case NORTH:
+		case SOUTH: return this.hydrateRadiusZ;
+		default: return -1;
+		}
 	}
 	
 	protected int getHydrationDistance(World world, int x, int y, int z) {
@@ -145,7 +171,14 @@ public abstract class BlockDynamicEarth extends Block {
 			} else {
 				if (this.isBeingHeated(world, x, y, z)) {
 					return false;
-				} else if (this.isHydrated(world, x, y, z)){
+				} else if (this.isHydrated(world, x, y, z)) {
+					int distance = this.getHydrationDistance(world, x, y, z);
+					if (distance == 0
+					&& !isBlockExposedToTheSky(world, x, y, z, BlockSide.TOP)
+					&& !isBlockWet(world, x, y + 1, z)
+					&& !this.isWetBlock(world, x, y + 1, z, metadata)) {
+						return false;
+					}
 					int rate = this.getHydrationRate(world, x, y, z);
 					return rate == 0 ? true : rate < 0 ? false : world.rand.nextInt(rate) == 0;
 				}
@@ -180,20 +213,20 @@ public abstract class BlockDynamicEarth extends Block {
 	protected void becomeDry(World world, int x, int y, int z) {
 		ItemStack dryBlock = this.getDryBlock(world.getBlockMetadata(x, y, z));
 		if (dryBlock != null && Block.blocksList[dryBlock.itemID] != null) {
-			world.setBlock(x, y, z, dryBlock.itemID, dryBlock.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+			world.setBlock(x, y, z, dryBlock.itemID, dryBlock.getItemDamage(), Helper.NOTIFY_AND_UPDATE_REMOTE);
 		}
 	}
 	
 	protected void becomeWet(World world, int x, int y, int z) {
 		ItemStack wetBlock = this.getWetBlock(world.getBlockMetadata(x, y, z));
 		if (wetBlock != null && Block.blocksList[wetBlock.itemID] != null) {
-			world.setBlock(x, y, z, wetBlock.itemID, wetBlock.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+			world.setBlock(x, y, z, wetBlock.itemID, wetBlock.getItemDamage(), Helper.NOTIFY_AND_UPDATE_REMOTE);
 		}
 	}
 	
-	protected void tryToSpread (World world, int x, int y, int z) {
+	protected void tryToSpread(World world, int x, int y, int z) {
 		int metadata = world.getBlockMetadata(x, y, z);
-		if (this.canSpread(metadata) && this.isHydrated(world, x, y, z)) {
+		if (this.canSpreadHydration(metadata) && this.isHydrated(world, x, y, z)) {
 			int rate = this.getHydrationRate(world, x, y, z);
 			if (rate > 0) {
 				this.spread(world, x, y, z, 5 - rate);
@@ -220,17 +253,32 @@ public abstract class BlockDynamicEarth extends Block {
 			{0, 0, -1},
 			{0, 0, +1}
 		};
+		int randomIndex, xi, yi, zi;
+		Block block;
+		BlockDynamicEarth dynamicBlock;
 		for (int i = 0; i < attempts; ++i) {
-			int randomIndex = world.rand.nextInt(surroundingBlocks.length),
-				xi = surroundingBlocks[randomIndex][0] + x,
-				yi = surroundingBlocks[randomIndex][1] + y,
-				zi = surroundingBlocks[randomIndex][2] + z;
+			randomIndex = world.rand.nextInt(surroundingBlocks.length);
+			xi = surroundingBlocks[randomIndex][0] + x;
+			yi = surroundingBlocks[randomIndex][1] + y;
+			zi = surroundingBlocks[randomIndex][2] + z;
 			ItemStack spreadBlock = this.getBlockForSpread(world, x, y, z, xi, yi, zi);
-			if (spreadBlock != null
-			&& this.isHydrated(world, xi, yi, zi)
-			&& this.canBlockStay(world, xi, yi, zi)) {
-				world.setBlock(xi, yi, zi, spreadBlock.itemID, spreadBlock.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-				break;
+			if (spreadBlock != null) {
+				if (this.isHydrated(world, xi, yi, zi)
+				&& this.canBlockStay(world, xi, yi, zi)) {
+					world.setBlock(xi, yi, zi, spreadBlock.itemID, spreadBlock.getItemDamage(), Helper.NOTIFY_AND_UPDATE_REMOTE);
+					break;
+				}
+			} else {
+				block = Block.blocksList[world.getBlockId(xi, yi, zi)];
+				if (block instanceof BlockDynamicEarth) {
+					dynamicBlock = (BlockDynamicEarth)block;
+					if (dynamicBlock.willHydrate(world, xi, yi, zi)) {
+						dynamicBlock.becomeWet(world, xi, yi, zi);
+						break;
+					}
+				} else if (block instanceof IMudBlock) {
+					((IMudBlock)block).tryToFormMud(world, xi, yi, zi);
+				}
 			}
 		}
 	}
@@ -244,11 +292,36 @@ public abstract class BlockDynamicEarth extends Block {
 	 * @param z : The block's z coordinate.
 	 */
 	public static boolean isBlockGettingRainedOn(World world, int x, int y, int z) {
-		return world.isRaining()
-		&& world.provider.isSurfaceWorld()
-		&& world.canBlockSeeTheSky(x, y + 1, z)
-		&& world.getPrecipitationHeight(x, z) <= y + 1
-		&& !world.getBiomeGenForCoords(x, z).getEnableSnow();
+		if (!world.isRaining()
+		|| !world.provider.isSurfaceWorld()
+		|| world.getBiomeGenForCoords(x, z).getEnableSnow()) {
+			return false;
+		}
+		if (BlockDynamicEarth.isBlockExposedToTheSky(world, x, y, z, BlockSide.TOP, BlockSide.EAST, BlockSide.WEST, BlockSide.NORTH, BlockSide.SOUTH)) {
+			return true;
+		} else if (DynamicEarth.enableMoreDestructiveRain){
+			if (!BlockDynamicEarth.isBlockWet(world, x, y + 1, z)) {
+				return false;
+			} else if (BlockDynamicEarth.isBlockExposedToTheSky(world, x, y + 1, z, BlockSide.TOP, BlockSide.EAST, BlockSide.WEST, BlockSide.NORTH, BlockSide.SOUTH)) {
+				return true;
+			} else {
+				return BlockDynamicEarth.isBlockWet(world, x, y + 2, z)
+				&& BlockDynamicEarth.isBlockExposedToTheSky(world, x, y + 2, z, BlockSide.TOP, BlockSide.EAST, BlockSide.WEST, BlockSide.NORTH, BlockSide.SOUTH);
+			}
+		} else {
+			return false;
+		}
+	}
+	
+	protected static boolean isBlockExposedToTheSky(World world, int x, int y, int z, BlockSide... sides) {
+		Coordinates coords;
+		for (BlockSide side : sides) {
+			coords = Coordinates.getForSide(x, y, z, side);
+			if (world.canBlockSeeTheSky(coords.x, coords.y, coords.z)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -311,28 +384,29 @@ public abstract class BlockDynamicEarth extends Block {
 	
 	public static int getAdjacentWetBlocks(World world, int x, int y, int z) {
 		int count = 0;
-		int[][] surroundingBlocks = MCHelper.getSurroundingBlocks(x, y, z);
-		for (int i = 0; i < surroundingBlocks.length; i++) {
-			int xi = surroundingBlocks[i][0],
-				yi = surroundingBlocks[i][1],
-				zi = surroundingBlocks[i][2];
-			int id = world.getBlockId(xi, yi, zi);
-			int metadata = world.getBlockMetadata(xi, yi, zi);
-			if (Block.blocksList[id] instanceof BlockDynamicEarth
-			&& ((BlockDynamicEarth)Block.blocksList[id]).canDry(metadata)) {
+		Coordinates[] surroundingBlocks = Coordinates.getSurroundingBlockCoords(x, y, z);
+		for (Coordinates coords : surroundingBlocks) {
+			if (isBlockWet(world, coords.x, coords.y, coords.z)) {
 				count++;
 			}
 		}
 		return count;
 	}
 	
+	public static boolean isBlockWet(World world, int x, int y, int z) {
+		Block block = Block.blocksList[world.getBlockId(x, y, z)];
+		int metadata = world.getBlockMetadata(x, y, z);
+		if (block instanceof BlockDynamicEarth
+		&& ((BlockDynamicEarth)block).canDry(metadata)) {
+			return true;
+		}
+		return false;
+	}
+	
 	public static boolean materialIsAdjacent(Material material, World world, int x, int y, int z) {
-		int[][] surroundingBlocks = MCHelper.getSurroundingBlocks(x, y, z);
-		for (int i = 0; i < surroundingBlocks.length; i++) {
-			int xi = surroundingBlocks[i][0],
-				yi = surroundingBlocks[i][1],
-				zi = surroundingBlocks[i][2];
-			Material adjacentMaterial = world.getBlockMaterial(xi, yi, zi);
+		Coordinates[] surroundingBlocks = Coordinates.getSurroundingBlockCoords(x, y, z);
+		for (Coordinates coords : surroundingBlocks) {
+			Material adjacentMaterial = world.getBlockMaterial(coords.x, coords.y, coords.z);
 			if (adjacentMaterial == material) {
 				return true;
 			}
@@ -440,9 +514,16 @@ public abstract class BlockDynamicEarth extends Block {
 	 * on the biome the block is in.
 	 */
 	public static boolean willBlockHydrate(World world, int x, int y, int z, int radiusX, int radiusYUp, int radiusYDown, int radiusZ) {
-		if (isBlockBeingHeated(world, x, y, z)) {
+		if (!GameruleHelper.doMudTick(world)
+		|| isBlockBeingHeated(world, x, y, z)) {
 			return false;
 		} else if (isBlockHydrated(world, x, y, z, radiusX, radiusYUp, radiusYDown, radiusZ)){
+			int distance = getHydrationDistanceWithinRadius(world, x, y, z, radiusX, radiusYUp, radiusYDown, radiusZ);
+			if (distance == 0
+			&& !isBlockExposedToTheSky(world, x, y, z, BlockSide.TOP)
+			&& !isBlockWet(world, x, y + 1, z)) {
+				return false;
+			}
 			int rate = getStandardHydrationRate(world, x, y, z);
 			return rate == 0 ? true : rate < 0 ? false : world.rand.nextInt(rate) == 0;
 		}
@@ -455,6 +536,9 @@ public abstract class BlockDynamicEarth extends Block {
 	 * block is in.
 	 */
 	protected boolean willBlockDry(World world, int x, int y, int z, int radiusX, int radiusYUp, int radiusYDown, int radiusZ) {
+		if (!GameruleHelper.doMudTick(world)) {
+			return false;
+		}
 		if (isBlockBeingHeated(world, x, y, z)) {
 			return true;
 		}

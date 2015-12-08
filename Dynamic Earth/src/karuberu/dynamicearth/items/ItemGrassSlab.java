@@ -1,6 +1,6 @@
 package karuberu.dynamicearth.items;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import net.minecraft.block.Block;
@@ -30,29 +30,29 @@ public class ItemGrassSlab extends ItemDirtSlab {
 			if (world.getBlockId(x, y, z) == DynamicEarth.dirtSlab.blockID || slabMetadata != itemDamage) {
 				switch (itemDamage) {
 				case BlockGrassSlab.GRASS:
-					blockPlaced = world.setBlock(x, y, z, Block.grass.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+					blockPlaced = world.setBlock(x, y, z, Block.grass.blockID, 0, Helper.NOTIFY_AND_UPDATE_REMOTE);
 					break;
 				case BlockGrassSlab.MYCELIUM:
-					blockPlaced = world.setBlock(x, y, z, Block.mycelium.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+					blockPlaced = world.setBlock(x, y, z, Block.mycelium.blockID, 0, Helper.NOTIFY_AND_UPDATE_REMOTE);
 					break;
 				}
 			} else {
-				blockPlaced = world.setBlock(x, y, z, this.doubleSlab.blockID, slabMetadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				blockPlaced = world.setBlock(x, y, z, this.doubleSlab.blockID, slabMetadata, Helper.NOTIFY_AND_UPDATE_REMOTE);
 			}
 		} else if (isTopSlab) {
 			if (world.getBlockId(x, y, z) == DynamicEarth.dirtSlab.blockID) {
-				blockPlaced = world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				blockPlaced = world.setBlock(x, y, z, Block.dirt.blockID, 0, Helper.NOTIFY_AND_UPDATE_REMOTE);
 			} else if (slabMetadata != itemDamage) {
 				switch (slabMetadata & 7) {
 				case BlockGrassSlab.GRASS:
-					blockPlaced = world.setBlock(x, y, z, Block.grass.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+					blockPlaced = world.setBlock(x, y, z, Block.grass.blockID, 0, Helper.NOTIFY_AND_UPDATE_REMOTE);
 					break;
 				case BlockGrassSlab.MYCELIUM:
-					blockPlaced = world.setBlock(x, y, z, Block.mycelium.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+					blockPlaced = world.setBlock(x, y, z, Block.mycelium.blockID, 0, Helper.NOTIFY_AND_UPDATE_REMOTE);
 					break;
 				}
 			} else {
-				blockPlaced = world.setBlock(x, y, z, this.doubleSlab.blockID, slabMetadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				blockPlaced = world.setBlock(x, y, z, this.doubleSlab.blockID, slabMetadata, Helper.NOTIFY_AND_UPDATE_REMOTE);
 			}
 		}
 		return blockPlaced;

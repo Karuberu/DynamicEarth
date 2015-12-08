@@ -3,7 +3,8 @@ package karuberu.dynamicearth.items;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
+import karuberu.core.util.block.BlockSide;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.client.TextureManager.ItemIcon;
 import karuberu.dynamicearth.fluids.FluidHelper;
@@ -96,12 +97,12 @@ public class ItemVase extends Item {
 	public void addInformation(ItemStack itemStack, EntityPlayer player, List information, boolean bool) {
 		FluidStack fluidStack = ItemVase.getFluidStack(itemStack.getItemDamage());
 		if (fluidStack != null && fluidStack.getFluid() != null) {
-			if (MCHelper.usingAdvancedTooltips()) {
+			if (Helper.usingAdvancedTooltips()) {
 				information.add("Fluid: " + fluidStack.getFluid().getName());
 			}
-			if (showMeasurement || MCHelper.usingAdvancedTooltips()) {
+			if (showMeasurement || Helper.usingAdvancedTooltips()) {
 				StringBuilder builder = new StringBuilder();
-				if (MCHelper.usingAdvancedTooltips()) {
+				if (Helper.usingAdvancedTooltips()) {
 					builder.append("Amount: ");
 				}
 				builder.append(fluidStack.amount);
@@ -267,7 +268,7 @@ public class ItemVase extends Item {
 					if (filledMeta > 3) {
 						filledMeta = 3;
 					}
-					world.setBlockMetadataWithNotify(x, y, z, filledMeta, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+					world.setBlockMetadataWithNotify(x, y, z, filledMeta, Helper.NOTIFY_AND_UPDATE_REMOTE);
 					if (!player.capabilities.isCreativeMode) {
 						contents.amount -= (filledMeta - cauldronMeta) * 250;
 						itemStack.setItemDamage(ItemVase.getDamage(contents));
@@ -290,7 +291,7 @@ public class ItemVase extends Item {
 							emptiedMeta = 3;
 						}
 					}
-					world.setBlockMetadataWithNotify(x, y, z, emptiedMeta, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+					world.setBlockMetadataWithNotify(x, y, z, emptiedMeta, Helper.NOTIFY_AND_UPDATE_REMOTE);
 					itemStack.setItemDamage(ItemVase.getDamage(contents));
 				}
 			}
@@ -370,27 +371,28 @@ public class ItemVase extends Item {
 							}
 						}
 					} else {
+						BlockSide sideHit = BlockSide.get(movingObjectPosition.sideHit);
 						if (player.isSneaking()
-						&& movingObjectPosition.sideHit != MCHelper.SIDE_BOTTOM
+						&& sideHit != BlockSide.BOTTOM
 						&& world.getBlockId(movingObjectPosX, movingObjectPosY, movingObjectPosZ) == Block.cauldron.blockID) {
 							return itemStack;
 						}
-						if (movingObjectPosition.sideHit == MCHelper.SIDE_BOTTOM) {
+						if (sideHit == BlockSide.BOTTOM) {
 							--movingObjectPosY;
 						}
-						if (movingObjectPosition.sideHit == MCHelper.SIDE_TOP) {
+						if (sideHit == BlockSide.TOP) {
 							++movingObjectPosY;
 						}
-						if (movingObjectPosition.sideHit == MCHelper.SIDE_EAST) {
+						if (sideHit == BlockSide.EAST) {
 							--movingObjectPosZ;
 						}
-						if (movingObjectPosition.sideHit == MCHelper.SIDE_WEST) {
+						if (sideHit == BlockSide.WEST) {
 							++movingObjectPosZ;
 						}
-						if (movingObjectPosition.sideHit == MCHelper.SIDE_NORTH) {
+						if (sideHit == BlockSide.NORTH) {
 							--movingObjectPosX;
 						}
-						if (movingObjectPosition.sideHit == MCHelper.SIDE_SOUTH) {
+						if (sideHit == BlockSide.SOUTH) {
 							++movingObjectPosX;
 						}
 						if (!player.canPlayerEdit(movingObjectPosX, movingObjectPosY, movingObjectPosZ, movingObjectPosition.sideHit, itemStack)) {
@@ -459,7 +461,7 @@ public class ItemVase extends Item {
 			&& contents.amount >= FluidHelper.BUCKET_VOLUME) {
 				int metadata = FluidHelper.getFluidBlockMetadata(contents.getFluid());
 				if (metadata >= 0) {
-					world.setBlock(movingObjectPosX, movingObjectPosY, movingObjectPosZ, FluidHelper.getFluidBlockID(contents.getFluid()), metadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+					world.setBlock(movingObjectPosX, movingObjectPosY, movingObjectPosZ, FluidHelper.getFluidBlockID(contents.getFluid()), metadata, Helper.NOTIFY_AND_UPDATE_REMOTE);
 					return true;
 				}
 			}
@@ -496,7 +498,7 @@ public class ItemVase extends Item {
 	public static int getDamage(Fluid fluid, int amount) {
 		try {
 			return fluid == null ? 1 : ItemVase.getDamage(fluid.getID(), amount);
-		} catch (NullPointerException e){
+		} catch (NullPointerException e) {
 			return 1;
 		}
 	}

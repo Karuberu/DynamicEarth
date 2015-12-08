@@ -3,6 +3,7 @@ package karuberu.dynamicearth.creativetab;
 import karuberu.dynamicearth.DynamicEarth;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 
 public class CreativeTabDynamicEarth extends CreativeTabs {
@@ -16,7 +17,7 @@ public class CreativeTabDynamicEarth extends CreativeTabs {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getTabIconItemIndex() {
-		return DynamicEarth.mud.blockID;
+		return DynamicEarth.includeMud ? DynamicEarth.mud.blockID : Block.dirt.blockID;
 	}
 
 	@Override

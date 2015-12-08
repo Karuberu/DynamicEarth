@@ -1,5 +1,6 @@
-package karuberu.dynamicearth.blocks;
+package karuberu.dynamicearth.api;
 
+import net.minecraft.block.Block;
 import net.minecraft.world.World;
 
 public interface ITillable {

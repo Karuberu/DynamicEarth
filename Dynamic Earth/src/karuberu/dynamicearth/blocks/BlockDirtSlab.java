@@ -3,8 +3,9 @@ package karuberu.dynamicearth.blocks;
 import java.util.List;
 import java.util.Random;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
+import karuberu.dynamicearth.api.grass.IGrassyBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.block.material.Material;
@@ -50,7 +51,7 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
     
     @Override
     public Icon getIcon(int side, int metadata) {
-        switch (MCHelper.getSlabMetadata(metadata)) {
+        switch (Helper.getSlabMetadata(metadata)) {
         case DIRT:
         	return Block.dirt.getBlockTextureFromSide(side);
         default:
@@ -62,9 +63,9 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
     public void onBlockAdded(World world, int x, int y, int z) {
     	if (this.isOpaqueCube()) {
         	int metadata = world.getBlockMetadata(x, y, z);
-        	switch(MCHelper.getSlabMetadata(metadata)) {
+        	switch(Helper.getSlabMetadata(metadata)) {
         	case DIRT:
-        		world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+        		world.setBlock(x, y, z, Block.dirt.blockID, 0, Helper.DO_NOT_NOTIFY_OR_UPDATE);
         		break;
         	}
     	}
@@ -81,14 +82,14 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
 	}
     
 	@Override
-	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {
+	public void tryToGrow(World world, int x, int y, int z, GrassType type) {
 		if (this.isLightSufficient(world, x, y, z)) {
 			switch (type) {
 			case GRASS:
-				world.setBlock(x, y, z, DynamicEarth.grassSlab.blockID, MCHelper.convertSlabMetadata(world.getBlockMetadata(x, y, z), BlockGrassSlab.GRASS), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				world.setBlock(x, y, z, DynamicEarth.grassSlab.blockID, Helper.convertSlabMetadata(world.getBlockMetadata(x, y, z), BlockGrassSlab.GRASS), Helper.NOTIFY_AND_UPDATE_REMOTE);
 				break;
 			case MYCELIUM:
-				world.setBlock(x, y, z, DynamicEarth.grassSlab.blockID, MCHelper.convertSlabMetadata(world.getBlockMetadata(x, y, z), BlockGrassSlab.MYCELIUM), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				world.setBlock(x, y, z, DynamicEarth.grassSlab.blockID, Helper.convertSlabMetadata(world.getBlockMetadata(x, y, z), BlockGrassSlab.MYCELIUM), Helper.NOTIFY_AND_UPDATE_REMOTE);
 				break;
 			default:
 				return;
@@ -97,28 +98,33 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
 	}
 	
 	@Override
-	public ItemStack getBlockForType(World world, int x, int y, int z, EnumGrassType type) {
+	public ItemStack getBlockForType(World world, int x, int y, int z, GrassType type) {
 		int metadata = world.getBlockMetadata(x, y, z);
 		switch (type) {
 		case DIRT:
-			return new ItemStack(DynamicEarth.dirtSlab, 1, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT));
+			return new ItemStack(DynamicEarth.dirtSlab, 1, Helper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT));
 		case GRASS:
-			return new ItemStack(DynamicEarth.grassSlab, 1, MCHelper.convertSlabMetadata(metadata, BlockGrassSlab.GRASS));
+			return new ItemStack(DynamicEarth.grassSlab, 1, Helper.convertSlabMetadata(metadata, BlockGrassSlab.GRASS));
 		case MYCELIUM:
-			return new ItemStack(DynamicEarth.grassSlab, 1, MCHelper.convertSlabMetadata(metadata, BlockGrassSlab.MYCELIUM));
+			return new ItemStack(DynamicEarth.grassSlab, 1, Helper.convertSlabMetadata(metadata, BlockGrassSlab.MYCELIUM));
 		}
 		return null;
 	}
 
 	@Override
-	public EnumGrassType getType(World world, int x, int y, int z) {
-		return EnumGrassType.DIRT;
+	public GrassType getType(World world, int x, int y, int z) {
+		return GrassType.DIRT;
+	}
+	
+	@Override
+	public boolean willBurn(World world, int x, int y, int z) {
+		return false;
 	}
 	
 	@Override
 	public boolean canSustainPlant(World world, int x, int y, int z, ForgeDirection direction, IPlantable plant) {
 		int metadata = world.getBlockMetadata(x, y, z);
-		if (MCHelper.isTopSlab(metadata)) {
+		if (Helper.isTopSlab(metadata)) {
 			EnumPlantType type = plant.getPlantType(world, x, y + 1, z);
 			if (type == EnumPlantType.Plains) {
 				return true;

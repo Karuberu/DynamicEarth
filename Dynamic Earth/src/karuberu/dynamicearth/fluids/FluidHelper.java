@@ -1,7 +1,8 @@
 package karuberu.dynamicearth.fluids;
 
 import java.util.Hashtable;
-import karuberu.dynamicearth.DELogger;
+import karuberu.core.util.client.ColorHelper;
+import karuberu.dynamicearth.DynamicEarth;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -21,9 +22,9 @@ public class FluidHelper {
 		WATER("water", "7690DA", 0),
 		MILK("milk", "FEFEFE"),
 		SOUP("soup", "CC9978"),
-		REDSTONE("redstone", "C40000"),
-		ENDER("ender", "105E51"),
-		GLOWSTONE("glowstone", "FECB03"),
+		REDSTONE("redstone", "C40000", 7),
+		ENDER("ender", "105E51", 3),
+		GLOWSTONE("glowstone", "FECB03", 7),
 		CREOSOTE("creosote", "676311"),
 		STEAM("steam", "828282", 15),
 		OIL("oil", "202020", 0),
@@ -144,18 +145,9 @@ public class FluidHelper {
 				String color = parts[1].trim();
 				if (color.length() == 6) {
 					try {
-						parts = new String[] {
-							color.substring(0, 2),
-							color.substring(2, 4),
-							color.substring(4, 6)
-						};
-						colorTable.put(fluidName, 
-							(Integer.parseInt(parts[0], 16) << 16) +
-							(Integer.parseInt(parts[1], 16) << 8) +
-							(Integer.parseInt(parts[2], 16))
-						);
+						colorTable.put(fluidName, ColorHelper.getColor(color));
 					} catch (NumberFormatException e) {
-						DELogger.warning("Unable to parse liquid:color pair \"" + colorPair + "\". Skipping.");
+						DynamicEarth.logger.warning("Unable to parse liquid:color pair \"" + colorPair + "\". Skipping.");
 					}
 				}
 			}

@@ -5,7 +5,7 @@ import java.util.Random;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import net.minecraft.block.Block;
@@ -118,10 +118,10 @@ public class BlockPeatMoss extends BlockDynamicEarth {
 				|| soilID == Block.grass.blockID
 				|| soilID == Block.mycelium.blockID
 				|| soilID == Block.tilledField.blockID
-				|| soilID == DynamicEarth.mud.blockID
+				|| (DynamicEarth.includeMud && soilID == DynamicEarth.mud.blockID)
 				|| soilID == DynamicEarth.peat.blockID
 				|| soilID == DynamicEarth.farmland.blockID
-				|| soilID == DynamicEarth.fertileSoil.blockID;
+				|| (DynamicEarth.includeFertileSoil && soilID == DynamicEarth.fertileSoil.blockID);
 		}
 	}
 
@@ -145,7 +145,7 @@ public class BlockPeatMoss extends BlockDynamicEarth {
 			if (!player.capabilities.isCreativeMode) {
 				this.getPlantGrowth(world, x, y, z).harvestBlock(world, player, x, y, z, this.getPlantGrowthMetadata(world, x, y, z));
 			}
-			world.setBlock(x, y, z, DynamicEarth.peatMoss.blockID, GROWTHSTAGE_FULLGROWN, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+			world.setBlock(x, y, z, DynamicEarth.peatMoss.blockID, GROWTHSTAGE_FULLGROWN, Helper.NOTIFY_AND_UPDATE_REMOTE);
 			return false;
 		} else {
 			return super.removeBlockByPlayer(world, player, x, y, z);
@@ -263,7 +263,7 @@ public class BlockPeatMoss extends BlockDynamicEarth {
 		int i = 1;
 		while (soilIsValid(soilID = world.getBlockId(x, y - i, z), metadata)) {
 			if (soilID != DynamicEarth.peat.blockID) {
-				world.setBlock(x, y - i, z, DynamicEarth.peat.blockID, i == 1 ? BlockPeat.ZERO_EIGHTHS : BlockPeat.ONE_EIGHTH, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				world.setBlock(x, y - i, z, DynamicEarth.peat.blockID, i == 1 ? BlockPeat.ZERO_EIGHTHS : BlockPeat.ONE_EIGHTH, Helper.NOTIFY_AND_UPDATE_REMOTE);
 				return;
 			} else if (soilID == DynamicEarth.peat.blockID) {
 				int soilMeta = world.getBlockMetadata(x, y - i, z);
@@ -272,11 +272,11 @@ public class BlockPeatMoss extends BlockDynamicEarth {
 				case BlockPeat.DRY:
 					break;
 				case BlockPeat.SEVEN_EIGHTHS:
-					world.setBlock(x, y - i, z, DynamicEarth.peat.blockID, BlockPeat.WET, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+					world.setBlock(x, y - i, z, DynamicEarth.peat.blockID, BlockPeat.WET, Helper.NOTIFY_AND_UPDATE_REMOTE);
 					return;
 				default:
 					if (BlockPeat.isPartiallyFormed(soilMeta)) {
-						world.setBlock(x, y - i, z, DynamicEarth.peat.blockID, soilMeta + 1, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+						world.setBlock(x, y - i, z, DynamicEarth.peat.blockID, soilMeta + 1, Helper.NOTIFY_AND_UPDATE_REMOTE);
 						return;
 					}
 				}
@@ -314,17 +314,17 @@ public class BlockPeatMoss extends BlockDynamicEarth {
 					} else {
 						break;
 					}
-					world.setBlockMetadataWithNotify(x, y, z, newMetadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);				
+					world.setBlockMetadataWithNotify(x, y, z, newMetadata, Helper.NOTIFY_AND_UPDATE_REMOTE);				
 				}
 				break;
 			case GROWTHSTAGE_1:
 			case GROWTHSTAGE_2:
 			case GROWTHSTAGE_3:
 			case GROWTHSTAGE_4:
-				world.setBlockMetadataWithNotify(x, y, z, metadata + 1, MCHelper.NOTIFY_AND_UPDATE_REMOTE);		
+				world.setBlockMetadataWithNotify(x, y, z, metadata + 1, Helper.NOTIFY_AND_UPDATE_REMOTE);		
 				break;
 			default:
-				world.setBlockMetadataWithNotify(x, y, z, GROWTHSTAGE_FULLGROWN, MCHelper.NOTIFY_AND_UPDATE_REMOTE);			
+				world.setBlockMetadataWithNotify(x, y, z, GROWTHSTAGE_FULLGROWN, Helper.NOTIFY_AND_UPDATE_REMOTE);			
 				break;
 			}
 		}
@@ -341,7 +341,7 @@ public class BlockPeatMoss extends BlockDynamicEarth {
 	}
 	
 	@Override
-	protected boolean canSpread(int metadata) {
+	protected boolean canSpreadHydration(int metadata) {
 		return metadata == BlockPeatMoss.GROWTHSTAGE_FULLGROWN;
 	}
 	
@@ -356,7 +356,7 @@ public class BlockPeatMoss extends BlockDynamicEarth {
 			&& this.getHydrationDistance(world, xi, yi, zi) > 0
 			&& this.canBlockStay(world, xi, yi, zi, newMetadata)
 			&& world.getBlockLightValue(xi, yi, zi) >= BlockPeatMoss.minimumLightLevel) {
-				world.setBlock(xi, yi, zi, this.blockID, newMetadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				world.setBlock(xi, yi, zi, this.blockID, newMetadata, Helper.NOTIFY_AND_UPDATE_REMOTE);
 			}
 		}
 	}

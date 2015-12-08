@@ -6,9 +6,12 @@ import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
+import karuberu.core.util.block.BlockSide;
+import karuberu.core.util.client.render.ITextureOverlay;
+import karuberu.core.util.client.render.RenderLayeredBlock;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.client.ITextureOverlay;
+import karuberu.dynamicearth.GameruleHelper;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -30,39 +33,44 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 		MUD = 0,
 		PEAT_DRY = 1,
 		PEAT_WET = 2,
-		SOIL_DRY = 3,
-		SOIL_WET = 4,
+		FERTILE_DRY = 3,
+		FERTILE_WET = 4,
 		SANDY_DRY = 5,
-		PEAT_1 = 6,
+		GLOWING_DRY = 6,
+		GLOWING_WET = 7,
+		PEAT_1 = 9,
 		PEAT_2 = PEAT_1 + 1,
 		PEAT_3 = PEAT_2 + 1,
 		PEAT_4 = PEAT_3 + 1,
 		PEAT_5 = PEAT_4 + 1,
 		PEAT_6 = PEAT_5 + 1,
 		PEAT_7 = PEAT_6 + 1;
-	private Icon
+	protected Icon
 		textureFarmlandDry,
 		textureFarmlandWet,
 		texturePeatFarmlandDry,
 		texturePeatFarmlandWet;
-	private static ItemStack
-		dirt,
-		mud,
-		peatDry,
-		peatWet,
-		peat1,
-		peat2,
-		peat3,
-		peat4,
-		peat5,
-		peat6,
-		peat7,
-		soil,
-		sandy,
-		farmlandPeatDry,
-		farmlandPeatWet,
-		farmlandSoilDry,
-		farmlandSoilWet;
+	protected ItemStack
+		dirtStack,
+		mudStack,
+		peatDryStack,
+		peatWetStack,
+		peat1Stack,
+		peat2Stack,
+		peat3Stack,
+		peat4Stack,
+		peat5Stack,
+		peat6Stack,
+		peat7Stack,
+		fertileSoilStack,
+		sandySoilStack,
+		glowingSoilStack,
+		farmlandPeatDryStack,
+		farmlandPeatWetStack,
+		farmlandFertileDryStack,
+		farmlandFertileWetStack,
+		farmlandGlowingDryStack,
+		farmlandGlowingWetStack;
 
 	public BlockDynamicFarmland(int id) {
 		super(id, Material.ground);
@@ -73,7 +81,43 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
         this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.9375F, 1.0F);
         this.setLightOpacity(255);
 		this.setTickRandomly(true);
+		this.setUnlocalizedName("dynamicFarmland");
 		Block.useNeighborBrightness[id] = true;
+	}
+	
+	protected void initializeItemStacks() {
+    	this.dirtStack = new ItemStack(Block.dirt.blockID, 1, 0);
+		if (DynamicEarth.includePeat) {
+	    	this.farmlandPeatDryStack = new ItemStack(DynamicEarth.farmland.blockID, 1, PEAT_DRY);
+	    	this.farmlandPeatWetStack = new ItemStack(DynamicEarth.farmland.blockID, 1, PEAT_WET);
+		}
+		if (DynamicEarth.includeFertileSoil) {
+	    	this.fertileSoilStack = new ItemStack(DynamicEarth.fertileSoil.blockID, 1, DynamicEarth.fertileSoil.DIRT);
+	    	this.farmlandFertileDryStack = new ItemStack(DynamicEarth.farmland.blockID, 1, FERTILE_DRY);
+	    	this.farmlandFertileWetStack = new ItemStack(DynamicEarth.farmland.blockID, 1, FERTILE_WET);
+		}
+    	if (DynamicEarth.includeSandySoil) {
+        	this.sandySoilStack = new ItemStack(DynamicEarth.sandySoil.blockID, 1, DynamicEarth.sandySoil.DIRT);
+    	}
+    	if (DynamicEarth.includeGlowingSoil) {
+        	this.glowingSoilStack = new ItemStack(DynamicEarth.glowingSoil.blockID, 1, DynamicEarth.glowingSoil.DIRT);
+        	this.farmlandGlowingDryStack = new ItemStack(DynamicEarth.farmland.blockID, 1, GLOWING_DRY);
+        	this.farmlandGlowingWetStack = new ItemStack(DynamicEarth.farmland.blockID, 1, GLOWING_WET);
+    	}
+    	if (DynamicEarth.includeMud) {
+        	this.mudStack = new ItemStack(DynamicEarth.mud.blockID, 1, DynamicEarth.mud.NORMAL);
+    	}
+    	if (DynamicEarth.includePeat) {
+        	this.peatDryStack = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.DRY);
+        	this.peatWetStack = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.WET);
+        	this.peat1Stack = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.ONE_EIGHTH);
+        	this.peat2Stack = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.TWO_EIGHTHS);
+        	this.peat3Stack = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.THREE_EIGHTHS);
+        	this.peat4Stack = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.FOUR_EIGHTHS);
+        	this.peat5Stack = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.FIVE_EIGHTHS);
+        	this.peat6Stack = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.SIX_EIGHTHS);
+        	this.peat7Stack = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.SEVEN_EIGHTHS);
+    	}
 	}
 	
 	@Override
@@ -87,12 +131,14 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
     @Override
     @SideOnly(Side.CLIENT)
     public Icon getIcon(int side, int metadata) {
-    	if (side == MCHelper.SIDE_TOP) {
+    	if (side == BlockSide.TOP.code) {
     		switch (metadata) {
     		case SANDY_DRY:
-    		case SOIL_DRY: return this.textureFarmlandDry;
+    		case FERTILE_DRY:
+    		case GLOWING_DRY: return this.textureFarmlandDry;
     		case MUD:
-    		case SOIL_WET: return this.textureFarmlandWet;
+    		case FERTILE_WET:
+    		case GLOWING_WET: return this.textureFarmlandWet;
     		case PEAT_1:
     		case PEAT_2:
     		case PEAT_3:
@@ -105,7 +151,7 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
     		default: return Block.dirt.getBlockTextureFromSide(side);
     		}
     	} else {
-    		ItemStack itemStack = BlockDynamicFarmland.getAssociatedBlock(metadata);
+    		ItemStack itemStack = this.getAssociatedBlock(metadata);
     		Block block = Block.blocksList[itemStack.itemID];
     		return block == null ? Block.dirt.getIcon(side, 0) : block.getIcon(side, itemStack.getItemDamage());
     	}
@@ -114,7 +160,7 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Icon getOverlayTexture(IBlockAccess blockAccess, int x, int y, int z, int metadata, int side, int pass) {
-		ItemStack itemStack = BlockDynamicFarmland.getAssociatedBlock(blockAccess.getBlockMetadata(x, y, z));
+		ItemStack itemStack = this.getAssociatedBlock(blockAccess.getBlockMetadata(x, y, z));
 		Block block = Block.blocksList[itemStack.itemID];
 		if (block instanceof ITextureOverlay) {
 			return ((ITextureOverlay)block).getOverlayTexture(blockAccess, x, y, z, itemStack.getItemDamage(), side, pass);
@@ -131,7 +177,7 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public int getNumberOfPasses(int metadata) {
+	public int getNumberOfAdditionalRenderPasses(int metadata) {
 		switch (metadata) {
 		case PEAT_1:
 		case PEAT_2:
@@ -163,12 +209,26 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getRenderType() {
-		return DynamicEarth.overlayBlockRenderID;
+		return RenderLayeredBlock.renderID;
 	}
     
 	@Override
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
     	return AxisAlignedBB.getAABBPool().getAABB(x, y, z, x + 1, y + 1 - 0.125F, z + 1);
+    }
+	
+	@Override
+    public int getLightValue(IBlockAccess world, int x, int y, int z) {
+        Block block = Block.blocksList[world.getBlockId(x, y, z)];
+        if (block != null && block != this) {
+            return block.getLightValue(world, x, y, z);
+        }
+        int metadata = world.getBlockMetadata(x, y, z);
+        if (metadata == BlockDynamicFarmland.GLOWING_DRY
+        || metadata == BlockDynamicFarmland.GLOWING_WET) {
+        	return BlockGlowingSoil.LIGHT_LEVEL;
+        }
+        return super.getLightValue(world, x, y, z);
     }
 	
     @Override
@@ -184,7 +244,7 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 	    	}
     	}
     	if (metadata == MUD) {
-    		world.setBlock(x, y, z, Block.tilledField.blockID, 1, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+    		world.setBlock(x, y, z, Block.tilledField.blockID, 1, Helper.NOTIFY_AND_UPDATE_REMOTE);
     	} else {
     		super.updateTick(world, x, y, z, random);
     	}
@@ -208,7 +268,7 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
         if (!world.isRemote
         && world.rand.nextFloat() < height - 0.5F) {
             if (entity instanceof EntityPlayer
-            || world.getGameRules().getGameRuleBooleanValue("mobGriefing")) {
+            || GameruleHelper.mobGriefing(world)) {
             	entity.posY += 0.125F;
         		this.trample(world, x, y, z);
             }
@@ -217,8 +277,8 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
     
     private void trample(World world, int x, int y, int z) {
     	int metadata = world.getBlockMetadata(x, y, z);
-    	ItemStack itemStack = BlockDynamicFarmland.getAssociatedBlock(metadata);
-   		world.setBlock(x, y, z, itemStack.itemID, itemStack.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+    	ItemStack itemStack = this.getAssociatedBlock(metadata);
+   		world.setBlock(x, y, z, itemStack.itemID, itemStack.getItemDamage(), Helper.NOTIFY_AND_UPDATE_REMOTE);
     }
 
     @Override
@@ -252,40 +312,55 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 		case PEAT_6:
 		case PEAT_7:
     	case PEAT_WET:
-    	case SOIL_WET: return true;
+    	case FERTILE_WET:
+    	case GLOWING_WET: return true;
     	default: return false;
     	}
     }
     
 	@Override
 	protected ItemStack getDryBlock(int metadata) {
+		if (this.dirtStack == null) {
+			this.initializeItemStacks();
+		}
 		if (DynamicEarth.includePeat
 		&& metadata == PEAT_WET) {
-			return farmlandPeatDry == null ? farmlandPeatDry = new ItemStack(DynamicEarth.farmland.blockID, 1, PEAT_DRY) : farmlandPeatDry;
+			return farmlandPeatDryStack;
 		}
 		if (DynamicEarth.includeFertileSoil
-		&& metadata == SOIL_WET) {
-			return farmlandSoilDry == null ? farmlandSoilDry = new ItemStack(DynamicEarth.farmland.blockID, 1, SOIL_DRY) : farmlandSoilDry;
+		&& metadata == FERTILE_WET) {
+			return farmlandFertileDryStack;
 		}
-		return getAssociatedBlock(metadata);
+		if (DynamicEarth.includeGlowingSoil
+		&& metadata == GLOWING_WET) {
+			return farmlandGlowingDryStack;
+		}
+		return this.getAssociatedBlock(metadata);
 	}
 	
 	@Override
 	protected ItemStack getWetBlock(int metadata) {
+		if (this.dirtStack == null) {
+			this.initializeItemStacks();
+		}
 		if (DynamicEarth.includePeat
 		&& metadata == PEAT_DRY) {
-			return farmlandPeatWet == null ? farmlandPeatWet = new ItemStack(DynamicEarth.farmland.blockID, 1, PEAT_WET) : farmlandPeatWet;
+			return farmlandPeatWetStack;
 		}
 		if (DynamicEarth.includeFertileSoil
-		&& metadata == SOIL_DRY) {
-			return farmlandSoilWet == null ? farmlandSoilWet = new ItemStack(DynamicEarth.farmland.blockID, 1, SOIL_WET) : farmlandSoilWet;
+		&& metadata == FERTILE_DRY) {
+			return farmlandFertileWetStack;
+		}
+		if (DynamicEarth.includeGlowingSoil
+		&& metadata == GLOWING_DRY) {
+			return farmlandGlowingWetStack;
 		}
 		return null;
 	}
 	        
     @Override
     public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune) {
-        ItemStack itemStack = BlockDynamicFarmland.getAssociatedBlock(metadata);
+        ItemStack itemStack = this.getAssociatedBlock(metadata);
         Block block = Block.blocksList[itemStack.itemID];
         if (block != null) {
         	return block.getBlockDropped(world, x, y, z, itemStack.getItemDamage(), fortune);
@@ -308,44 +383,52 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 		case PEAT_4:
 		case PEAT_5:
 		case PEAT_6:
-		case PEAT_7: return BlockDynamicFarmland.getAssociatedBlock(PEAT_WET);
+		case PEAT_7: return this.getAssociatedBlock(PEAT_WET);
     	}
-		return BlockDynamicFarmland.getAssociatedBlock(metadata);
+		return this.getAssociatedBlock(metadata);
 	}
-	    
+	
     private static int getFertility(int metadata) {
     	switch (metadata) {
-    	case SOIL_DRY: return 1;
-    	case SOIL_WET: return 2;
+    	case FERTILE_DRY: return 1;
+    	case FERTILE_WET: return 2;
     	default: return 0;
         }
     }
     
-    private static ItemStack getAssociatedBlock(int metadata) {
-    	if (metadata == MUD) {
-    		return mud == null ? mud = new ItemStack(DynamicEarth.mud.blockID, 1, BlockMud.NORMAL) : mud;
+    protected ItemStack getAssociatedBlock(int metadata) {
+		if (this.dirtStack == null) {
+			this.initializeItemStacks();
+		}
+    	if (DynamicEarth.includeMud
+    	&& metadata == MUD) {
+    		return mudStack;
     	}
     	if (DynamicEarth.includePeat) {
     		switch (metadata) {
-	    	case PEAT_DRY: return peatDry == null ? peatDry = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.DRY) : peatDry;
-			case PEAT_WET: return peatWet == null ? peatWet = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.WET) : peatWet;
-			case PEAT_1: return peat1 == null ? peat1 = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.ONE_EIGHTH) : peat1;
-			case PEAT_2: return peat2 == null ? peat2 = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.TWO_EIGHTHS) : peat2;
-			case PEAT_3: return peat3 == null ? peat3 = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.THREE_EIGHTHS) : peat3;
-			case PEAT_4: return peat4 == null ? peat4 = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.FOUR_EIGHTHS) : peat4;
-			case PEAT_5: return peat5 == null ? peat5 = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.FIVE_EIGHTHS) : peat5;
-			case PEAT_6: return peat6 == null ? peat6 = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.SIX_EIGHTHS) : peat6;
-			case PEAT_7: return peat7 == null ? peat7 = new ItemStack(DynamicEarth.peat.blockID, 1, BlockPeat.SEVEN_EIGHTHS) : peat7;
+	    	case PEAT_DRY: return peatDryStack;
+			case PEAT_WET: return peatWetStack;
+			case PEAT_1: return peat1Stack;
+			case PEAT_2: return peat2Stack;
+			case PEAT_3: return peat3Stack;
+			case PEAT_4: return peat4Stack;
+			case PEAT_5: return peat5Stack;
+			case PEAT_6: return peat6Stack;
+			case PEAT_7: return peat7Stack;
     		}
     	}
     	if (DynamicEarth.includeFertileSoil
-    	&& (metadata == SOIL_DRY || metadata == SOIL_WET)) {
-    		return soil == null ? soil = new ItemStack(DynamicEarth.fertileSoil.blockID, 1, BlockFertileSoil.SOIL) : soil;
+    	&& (metadata == FERTILE_DRY || metadata == FERTILE_WET)) {
+    		return fertileSoilStack;
     	}
     	if (DynamicEarth.includeSandySoil
     	&& metadata == SANDY_DRY) {
-    		return sandy == null ? sandy = new ItemStack(DynamicEarth.sandySoil.blockID, 1, BlockSandySoil.DIRT) : sandy;
+    		return sandySoilStack;
     	}
-    	return dirt == null ? dirt = new ItemStack(Block.dirt.blockID, 1, 0) : dirt;
+    	if (DynamicEarth.includeGlowingSoil
+    	&& (metadata == GLOWING_DRY || metadata == GLOWING_WET)) {
+    		return glowingSoilStack;
+    	}
+    	return this.dirtStack;
     }
 }

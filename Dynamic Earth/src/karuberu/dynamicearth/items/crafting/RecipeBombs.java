@@ -1,6 +1,6 @@
 package karuberu.dynamicearth.items.crafting;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.items.ItemBombLit;
 import net.minecraft.inventory.InventoryCrafting;
@@ -108,7 +108,7 @@ public class RecipeBombs implements IRecipe {
 
 	@Override
 	public ItemStack getCraftingResult(InventoryCrafting inventorycrafting) {
-		return MCHelper.getFixedNBTItemStack(result);
+		return Helper.getFixedNBTItemStack(result);
 	}
 
 	@Override

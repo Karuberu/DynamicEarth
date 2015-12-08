@@ -3,11 +3,12 @@ package karuberu.dynamicearth.items;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.client.TextureManager.ItemIcon;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemFireworkCharge;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,17 +22,43 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemBomb extends ItemDynamicEarth {
-
 	@SuppressWarnings("unused")
 	private ItemIcon iconTexture;
 	public static CreativeTabs
 		creativeTab = CreativeTabs.tabCombat;
+	private ItemStack
+		basicBomb,
+		flashyBomb;
 
 	public ItemBomb(int id, ItemIcon icon) {
 		super(id, icon);
 		this.iconTexture = icon;
 		this.setCreativeTab(creativeTab);
 		this.setMaxStackSize(16);
+		this.initializeItemStacks();
+	}
+	
+	protected void initializeItemStacks() {
+		NBTTagCompound basicBombCompound = new NBTTagCompound();
+		this.basicBomb = new ItemStack(this.itemID, 1, 0);
+		basicBombCompound.setByte("Explosiveness", (byte)1);
+		basicBombCompound.setByte("Fuse Length", (byte)1);
+		basicBombCompound.setBoolean("Fire-charged", false);
+		this.basicBomb.setTagCompound(basicBombCompound);
+
+		NBTTagCompound flashyBombCompound = new NBTTagCompound();
+		NBTTagCompound explosions = new NBTTagCompound();
+		NBTTagList explosionList = new NBTTagList();
+		this.flashyBomb = new ItemStack(this.itemID, 1, 0);
+		flashyBombCompound.setByte("Explosiveness", (byte)4);
+		flashyBombCompound.setByte("Fuse Length", (byte)6);
+		flashyBombCompound.setBoolean("Fire-charged", true);
+		explosions.setByte("Type", (byte)1);
+		explosions.setIntArray("Colors", new int[] { ItemDye.dyeColors[1], ItemDye.dyeColors[4], ItemDye.dyeColors[10] });
+		explosions.setBoolean("Flicker", true);
+		explosionList.appendTag(explosions);
+		flashyBombCompound.setTag("Explosions", explosionList);
+		this.flashyBomb.setTagCompound(flashyBombCompound);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -142,12 +169,7 @@ public class ItemBomb extends ItemDynamicEarth {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void getSubItems(int id, CreativeTabs creativeTab, List list) {
-		ItemStack itemStack = new ItemStack(id, 1, 0);
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setByte("Explosiveness", (byte)1);
-		compound.setByte("Fuse Length", (byte)1);
-		compound.setBoolean("Fire-charged", false);
-		itemStack.setTagCompound((NBTTagCompound)compound.copy());
-		list.add(MCHelper.getFixedNBTItemStack(itemStack));
+		list.add(Helper.getFixedNBTItemStack(this.basicBomb));
+		list.add(Helper.getFixedNBTItemStack(this.flashyBomb));
 	}
 }

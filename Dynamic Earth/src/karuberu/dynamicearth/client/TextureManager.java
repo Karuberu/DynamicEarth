@@ -13,6 +13,12 @@ public class TextureManager {
 	public static enum BlockTexture {
 		MUD("mud"),
 		MUDWET("mudwet"),
+		MUDGRASSSIDE("mudgrass"),
+		MUDGRASSSIDEWET("mudwetgrass"),
+		MUDMYCELIUMSIDE("mudmycelium"),
+		MUDMYCELIUMSIDEWET("mudwetmycelium"),
+		MUDSNOWSIDE("mudsnow"),
+		MUDSNOWSIDEWET("mudwetsnow"),
 		ADOBE("adobe"),
 		ADOBEWET("adobewet"),
 		MUDBRICKBLOCK("mudbrick"),
@@ -43,6 +49,8 @@ public class TextureManager {
 		SANDYGRASSSIDE("soilsandygrass"),
 		SANDYMYCELIUMSIDE("soilsandymycelium"),
 		SANDYSNOWSIDE("soilsandysnow"),
+		NETHERGRASSTOP("nethergrasstop"),
+		NETHERGRASSSIDE("nethergrassside"),
 		MILK("milk"),
 		SOUP("soup");
 		

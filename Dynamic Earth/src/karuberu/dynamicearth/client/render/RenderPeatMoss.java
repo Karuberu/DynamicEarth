@@ -2,7 +2,7 @@ package karuberu.dynamicearth.client.render;
 
 import org.lwjgl.opengl.GL11;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.block.BlockSide;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.blocks.BlockPeatMoss;
 import net.minecraft.block.Block;
@@ -41,54 +41,58 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
         
         for (int side = 0; side < 6; side++) {
         	blockTexture = block.getIcon(side, metadata);
-        	switch (side) {
-        	case MCHelper.SIDE_BOTTOM:
+        	switch (BlockSide.get(side)) {
+        	case BOTTOM:
         		normalX = 0.0F;
         		normalY = -1.0F;
         		normalZ = 0.0F;
         		break;
-        	case MCHelper.SIDE_TOP:
+        	case TOP:
         		normalX = 0.0F;
         		normalY = 1.0F;
         		normalZ = 0.0F;
         		break;
-        	case MCHelper.SIDE_EAST:
+        	case EAST:
         		normalX = 0.0F;
         		normalY = 0.0F;
         		normalZ = -1.0F;
         		break;
-        	case MCHelper.SIDE_WEST:
+        	case WEST:
         		normalX = 0.0F;
         		normalY = 0.0F;
         		normalZ = 1.0F;
         		break;
-        	case MCHelper.SIDE_NORTH:
+        	case NORTH:
         		normalX = -1.0F;
         		normalY = 0.0F;
         		normalZ = 0.0F;
         		break;
-        	case MCHelper.SIDE_SOUTH:
+        	case SOUTH:
         		normalX = 1.0F;
         		normalY = 0.0F;
         		normalZ = 0.0F;
         		break;
+			default:
+				break;
         	}
             GL11.glColor4f(color, color, color, 1.0F);
             tessellator.startDrawingQuads();
             tessellator.setNormal(normalX, normalY, normalZ);
-            switch (side) {
-        	case MCHelper.SIDE_BOTTOM:
+            switch (BlockSide.get(side)) {
+        	case BOTTOM:
         		renderer.renderFaceYNeg(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case MCHelper.SIDE_TOP:
+        	case TOP:
         		renderer.renderFaceYPos(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case MCHelper.SIDE_EAST:
+        	case EAST:
         		renderer.renderFaceZNeg(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case MCHelper.SIDE_WEST:
+        	case WEST:
         		renderer.renderFaceZPos(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case MCHelper.SIDE_NORTH:
+        	case NORTH:
         		renderer.renderFaceXNeg(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
-        	case MCHelper.SIDE_SOUTH:
+        	case SOUTH:
         		renderer.renderFaceXPos(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+			default:
+				break;
             }
             tessellator.draw();
         }
@@ -133,49 +137,51 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
         
         Icon texture;
         for(int side = 0; side < 6; side++) {
-        	switch(side) {
-        	case MCHelper.SIDE_BOTTOM:
+        	switch (BlockSide.get(side)) {
+        	case BOTTOM:
         		checkX = x;
         		checkY = y - 1;
         		checkZ = z;
         		brightnessCheck = renderer.renderMinY > 0.0D;
         		sideColor = 0.5F;
         		break;
-        	case MCHelper.SIDE_TOP:
+        	case TOP:
         		checkX = x;
         		checkY = y + 1;
         		checkZ = z;
         		brightnessCheck = renderer.renderMaxY < 1.0D;
         		sideColor = 1.0F;
         		break;
-        	case MCHelper.SIDE_EAST:
+        	case EAST:
         		checkX = x;
         		checkY = y;
         		checkZ = z - 1;
         		brightnessCheck = renderer.renderMinZ > 0.0D;
         		sideColor = 0.8F;
         		break;
-        	case MCHelper.SIDE_WEST:
+        	case WEST:
         		checkX = x;
         		checkY = y;
         		checkZ = z + 1;
         		brightnessCheck = renderer.renderMaxZ < 1.0D;
         		sideColor = 0.8F;
         		break;
-        	case MCHelper.SIDE_NORTH:
+        	case NORTH:
         		checkX = x - 1;
         		checkY = y;
         		checkZ = z;
         		brightnessCheck = renderer.renderMinX > 0.0D;
         		sideColor = 0.6F;
         		break;
-        	case MCHelper.SIDE_SOUTH:
+        	case SOUTH:
         		checkX = x + 1;
         		checkY = y;
         		checkZ = z;
         		brightnessCheck = renderer.renderMaxX < 1.0D;
         		sideColor = 0.6F;
         		break;
+			default:
+				break;
         	}
             if (renderer.renderAllFaces || block.shouldSideBeRendered(blockAccess, checkX, checkY, checkZ, side)) {
             	if (brightnessCheck) {
@@ -186,19 +192,21 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
         		texture = block.getBlockTexture(blockAccess, x, y, z, side);
     			if (texture != null) {
     				tessellator.setColorOpaque_F(sideColor, sideColor, sideColor);
-	            	switch(side) {
-	            	case MCHelper.SIDE_BOTTOM:
+	            	switch (BlockSide.get(side)) {
+	            	case BOTTOM:
 	            		renderer.renderFaceYNeg(block, (double)x, (double)y, (double)z, texture); break;
-	            	case MCHelper.SIDE_TOP:
+	            	case TOP:
 	            		renderer.renderFaceYPos(block, (double)x, (double)y, (double)z, texture); break;
-	            	case MCHelper.SIDE_EAST:
+	            	case EAST:
 	            		renderer.renderFaceZNeg(block, (double)x, (double)y, (double)z, texture); break;
-	            	case MCHelper.SIDE_WEST:
+	            	case WEST:
 	            		renderer.renderFaceZPos(block, (double)x, (double)y, (double)z, texture); break;
-	            	case MCHelper.SIDE_NORTH:
+	            	case NORTH:
 	            		renderer.renderFaceXNeg(block, (double)x, (double)y, (double)z, texture); break;
-	            	case MCHelper.SIDE_SOUTH:
+	            	case SOUTH:
 	            		renderer.renderFaceXPos(block, (double)x, (double)y, (double)z, texture); break;
+					default:
+						break;
 	            	}
 	                blockRendered = true;
     			}
@@ -237,74 +245,78 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 		boolean willColorizeTexture = false;
 		for (side = 0; side < 6; side++) {
 			boolean renderingAtBounds = false;
-			switch(side) {
-			case MCHelper.SIDE_BOTTOM:
+			switch (BlockSide.get(side)) {
+			case BOTTOM:
 				checkX = x; checkY = y - 1; checkZ = z;
 				sideColor = 0.5F;
 				break;
-			case MCHelper.SIDE_TOP:
+			case TOP:
 				checkX = x; checkY = y + 1; checkZ = z;
 				sideColor = 1.0F;
 				break;
-			case MCHelper.SIDE_EAST:
+			case EAST:
 				checkX = x; checkY = y; checkZ = z - 1;
 				sideColor = 0.8F;
 				break;
-			case MCHelper.SIDE_WEST:
+			case WEST:
 				checkX = x; checkY = y; checkZ = z + 1;
 				sideColor = 0.8F;
 				break;
-			case MCHelper.SIDE_NORTH:
+			case NORTH:
 				checkX = x - 1; checkY = y; checkZ = z;
 				sideColor = 0.6F;
 				break;
-			case MCHelper.SIDE_SOUTH:
+			case SOUTH:
 				checkX = x + 1; checkY = y; checkZ = z;
 				sideColor = 0.6F;
 				break;
+			default:
+				break;
 			}
 			if (renderer.renderAllFaces || block.shouldSideBeRendered(blockAccess, checkX, checkY, checkZ, side)) {
-				switch (side) {
-				case MCHelper.SIDE_BOTTOM:
+				switch (BlockSide.get(side)) {
+				case BOTTOM:
 					if (renderer.renderMinY <= 0.0D) {
 						renderingAtBounds = true;
 						--y;
 					}
 					break;
-				case MCHelper.SIDE_TOP:
+				case TOP:
 					if (renderer.renderMaxY >= 1.0D) {
 						renderingAtBounds = true;
 						++y;
 					}
 					break;
-				case MCHelper.SIDE_EAST:
+				case EAST:
 					if (renderer.renderMinZ <= 0.0D) {
 						renderingAtBounds = true;
 						--z;
 					}
 					break;
-				case MCHelper.SIDE_WEST:
+				case WEST:
 					if (renderer.renderMaxZ >= 1.0D) {
 						renderingAtBounds = true;
 						++z;
 					}
 					break;
-				case MCHelper.SIDE_NORTH:
+				case NORTH:
 					if (renderer.renderMinX <= 0.0D) {
 						renderingAtBounds = true;
 						--x;
 					}
 					break;
-				case MCHelper.SIDE_SOUTH:
+				case SOUTH:
 					if (renderer.renderMaxX >= 1.0D) {
 						renderingAtBounds = true;
 						++x;
 					}
 					break;
+				default:
+					break;
 				}
 	
-				switch (side) {
-				case MCHelper.SIDE_BOTTOM:
+				switch (BlockSide.get(side)) {
+				case BOTTOM:
 					renderer.aoBrightnessXYNN = block.getMixedBrightnessForBlock(blockAccess, x - 1, y, z);
 					renderer.aoBrightnessYZNN = block.getMixedBrightnessForBlock(blockAccess, x, y, z - 1);
 					renderer.aoBrightnessYZNP = block.getMixedBrightnessForBlock(blockAccess, x, y, z + 1);
@@ -346,7 +358,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 						renderer.aoBrightnessXYZPNP = block.getMixedBrightnessForBlock(blockAccess, x + 1, y, z + 1);
 					}
 					break;
-				case MCHelper.SIDE_TOP:
+				case TOP:
 					renderer.aoBrightnessXYNP = block.getMixedBrightnessForBlock(blockAccess, x - 1, y, z);
 					renderer.aoBrightnessXYPP = block.getMixedBrightnessForBlock(blockAccess, x + 1, y, z);
 					renderer.aoBrightnessYZPN = block.getMixedBrightnessForBlock(blockAccess, x, y, z - 1);
@@ -388,7 +400,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 						renderer.aoBrightnessXYZPPP = block.getMixedBrightnessForBlock(blockAccess, x + 1, y, z + 1);
 					}
 					break;
-				case MCHelper.SIDE_EAST:
+				case EAST:
 					renderer.aoLightValueScratchXZNN = block.getAmbientOcclusionLightValue(blockAccess, x - 1, y, z);
 					renderer.aoLightValueScratchYZNN = block.getAmbientOcclusionLightValue(blockAccess, x, y - 1, z);
 					renderer.aoLightValueScratchYZPN = block.getAmbientOcclusionLightValue(blockAccess, x, y + 1, z);
@@ -430,7 +442,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 						renderer.aoBrightnessXYZPPN = block.getMixedBrightnessForBlock(blockAccess, x + 1, y + 1, z);
 					}
 					break;
-				case MCHelper.SIDE_WEST:
+				case WEST:
 					renderer.aoLightValueScratchXZNP = block.getAmbientOcclusionLightValue(blockAccess, x - 1, y, z);
 					renderer.aoLightValueScratchXZPP = block.getAmbientOcclusionLightValue(blockAccess, x + 1, y, z);
 					renderer.aoLightValueScratchYZNP = block.getAmbientOcclusionLightValue(blockAccess, x, y - 1, z);
@@ -472,7 +484,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 						renderer.aoBrightnessXYZPPP = block.getMixedBrightnessForBlock(blockAccess, x + 1, y + 1, z);
 					}
 					break;
-				case MCHelper.SIDE_NORTH:
+				case NORTH:
 					renderer.aoLightValueScratchXYNN = block.getAmbientOcclusionLightValue(blockAccess, x, y - 1, z);
 					renderer.aoLightValueScratchXZNN = block.getAmbientOcclusionLightValue(blockAccess, x, y, z - 1);
 					renderer.aoLightValueScratchXZNP = block.getAmbientOcclusionLightValue(blockAccess, x, y, z + 1);
@@ -515,7 +527,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 						renderer.aoBrightnessXYZNPP = block.getMixedBrightnessForBlock(blockAccess, x, y + 1, z + 1);
 					}
 					break;
-				case MCHelper.SIDE_SOUTH:
+				case SOUTH:
 					renderer.aoLightValueScratchXYPN = block.getAmbientOcclusionLightValue(blockAccess, x, y - 1, z);
 					renderer.aoLightValueScratchXZPN = block.getAmbientOcclusionLightValue(blockAccess, x, y, z - 1);
 					renderer.aoLightValueScratchXZPP = block.getAmbientOcclusionLightValue(blockAccess, x, y, z + 1);
@@ -557,16 +569,19 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 						renderer.aoBrightnessXYZPPP = block.getMixedBrightnessForBlock(blockAccess, x, y + 1, z + 1);
 					}
 					break;
+				default:
+					break;
 				}
 	
 				if (renderingAtBounds) {
-					switch (side) {
-					case MCHelper.SIDE_BOTTOM: ++y; break;
-					case MCHelper.SIDE_TOP: --y; break;
-					case MCHelper.SIDE_EAST: ++z; break;
-					case MCHelper.SIDE_WEST: --z; break;
-					case MCHelper.SIDE_NORTH: ++x; break;
-					case MCHelper.SIDE_SOUTH: --x; break;
+					switch (BlockSide.get(side)) {
+					case BOTTOM: ++y; break;
+					case TOP: --y; break;
+					case EAST: ++z; break;
+					case WEST: --z; break;
+					case NORTH: ++x; break;
+					case SOUTH: --x; break;
+					default: break;
 					}
 				}
 				adjustedMixedBrightness = mixedBrightness;
@@ -575,8 +590,8 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 				}
 				adjustedAOLightValue = block.getAmbientOcclusionLightValue(blockAccess, checkX, checkY, checkZ);
 				
-				switch(side) {
-				case (MCHelper.SIDE_BOTTOM):
+				switch (BlockSide.get(side)) {
+				case BOTTOM:
 					lightValueTopLeft = (renderer.aoLightValueScratchXYZNNP + renderer.aoLightValueScratchXYNN + renderer.aoLightValueScratchYZNP + adjustedAOLightValue) / 4.0F;
 					lightValueTopRight = (renderer.aoLightValueScratchYZNP + adjustedAOLightValue + renderer.aoLightValueScratchXYZPNP + renderer.aoLightValueScratchXYPN) / 4.0F;
 					lightValueBottomRight = (adjustedAOLightValue + renderer.aoLightValueScratchYZNN + renderer.aoLightValueScratchXYPN + renderer.aoLightValueScratchXYZPNN) / 4.0F;
@@ -586,7 +601,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 					renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessYZNN, renderer.aoBrightnessXYPN, renderer.aoBrightnessXYZPNN, adjustedMixedBrightness);
 					renderer.brightnessBottomLeft = renderer.getAoBrightness(renderer.aoBrightnessXYNN, renderer.aoBrightnessXYZNNN, renderer.aoBrightnessYZNN, adjustedMixedBrightness);
 					break;
-				case (MCHelper.SIDE_TOP):
+				case TOP:
 					lightValueTopRight = (renderer.aoLightValueScratchXYZNPP + renderer.aoLightValueScratchXYNP + renderer.aoLightValueScratchYZPP + adjustedAOLightValue) / 4.0F;
 					lightValueTopLeft = (renderer.aoLightValueScratchYZPP + adjustedAOLightValue + renderer.aoLightValueScratchXYZPPP + renderer.aoLightValueScratchXYPP) / 4.0F;
 					lightValueBottomLeft = (adjustedAOLightValue + renderer.aoLightValueScratchYZPN + renderer.aoLightValueScratchXYPP + renderer.aoLightValueScratchXYZPPN) / 4.0F;
@@ -596,7 +611,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 					renderer.brightnessBottomLeft = renderer.getAoBrightness(renderer.aoBrightnessYZPN, renderer.aoBrightnessXYPP, renderer.aoBrightnessXYZPPN, adjustedMixedBrightness);
 					renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessXYNP, renderer.aoBrightnessXYZNPN, renderer.aoBrightnessYZPN, adjustedMixedBrightness);
 					break;
-				case (MCHelper.SIDE_EAST):
+				case EAST:
 					lightValueTopLeft = (renderer.aoLightValueScratchXZNN + renderer.aoLightValueScratchXYZNPN + adjustedAOLightValue + renderer.aoLightValueScratchYZPN) / 4.0F;
 					lightValueBottomLeft = (adjustedAOLightValue + renderer.aoLightValueScratchYZPN + renderer.aoLightValueScratchXZPN + renderer.aoLightValueScratchXYZPPN) / 4.0F;
 					lightValueBottomRight = (renderer.aoLightValueScratchYZNN + adjustedAOLightValue + renderer.aoLightValueScratchXYZPNN + renderer.aoLightValueScratchXZPN) / 4.0F;
@@ -606,7 +621,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 					renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessYZNN, renderer.aoBrightnessXYZPNN, renderer.aoBrightnessXZPN, adjustedMixedBrightness);
 					renderer.brightnessTopRight = renderer.getAoBrightness(renderer.aoBrightnessXYZNNN, renderer.aoBrightnessXZNN, renderer.aoBrightnessYZNN, adjustedMixedBrightness);
 					break;
-				case (MCHelper.SIDE_WEST):	
+				case WEST:	
 					lightValueTopLeft = (renderer.aoLightValueScratchXZNP + renderer.aoLightValueScratchXYZNPP + adjustedAOLightValue + renderer.aoLightValueScratchYZPP) / 4.0F;
 					lightValueTopRight = (adjustedAOLightValue + renderer.aoLightValueScratchYZPP + renderer.aoLightValueScratchXZPP + renderer.aoLightValueScratchXYZPPP) / 4.0F;
 					lightValueBottomRight = (renderer.aoLightValueScratchYZNP + adjustedAOLightValue + renderer.aoLightValueScratchXYZPNP + renderer.aoLightValueScratchXZPP) / 4.0F;
@@ -616,7 +631,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 					renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessYZNP, renderer.aoBrightnessXYZPNP, renderer.aoBrightnessXZPP, adjustedMixedBrightness);
 					renderer.brightnessBottomLeft = renderer.getAoBrightness(renderer.aoBrightnessXYZNNP, renderer.aoBrightnessXZNP, renderer.aoBrightnessYZNP, adjustedMixedBrightness);
 					break;
-				case (MCHelper.SIDE_NORTH):
+				case NORTH:
 					lightValueTopRight = (renderer.aoLightValueScratchXYNN + renderer.aoLightValueScratchXYZNNP + adjustedAOLightValue + renderer.aoLightValueScratchXZNP) / 4.0F;
 					lightValueTopLeft = (adjustedAOLightValue + renderer.aoLightValueScratchXZNP + renderer.aoLightValueScratchXYNP + renderer.aoLightValueScratchXYZNPP) / 4.0F;
 					lightValueBottomLeft = (renderer.aoLightValueScratchXZNN + adjustedAOLightValue + renderer.aoLightValueScratchXYZNPN + renderer.aoLightValueScratchXYNP) / 4.0F;
@@ -626,7 +641,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 					renderer.brightnessBottomLeft = renderer.getAoBrightness(renderer.aoBrightnessXZNN, renderer.aoBrightnessXYZNPN, renderer.aoBrightnessXYNP, adjustedMixedBrightness);
 					renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessXYZNNN, renderer.aoBrightnessXYNN, renderer.aoBrightnessXZNN, adjustedMixedBrightness);
 					break;
-				case (MCHelper.SIDE_SOUTH):
+				case SOUTH:
 					lightValueTopLeft = (renderer.aoLightValueScratchXYPN + renderer.aoLightValueScratchXYZPNP + adjustedAOLightValue + renderer.aoLightValueScratchXZPP) / 4.0F;
 					lightValueBottomLeft = (renderer.aoLightValueScratchXYZPNN + renderer.aoLightValueScratchXYPN + renderer.aoLightValueScratchXZPN + adjustedAOLightValue) / 4.0F;
 					lightValueBottomRight = (renderer.aoLightValueScratchXZPN + adjustedAOLightValue + renderer.aoLightValueScratchXYZPPN + renderer.aoLightValueScratchXYPP) / 4.0F;
@@ -635,6 +650,8 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 					renderer.brightnessTopRight = renderer.getAoBrightness(renderer.aoBrightnessXZPP, renderer.aoBrightnessXYPP, renderer.aoBrightnessXYZPPP, adjustedMixedBrightness);
 					renderer.brightnessBottomRight = renderer.getAoBrightness(renderer.aoBrightnessXZPN, renderer.aoBrightnessXYZPPN, renderer.aoBrightnessXYPP, adjustedMixedBrightness);
 					renderer.brightnessBottomLeft = renderer.getAoBrightness(renderer.aoBrightnessXYZPNN, renderer.aoBrightnessXYPN, renderer.aoBrightnessXZPN, adjustedMixedBrightness);
+					break;
+				default:
 					break;
 				}
 
@@ -656,19 +673,21 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 					renderer.colorRedTopRight *= lightValueTopRight;
 					renderer.colorGreenTopRight *= lightValueTopRight;
 					renderer.colorBlueTopRight *= lightValueTopRight;
-					switch(side) {
-					case MCHelper.SIDE_BOTTOM:
+					switch (BlockSide.get(side)) {
+					case BOTTOM:
 						renderer.renderFaceYNeg(block, (double)x, (double)y, (double)z, texture); break;
-					case MCHelper.SIDE_TOP:
+					case TOP:
 						renderer.renderFaceYPos(block, (double)x, (double)y, (double)z, texture); break;
-					case MCHelper.SIDE_EAST:
+					case EAST:
 						renderer.renderFaceZNeg(block, (double)x, (double)y, (double)z, texture); break;
-					case MCHelper.SIDE_WEST:
+					case WEST:
 						renderer.renderFaceZPos(block, (double)x, (double)y, (double)z, texture); break;
-					case MCHelper.SIDE_NORTH:
+					case NORTH:
 						renderer.renderFaceXNeg(block, (double)x, (double)y, (double)z, texture); break;
-					case MCHelper.SIDE_SOUTH:
+					case SOUTH:
 						renderer.renderFaceXPos(block, (double)x, (double)y, (double)z, texture); break;
+					default:
+						break;
 					}
 					blockRendered = true;
 				}

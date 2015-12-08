@@ -1,8 +1,11 @@
 package karuberu.dynamicearth.blocks;
 
 import java.util.Random;
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
+import karuberu.core.util.Coordinates;
 import karuberu.dynamicearth.DynamicEarth;
+import karuberu.dynamicearth.TickHandler;
+import karuberu.dynamicearth.api.IVanillaReplaceable;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 
 import net.minecraft.block.Block;
@@ -10,21 +13,21 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
-public class BlockPermafrost extends Block {
+public class BlockPermafrost extends Block implements IVanillaReplaceable {
 	public static final int
-		META_PERMAFROST = 0,
-		META_NORMAL = 0,
-		META_CHILLED = 10,
-		META_FREEZING = 11,
-		META_FROZEN = 12;
+		META_PERMAFROST = 0;
 	public static int
 		maximumLightLevel = 11;
 	public static float
 		maximumTemperature = 0.15F;
     public static CreativeTabs
 		creativeTab = CreativeTabs.tabBlock;
+    private static ItemStack
+    	dirt;
     
 	public BlockPermafrost(int id) {
 		super(id, Material.rock);
@@ -44,7 +47,7 @@ public class BlockPermafrost extends Block {
     @Override
 	public void updateTick(World world, int x, int y, int z, Random random) {
 	    if (BlockPermafrost.willThaw(world, x, y, z)) {
-	    	world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+	    	world.setBlock(x, y, z, Block.dirt.blockID, 0, Helper.NOTIFY_AND_UPDATE_REMOTE);
 	    }
     }
     
@@ -53,18 +56,20 @@ public class BlockPermafrost extends Block {
     	return true;
     }
     
+	@Override
+	public ItemStack getVanillaBlockReplacement(Chunk chunk, int x, int y, int z) {
+		return dirt == null ? dirt = new ItemStack(Block.dirt.blockID, 1, 0) : dirt;
+	}
+    
     public static boolean canForm(World world, int x, int y, int z) {
     	if (!DynamicEarth.restoreDirtOnChunkLoad
     	&& !BlockPermafrost.willThaw(world, x, y, z)) {
             if (world.getBiomeGenForCoords(x, z).getFloatTemperature() <= maximumTemperature) {
             	return true;
             } else {
-	        	int[][] surroundingBlocks = MCHelper.getSurroundingBlocks(x, y, z);
-	        	for (int i = 0; i < surroundingBlocks.length; i++) {
-	        		int xi = surroundingBlocks[i][0],
-	        			yi = surroundingBlocks[i][1],
-	        			zi = surroundingBlocks[i][2];
-	        		Material material = world.getBlockMaterial(xi, yi, zi);
+        		Coordinates[] surroundingBlocks = Coordinates.getSurroundingBlockCoords(x, y, z);
+        		for (Coordinates coords : surroundingBlocks) {
+	        		Material material = world.getBlockMaterial(coords.x, coords.y, coords.z);
 	        		if (material == Material.ice
 	        		|| material == Material.craftedSnow) {
 	        			return true;
@@ -78,18 +83,7 @@ public class BlockPermafrost extends Block {
     public static void tryToForm(World world, int x, int y, int z) {
     	if (world.getBlockId(x, y, z) == Block.dirt.blockID) {
         	if (BlockPermafrost.canForm(world, x, y, z)) {
-            	int metadata = world.getBlockMetadata(x, y, z);
-            	if (metadata == META_FROZEN) {
-            		world.setBlock(x, y, z, DynamicEarth.permafrost.blockID, META_PERMAFROST, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-            	} else {
-	        		switch (metadata) {
-	        		case META_NORMAL: metadata = META_CHILLED; break;
-	        		case META_CHILLED: metadata = META_FREEZING; break;
-	        		case META_FREEZING: metadata = META_FROZEN; break;
-	        		default: metadata = META_CHILLED; break;
-	        		}
-        			world.setBlockMetadataWithNotify(x, y, z, metadata, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
-        		}
+            	TickHandler.instance.schedulePermafrostFreeze(world, x, y, z, 10);
         	}
     	}
     }

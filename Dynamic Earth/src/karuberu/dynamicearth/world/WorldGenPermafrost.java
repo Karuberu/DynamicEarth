@@ -2,7 +2,7 @@ package karuberu.dynamicearth.world;
 
 import java.util.Random;
 
-import karuberu.core.MCHelper;
+import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
 
 import net.minecraft.block.Block;
@@ -16,7 +16,7 @@ public class WorldGenPermafrost implements IWorldGenerator {
 	
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
-		assert WorldGenMudMod.doGeneratePermafrost;
+		assert WorldGenDynamicEarth.doGeneratePermafrost;
 		assert !world.isRemote;
 		
 		int x = chunkX*16,
@@ -33,7 +33,7 @@ public class WorldGenPermafrost implements IWorldGenerator {
 				        if (!world.canBlockSeeTheSky(xi, yi, zi)) {
 				            while (blockShouldBeConverted(world.getBlockId(xi, yi, zi))) {
 				                if (world.getBlockMaterial(xi, yi+1, zi) != Material.wood) {
-				                    world.setBlock(xi, yi, zi, DynamicEarth.permafrost.blockID, 0, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+				                    world.setBlock(xi, yi, zi, DynamicEarth.permafrost.blockID, 0, Helper.DO_NOT_NOTIFY_OR_UPDATE);
 				                }
 				            	yi--;
 				            }
