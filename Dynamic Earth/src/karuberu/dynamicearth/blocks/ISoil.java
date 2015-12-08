@@ -1,7 +1,6 @@
 package karuberu.dynamicearth.blocks;
 
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 
 public interface ISoil {

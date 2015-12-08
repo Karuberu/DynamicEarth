@@ -7,23 +7,19 @@ import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import karuberu.dynamicearth.blocks.BlockMud;
 import karuberu.dynamicearth.blocks.BlockPeat;
 import karuberu.dynamicearth.blocks.BlockSandySoil;
-import karuberu.dynamicearth.client.TextureManager.BlockTexture;
+import karuberu.dynamicearth.client.render.RenderAdobeGolem;
+import karuberu.dynamicearth.client.render.RenderBlockWithOverlay;
+import karuberu.dynamicearth.client.render.RenderFallingBlock;
+import karuberu.dynamicearth.client.render.RenderMudball;
+import karuberu.dynamicearth.client.render.RenderPeatMoss;
+import karuberu.dynamicearth.entity.EntityAdobeGolem;
 import karuberu.dynamicearth.entity.EntityBomb;
 import karuberu.dynamicearth.entity.EntityFallingBlock;
 import karuberu.dynamicearth.entity.EntityMudball;
 import karuberu.dynamicearth.fluids.FluidHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.renderer.entity.RenderSnowball;
-import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.fluids.FluidRegistry;
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import cpw.mods.fml.relauncher.Side;
 
 public class ClientProxy extends CommonProxy {
 	@Override
@@ -92,7 +88,11 @@ public class ClientProxy extends CommonProxy {
 	
 	@Override
 	public void registerLocalizations() {
-		if (DynamicEarth.includeClayGolems) {
+		if (DynamicEarth.includeAdobe) {
+			LanguageRegistry.instance().addStringLocalization("fluid.soup", "en_US", "Mushroom Stew");
+			LanguageRegistry.instance().addStringLocalization("fluid.milk", "en_US", "Milk");
+		}
+		if (DynamicEarth.includeAdobeGolems) {
 			LanguageRegistry.instance().addStringLocalization("entity.DynamicEarth.clayGolem.name", "en_US", "Adobe Golem");
 		}
 		if (DynamicEarth.includeBombs) {
@@ -102,11 +102,14 @@ public class ClientProxy extends CommonProxy {
 	
 	@Override
 	public void registerRenderInformation() {
- 		RenderingRegistry.registerEntityRenderingHandler(EntityMudball.class, new RenderSnowball(DynamicEarth.mudBlob, 0));
+ 		RenderingRegistry.registerEntityRenderingHandler(EntityMudball.class, new RenderMudball(DynamicEarth.mudBlob, 0));
 		RenderingRegistry.registerEntityRenderingHandler(EntityFallingBlock.class, new RenderFallingBlock());
 		if (DynamicEarth.includeAdobe) {
+			if (DynamicEarth.includeAdobeGolems) {
+				RenderingRegistry.registerEntityRenderingHandler(EntityAdobeGolem.class, new RenderAdobeGolem());
+			}
 			if (DynamicEarth.includeBombs) {
-				RenderingRegistry.registerEntityRenderingHandler(EntityBomb.class, new RenderSnowball(DynamicEarth.bombLit, 0));
+				RenderingRegistry.registerEntityRenderingHandler(EntityBomb.class, new RenderMudball(DynamicEarth.bombLit, 0));
 			}
 		}
 		if (DynamicEarth.includeDirtSlabs || DynamicEarth.includePeat) {
@@ -122,8 +125,12 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void registerLiquidIcons() {
 		if (DynamicEarth.includeAdobe) {
-			FluidRegistry.getFluid(FluidHandler.MILK).setIcons(DynamicEarth.liquidMilk.getIconFromDamage(0));
-			FluidRegistry.getFluid(FluidHandler.SOUP).setIcons(DynamicEarth.liquidSoup.getIconFromDamage(0));
+			if (FluidHandler.milk != null) {
+				FluidHandler.milk.setIcons(DynamicEarth.liquidMilk.getIcon(0, 0));
+			}
+			if (FluidHandler.soup != null) {
+				FluidHandler.soup.setIcons(DynamicEarth.liquidSoup.getIcon(0, 0));
+			}
 		}
 	}
 }

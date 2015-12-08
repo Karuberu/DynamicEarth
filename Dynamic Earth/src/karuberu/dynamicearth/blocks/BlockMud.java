@@ -8,19 +8,16 @@ import karuberu.core.MCHelper;
 import karuberu.core.event.INeighborBlockEventHandler;
 import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.blocks.BlockDynamicEarth.Rate;
-import karuberu.dynamicearth.client.TextureManager;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import karuberu.dynamicearth.entity.EntityFallingBlock;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFlower;
 import net.minecraft.block.BlockReed;
-import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
@@ -29,8 +26,11 @@ import net.minecraft.util.Icon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -56,12 +56,14 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
 		fertileSoil,
 		fertileMud,
 		fertileMudWet;
+    public static CreativeTabs
+		creativeTab = CreativeTabs.tabBlock;
 	
 	public BlockMud(int id) {
 		super(id, Material.ground);
 		this.setHardness(0.5F);
 		this.setStepSound(Block.soundGravelFootstep);
-		this.setCreativeTab(CreativeTabs.tabBlock);
+		this.setCreativeTab(creativeTab);
 		this.setUnlocalizedName("mud");
 		this.setHydrateRadius(2, 1, 4, 2);
 	}
@@ -105,6 +107,8 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
 		if (plantID == Block.reed.blockID
 		|| plantID == Block.sapling.blockID
 		|| plantID == Block.tallGrass.blockID
+		|| plant.getPlantType(world, x, y + 1, z) == EnumPlantType.Plains
+		|| plant instanceof BlockFlower
 		) {
 			return true;
 		}
@@ -181,6 +185,9 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
 			case FALLING_WET:
 			case FALLING_FERTILE:
 			case FALLING_FERTILE_WET:
+				if (DynamicEarth.enableMoreDestructiveMudslides) {
+					this.tryToSpread(world, x, y, z);
+				}
 				this.tryToFall(world, x, y, z);
 				break;
 			}
@@ -231,8 +238,10 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
 	public void handleNeighborBlockChangeEvent(NeighborBlockChangeEvent event) {
 		Block neighborBlock = Block.blocksList[event.neighborBlockID];
 		if (neighborBlock != null) {
-			if (neighborBlock.blockMaterial == Material.lava
-			|| (event.side == MCHelper.SIDE_TOP && neighborBlock.blockMaterial == Material.fire)) {
+			if (neighborBlock.blockMaterial == Material.lava) {
+				event.world.playSoundEffect(event.x, event.y, event.z, "random.fizz", 0.5F, 2.6F + (event.world.rand.nextFloat() - event.world.rand.nextFloat()) * 0.8F);
+				this.becomeDry(event.world, event.x, event.y, event.z);
+			} else if (event.side == MCHelper.SIDE_TOP && neighborBlock.blockMaterial == Material.fire) {
 				this.becomeDry(event.world, event.x, event.y, event.z);
 			} else if (neighborBlock.blockMaterial == Material.water) {
 				this.becomeWet(event.world, event.x, event.y, event.z);
@@ -294,7 +303,7 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
 	
 	@Override
 	protected boolean willHydrate(World world, int x, int y, int z) {
-		if (this.isBlockGettingRainedOn(world, x, y, z)) {
+		if (BlockDynamicEarth.isBlockGettingRainedOn(world, x, y, z)) {
 			return true;
 		} else {
 			return super.willHydrate(world, x, y, z) && this.isMuddy(world, x, y, z);
@@ -325,7 +334,8 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
 				int xi = coordinates[0],
 					yi = coordinates[1],
 					zi = coordinates[2];
-				if (world.getBlockId(xi, yi, zi) == this.blockID) {
+				if (world.getBlockId(xi, yi, zi) == this.blockID
+				&& ((BlockMud)DynamicEarth.mud).canFall(world, xi, yi, zi)) {
 					int metadata = world.getBlockMetadata(x, y, z);
 					switch(metadata) {
 					case NORMAL: metadata = FALLING; break;
@@ -333,20 +343,20 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
 					case FERTILE: metadata = FALLING_FERTILE; break;
 					case FERTILE_WET: metadata = FALLING_FERTILE_WET; break;
 					}
-					world.setBlock(xi, yi, zi, this.blockID, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
+					world.setBlockMetadataWithNotify(xi, yi, zi, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
 				}
 			}
 			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
 		} else {
 			// if the block can't fall, change its metadata back to a stable one.
 			int metadata = world.getBlockMetadata(x, y, z);
-			if (metadata == FALLING || metadata == FALLING_WET) {
-				switch(metadata) {
-				case FALLING: metadata = NORMAL; break;
-				case FALLING_WET: metadata = WET; break;
-				case FALLING_FERTILE: metadata = FERTILE; break;
-				case FALLING_FERTILE_WET: metadata = FERTILE_WET; break;
-				}
+			switch(metadata) {
+			case FALLING: metadata = NORMAL; break;
+			case FALLING_WET: metadata = WET; break;
+			case FALLING_FERTILE: metadata = FERTILE; break;
+			case FALLING_FERTILE_WET: metadata = FERTILE_WET; break;
+			}
+			if (metadata != world.getBlockMetadata(x, y, z)) {
 				world.setBlock(x, y, z, this.blockID, metadata, MCHelper.UPDATE_WITHOUT_NOTIFY_REMOTE);
 			}
 		}
@@ -441,6 +451,7 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
     
 	@Override
 	@SideOnly(Side.CLIENT)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
 		list.add(new ItemStack(blockId, 1, NORMAL));
 		list.add(new ItemStack(blockId, 1, WET));
@@ -460,13 +471,13 @@ public class BlockMud extends BlockDynamicEarth implements IFallingBlock, INeigh
 	}
 	
 	/**
-	 * returns true if the block given will trigger a mudslide (currently just water)
+	 * Returns true if the given block will trigger a mudslide (non-gaseous liquids).
 	 */
 	public static boolean blockWillCauseMudslide(int blockID) {
 		Block block = Block.blocksList[blockID];
 		if (block != null) {
-			Material neighborMaterial = block.blockMaterial;
-			if (neighborMaterial == Material.water) {
+			Fluid fluid = FluidRegistry.lookupFluidForBlock(block);
+			if (fluid != null && !fluid.isGaseous()) {
 		   		return true;
 			}
 		}

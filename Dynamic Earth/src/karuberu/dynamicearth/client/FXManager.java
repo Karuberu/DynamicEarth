@@ -2,6 +2,7 @@ package karuberu.dynamicearth.client;
 
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemPotion;
 import net.minecraft.src.ModLoader;
 import net.minecraft.world.World;
 
@@ -12,7 +13,7 @@ public class FXManager {
 			double posX = (double)x;
 	        double posY = (double)y;
 	        double posZ = (double)z;
-	        boolean isSplash = Item.potion.isSplash(potionDamage);
+	        boolean isSplash = ItemPotion.isSplash(potionDamage);
 	        String particleName;
 	        if (isSplash) {
 	            particleName = "iconcrack_" + Item.potion.itemID;

@@ -3,21 +3,11 @@ package karuberu.dynamicearth.items;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.client.TextureManager;
-import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import karuberu.dynamicearth.client.TextureManager.ItemIcon;
-import karuberu.dynamicearth.entity.EntityBomb;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemFireworkCharge;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,25 +17,31 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemBomb extends ItemMudMod {
-	
+public class ItemBomb extends ItemDynamicEarth {
+
+	@SuppressWarnings("unused")
 	private ItemIcon iconTexture;
-	
+	public static CreativeTabs
+		creativeTab = CreativeTabs.tabCombat;
+
 	public ItemBomb(int id, ItemIcon icon) {
 		super(id, icon);
 		this.iconTexture = icon;
-		this.setCreativeTab(CreativeTabs.tabCombat);
+		this.setCreativeTab(creativeTab);
 		this.setMaxStackSize(16);
 	}
-		
+
 	@SideOnly(Side.CLIENT)
 	@Override
+	@SuppressWarnings("rawtypes")
 	public void addInformation(ItemStack itemStack, EntityPlayer player, List information, boolean bool) {
 		NBTTagCompound compound = itemStack.getTagCompound();
 		information = ItemBomb.getInformationFromTagCompound(information, compound);
 	}
-	
+
 	@Override
 	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
 		NBTTagCompound compound;
@@ -67,7 +63,8 @@ public class ItemBomb extends ItemMudMod {
 		}
 		return itemStack;
 	}
-	
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static List getInformationFromTagCompound(List information, NBTTagCompound compound) {
 		if (compound == null) {
 			return information;
@@ -141,8 +138,9 @@ public class ItemBomb extends ItemMudMod {
 		}
 		return information;
 	}
-	
+
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void getSubItems(int id, CreativeTabs creativeTab, List list) {
 		ItemStack itemStack = new ItemStack(id, 1, 0);
 		NBTTagCompound compound = new NBTTagCompound();

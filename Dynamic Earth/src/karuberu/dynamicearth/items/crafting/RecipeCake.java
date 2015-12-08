@@ -1,21 +1,10 @@
 package karuberu.dynamicearth.items.crafting;
 
-import java.util.ArrayList;
-
-import karuberu.core.MCHelper;
-import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.DELogger;
-import karuberu.dynamicearth.items.ItemBombLit;
-import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;

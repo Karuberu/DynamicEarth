@@ -7,7 +7,8 @@ import net.minecraft.entity.IProjectile;
 import net.minecraft.world.World;
 
 public class BehaviorMudballDispense extends BehaviorProjectileDispense {
-    protected IProjectile getProjectileEntity(World world, IPosition position) {
-        return new EntityMudball(world, position.getX(), position.getY(), position.getZ());
-    }
+	@Override
+	protected IProjectile getProjectileEntity(World world, IPosition position) {
+		return new EntityMudball(world, position.getX(), position.getY(), position.getZ());
+	}
 }

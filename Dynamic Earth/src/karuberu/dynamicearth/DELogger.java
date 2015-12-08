@@ -1,17 +1,15 @@
 package karuberu.dynamicearth;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import karuberu.core.KaruberuLogger;
-import karuberu.core.asm.ObfHelper;
 
 import cpw.mods.fml.common.FMLLog;
 
 public final class DELogger {
 	private static final boolean
-		debugEnabled = true;
+		debugEnabled = false;
 	private static final String
 		sourceString = "DynamicEarth";
 	private static final Logger
@@ -36,14 +34,29 @@ public final class DELogger {
 		logger.log(Level.FINEST, message);
 	}
 	
+	public static void warning(String message) {
+		logger.log(Level.WARNING, message);
+	}
+	
+	public static void severe(String message) {
+		logger.log(Level.SEVERE, message);
+	}
+	
+	@SuppressWarnings("rawtypes")
 	public static void debug(Object... objects) {
 		if (debugEnabled) {
 			StringBuilder message = new StringBuilder();
+
 			for (Object object : objects) {
 				if (object == null) {
 					message.append("null");
-				} else if (object instanceof Object[]) {
-					Object[] array = (Object[])object;
+				} else if (object instanceof Object[] || object instanceof List) {
+					Object[] array;
+					if (object instanceof List) {
+						array = ((List)object).toArray();
+					} else {
+						array = (Object[])object;
+					}
 					message.append(Arrays.toString(array));
 				} else if (object instanceof int[]) {
 					int[] array = (int[])object;

@@ -1,26 +1,18 @@
 package karuberu.dynamicearth.world;
 
-import java.util.Arrays;
 import java.util.Random;
 
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.blocks.BlockMud;
 import karuberu.dynamicearth.blocks.BlockPeat;
 import karuberu.dynamicearth.blocks.BlockPeatMoss;
 import karuberu.dynamicearth.blocks.MaterialPeatMoss;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.world.ChunkPosition;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkProviderEnd;
-import net.minecraft.world.gen.ChunkProviderHell;
-import net.minecraft.world.gen.feature.WorldGenLakes;
 import cpw.mods.fml.common.IWorldGenerator;
 
 public class WorldGenPeat implements IWorldGenerator {

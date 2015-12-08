@@ -1,10 +1,10 @@
 package karuberu.dynamicearth.items.crafting;
 
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.DELogger;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.ICraftingHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -39,7 +39,7 @@ public class CraftingHandler implements ICraftingHandler {
 				ItemStack craftingItem = craftMatrix.getStackInSlot(i);
 				if (craftingItem != null) {
 					if (craftingItem.itemID == Item.potion.itemID
-					&& Item.potion.isSplash(craftingItem.getItemDamage())) {
+					&& ItemPotion.isSplash(craftingItem.getItemDamage())) {
 						craftMatrix.setInventorySlotContents(i, null);
 					}
 				}

@@ -1,5 +1,6 @@
-package karuberu.dynamicearth.client;
+package karuberu.dynamicearth.client.render;
 
+import karuberu.dynamicearth.DELogger;
 import karuberu.dynamicearth.entity.EntityFallingBlock;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -9,8 +10,8 @@ import net.minecraft.block.BlockDragonEgg;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -27,14 +28,14 @@ public class RenderFallingBlock extends Render
 
     public void doRenderFallingBlock(EntityFallingBlock entityFallingBlock, double x, double y, double z, float par8, float par9) {
     	if (entityFallingBlock.blockID == 0) {
-    		System.err.println("Falling block with id " + entityFallingBlock.blockID + " spawned at (" + (int)entityFallingBlock.posX + "," + (int)entityFallingBlock.posY + "," + (int)entityFallingBlock.posZ + ")!");
+    		DELogger.severe("Falling block with id " + entityFallingBlock.blockID + " spawned at (" + (int)entityFallingBlock.posX + "," + (int)entityFallingBlock.posY + "," + (int)entityFallingBlock.posZ + ")!");
     		entityFallingBlock.blockID = Block.sand.blockID;
     	}
     	Block block = Block.blocksList[entityFallingBlock.blockID];
         World world = entityFallingBlock.getWorld();
     	GL11.glPushMatrix();
         GL11.glTranslatef((float)x, (float)y, (float)z);
-//        this.loadTexture("/terrain.png");
+        this.bindEntityTexture(entityFallingBlock);
         GL11.glDisable(GL11.GL_LIGHTING);
         Tessellator tessellator;
 
@@ -67,8 +68,7 @@ public class RenderFallingBlock extends Render
     }
 
 	@Override
-	protected ResourceLocation func_110775_a(Entity entity) {
-		// TODO Auto-generated method stub
-		return null;
+	protected ResourceLocation getEntityTexture(Entity entity) {
+		return TextureMap.locationBlocksTexture;
 	}
 }

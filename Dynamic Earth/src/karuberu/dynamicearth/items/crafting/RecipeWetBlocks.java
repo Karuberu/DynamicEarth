@@ -1,24 +1,13 @@
 package karuberu.dynamicearth.items.crafting;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.DELogger;
-import karuberu.dynamicearth.fluids.FluidHandler;
-import karuberu.dynamicearth.items.ItemBombLit;
+import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 public class RecipeWetBlocks implements IRecipe {
@@ -36,7 +25,7 @@ public class RecipeWetBlocks implements IRecipe {
 			if (item != null) {
 				if (FluidContainerRegistry.isFilledContainer(item)) {
 					FluidStack containerLiquid = FluidContainerRegistry.getFluidForFilledItem(item);
-					if (containerLiquid.isFluidEqual(FluidRegistry.getFluidStack(FluidHandler.WATER, FluidContainerRegistry.BUCKET_VOLUME))) {
+					if (containerLiquid.isFluidEqual(FluidReference.WATER.getBucketVolumeStack())) {
 						if (hasWater) {
 							return false;
 						}
@@ -88,7 +77,7 @@ public class RecipeWetBlocks implements IRecipe {
 			if (result.itemID == DynamicEarth.adobeBlob.itemID
 			&& count % 4 == 0) {
 				result = new ItemStack(DynamicEarth.adobeWet, count / 4);
-			} else if (result.itemID == DynamicEarth.adobeBlob.itemID
+			} else if (result.itemID == DynamicEarth.mudBlob.itemID
 			&& count % 4 == 0) {
 				result = new ItemStack(DynamicEarth.mud, count / 4);
 			} else {

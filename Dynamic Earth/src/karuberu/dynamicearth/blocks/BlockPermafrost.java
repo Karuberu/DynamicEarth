@@ -4,7 +4,6 @@ import java.util.Random;
 
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.client.TextureManager;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 
 import net.minecraft.block.Block;
@@ -12,19 +11,21 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
 
 public class BlockPermafrost extends Block {
-	public static int maximumLightLevel = 11;
-	public static float maximumTemperature = 0.15F;
-
+	public static int
+		maximumLightLevel = 11;
+	public static float
+		maximumTemperature = 0.15F;
+    public static CreativeTabs
+		creativeTab = CreativeTabs.tabBlock;
+    
 	public BlockPermafrost(int id) {
 		super(id, Material.rock);
 		this.setHardness(1.5F);
 		this.setStepSound(Block.soundStoneFootstep);
-        this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setCreativeTab(creativeTab);
 		this.setUnlocalizedName("permafrost");
         this.setTickRandomly(true);
         this.slipperiness = 0.93F;

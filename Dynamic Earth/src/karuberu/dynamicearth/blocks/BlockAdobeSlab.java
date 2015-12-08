@@ -23,15 +23,17 @@ public class BlockAdobeSlab extends BlockHalfSlab {
 		MUDBRICK = 1;
     public static final String[]
     	slabType = new String[] {"adobe", "mudbrick"};
+    public static CreativeTabs
+    	creativeTab = CreativeTabs.tabBlock;
 
     public BlockAdobeSlab(int id, boolean par2) {
 		super(id, par2, Material.rock);
 		this.setHardness(1.5F);
 		this.setResistance(5.0F);
 		this.setStepSound(Block.soundStoneFootstep);
-        this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setCreativeTab(creativeTab);
 		this.setUnlocalizedName("adobeSlab");
-        this.useNeighborBrightness[id] = true;
+        Block.useNeighborBrightness[id] = true;
 	}
     
 	@Override
@@ -69,8 +71,9 @@ public class BlockAdobeSlab extends BlockHalfSlab {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
-		int numSubBlocks = this.slabType.length;
+		int numSubBlocks = BlockAdobeSlab.slabType.length;
 		if (blockId != DynamicEarth.adobeDoubleSlab.blockID) {
             for (int i = 0; i < numSubBlocks; ++i) {
                 list.add(new ItemStack(blockId, 1, i));

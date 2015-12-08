@@ -4,12 +4,12 @@ import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.IFuelHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 
-public final class DEFuelHandler implements IFuelHandler {
+public final class FuelHandler implements IFuelHandler {
 
-	public static DEFuelHandler
-		instance = new DEFuelHandler();
+	public static FuelHandler
+		instance = new FuelHandler();
 	public static int
-		peatBurnTime = 1600,
+		peatBurnTime = 1200,
 		peatForestryBurnTime = 4500;
 	
 	@Override

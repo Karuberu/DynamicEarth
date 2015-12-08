@@ -1,13 +1,8 @@
 package karuberu.dynamicearth.items.crafting;
 
-import java.util.ArrayList;
-
-import karuberu.core.KaruberuLogger;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.DELogger;
 import karuberu.dynamicearth.items.ItemVase;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,9 +10,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-public class RecipeSealedVase implements IRecipe {
-	public static final RecipeSealedVase
-		instance = new RecipeSealedVase();
+public class RecipeVase implements IRecipe {
+	public static final RecipeVase
+		instance = new RecipeVase();
 	private ItemStack result;
 
 	@Override

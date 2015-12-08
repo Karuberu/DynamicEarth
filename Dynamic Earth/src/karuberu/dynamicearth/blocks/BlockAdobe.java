@@ -6,27 +6,27 @@ import karuberu.core.MCHelper;
 import karuberu.core.event.INeighborBlockEventHandler;
 import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.client.TextureManager;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import karuberu.dynamicearth.entity.EntityAdobeGolem;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPumpkin;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.world.World;
 
 public class BlockAdobe extends Block implements INeighborBlockEventHandler {
-
+	public static CreativeTabs
+		creativeTab = CreativeTabs.tabBlock;
+	
 	public BlockAdobe(int id) {
 		super(id, Material.rock);
         this.setHardness(1.5F);
         this.setResistance(5.0F);
         this.setStepSound(Block.soundStoneFootstep);
-        this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setCreativeTab(creativeTab);
         this.setUnlocalizedName("adobeDry");
-        this.func_111022_d(BlockTexture.ADOBE.getIconPath());
+        this.setTextureName(BlockTexture.ADOBE.getIconPath());
 	}
 	    
     @Override
@@ -41,7 +41,7 @@ public class BlockAdobe extends Block implements INeighborBlockEventHandler {
     
 	@Override
 	public void handleNeighborBlockChangeEvent(NeighborBlockChangeEvent event) {
-		if (DynamicEarth.includeClayGolems
+		if (DynamicEarth.includeAdobeGolems
 		&& event.side == MCHelper.SIDE_TOP
 		&& Block.blocksList[event.neighborBlockID] instanceof BlockPumpkin) {
 			this.tryToSpawnClayGolem(event.world, event.x, event.y, event.z);

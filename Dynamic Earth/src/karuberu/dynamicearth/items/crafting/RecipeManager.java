@@ -1,32 +1,18 @@
 package karuberu.dynamicearth.items.crafting;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.DELogger;
 import karuberu.dynamicearth.ModHandler;
 import karuberu.dynamicearth.blocks.BlockAdobeSlab;
 import karuberu.dynamicearth.blocks.BlockFertileSoil;
-import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import karuberu.dynamicearth.blocks.BlockMud;
 import karuberu.dynamicearth.blocks.BlockPeat;
 import karuberu.dynamicearth.blocks.BlockSandySoil;
-import karuberu.dynamicearth.fluids.FluidHandler;
+import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.Property;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
-import cpw.mods.fml.common.IFuelHandler;
+import net.minecraft.item.crafting.FurnaceRecipes;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public final class RecipeManager {
@@ -54,15 +40,25 @@ public final class RecipeManager {
 	}
 
 	public static void addSmelting() {
-	    GameRegistry.addSmelting(DynamicEarth.mud.blockID, new ItemStack(Block.dirt), 0.1F);
+		FurnaceRecipes.smelting().addSmelting(DynamicEarth.mud.blockID, BlockMud.NORMAL, new ItemStack(Block.dirt), 0.1F);
+		FurnaceRecipes.smelting().addSmelting(DynamicEarth.mud.blockID, BlockMud.WET, new ItemStack(Block.dirt), 0.1F);
 	    if (DynamicEarth.includeMudBrick) {
 	    	GameRegistry.addSmelting(DynamicEarth.mudBlob.itemID, new ItemStack(DynamicEarth.mudBrick), 0.1F);
+	    }
+	    if (DynamicEarth.includeAdobe) {
+		    GameRegistry.addSmelting(DynamicEarth.adobeWet.blockID, new ItemStack(DynamicEarth.adobe), 0.1F);
+		    GameRegistry.addSmelting(DynamicEarth.vaseRaw.itemID, new ItemStack(DynamicEarth.vase), 0.1F);
+		    GameRegistry.addSmelting(DynamicEarth.earthbowlRaw.itemID, new ItemStack(DynamicEarth.earthbowl), 0.1F);
 	    }
 	    if (DynamicEarth.includePermafrost) {
 	    	GameRegistry.addSmelting(DynamicEarth.permafrost.blockID, new ItemStack(Block.dirt), 0.1F);
 	    }
 	    if (DynamicEarth.includePeat) {
 	    	GameRegistry.addSmelting(DynamicEarth.peatClump.itemID, ModHandler.getPeatBrick(), 0.1F);
+	    }
+	    if (DynamicEarth.includeFertileSoil) {
+			FurnaceRecipes.smelting().addSmelting(DynamicEarth.mud.blockID, BlockMud.FERTILE, new ItemStack(DynamicEarth.fertileSoil), 0.1F);
+			FurnaceRecipes.smelting().addSmelting(DynamicEarth.mud.blockID, BlockMud.FERTILE_WET, new ItemStack(DynamicEarth.fertileSoil), 0.1F);
 	    }
 	}
 	
@@ -173,13 +169,10 @@ public final class RecipeManager {
 			}
 		);
 	    GameRegistry.addRecipe(RecipeCake.instance);
-	    GameRegistry.addRecipe(RecipeSealedVase.instance);
+	    GameRegistry.addRecipe(RecipeVase.instance);
 	    if (DynamicEarth.includeBombs && RecipeManager.canCraftBombs) {
 		    GameRegistry.addRecipe(RecipeBombs.instance);
 	    }
-	    GameRegistry.addSmelting(DynamicEarth.adobeWet.blockID, new ItemStack(DynamicEarth.adobe), 0.1F);
-	    GameRegistry.addSmelting(DynamicEarth.vaseRaw.itemID, new ItemStack(DynamicEarth.vase), 0.1F);
-	    GameRegistry.addSmelting(DynamicEarth.earthbowlRaw.itemID, new ItemStack(DynamicEarth.earthbowl), 0.1F);
 	}
 	
 	private static void addPeatRecipes() {
@@ -227,6 +220,13 @@ public final class RecipeManager {
 				new ItemStack(DynamicEarth.fertileSoil, 1, BlockFertileSoil.SOIL),
 				DynamicEarth.dirtClod,
 				DynamicEarth.dirtClod,
+				DynamicEarth.peatClump,
+				new ItemStack(Item.dyePowder, 1, 15)
+			);
+			GameRegistry.addShapelessRecipe(
+				new ItemStack(DynamicEarth.mud, 1, BlockMud.FERTILE),
+				DynamicEarth.mudBlob,
+				DynamicEarth.mudBlob,
 				DynamicEarth.peatClump,
 				new ItemStack(Item.dyePowder, 1, 15)
 			);
@@ -404,7 +404,7 @@ public final class RecipeManager {
 	    if (forestry.api.recipes.RecipeManagers.carpenterManager != null) {
 			forestry.api.recipes.RecipeManagers.carpenterManager.addRecipe(
 				10,
-				FluidRegistry.getFluidStack(FluidHandler.WATER, 50),
+				FluidReference.WATER.getFluidStack(50),
 				null,
 				new ItemStack(DynamicEarth.mudBlob),
 				new Object[] {
@@ -414,7 +414,7 @@ public final class RecipeManager {
 			);
 			forestry.api.recipes.RecipeManagers.carpenterManager.addRecipe(
 				10,
-				FluidRegistry.getFluidStack(FluidHandler.WATER, 200),
+				FluidReference.WATER.getFluidStack(200),
 				null,
 				new ItemStack(DynamicEarth.mud.blockID, 1, BlockMud.NORMAL),
 				new Object[] {
@@ -425,7 +425,7 @@ public final class RecipeManager {
 			);
 	    	forestry.api.recipes.RecipeManagers.carpenterManager.addRecipe(
 				10,
-				FluidRegistry.getFluidStack(FluidHandler.WATER, 200),
+				FluidReference.WATER.getFluidStack(200),
 				null,
 				new ItemStack(DynamicEarth.mud.blockID, 1, BlockMud.NORMAL),
 				new Object[] {
@@ -436,7 +436,7 @@ public final class RecipeManager {
 	    	if (DynamicEarth.includeFertileSoil) {
 		    	forestry.api.recipes.RecipeManagers.carpenterManager.addRecipe(
 					10,
-					FluidRegistry.getFluidStack(FluidHandler.WATER, 200),
+					FluidReference.WATER.getFluidStack(200),
 					null,
 					new ItemStack(DynamicEarth.mud.blockID, 1, BlockMud.FERTILE),
 					new Object[] {
@@ -448,7 +448,7 @@ public final class RecipeManager {
 			if (DynamicEarth.includeAdobe) {
 				forestry.api.recipes.RecipeManagers.carpenterManager.addRecipe(
 					10,
-					FluidRegistry.getFluidStack(FluidHandler.WATER, 50),
+					FluidReference.WATER.getFluidStack(50),
 					null,
 					new ItemStack(DynamicEarth.adobeBlob),
 					new Object[] {
@@ -458,7 +458,7 @@ public final class RecipeManager {
 				);
 				forestry.api.recipes.RecipeManagers.carpenterManager.addRecipe(
 					10,
-					FluidRegistry.getFluidStack(FluidHandler.WATER, 200),
+					FluidReference.WATER.getFluidStack(200),
 					null,
 					new ItemStack(DynamicEarth.adobeWet),
 					new Object[] {
@@ -475,7 +475,7 @@ public final class RecipeManager {
 				new ItemStack[] {
 					new ItemStack(DynamicEarth.mudBlob)
 				},
-				FluidRegistry.getFluidStack(FluidHandler.WATER, 50),
+				FluidReference.WATER.getFluidStack(50),
 				new ItemStack(DynamicEarth.dirtClod),
 				100
 			);
@@ -485,7 +485,7 @@ public final class RecipeManager {
 					new ItemStack[] {
 						new ItemStack(DynamicEarth.adobeBlob)
 					},
-					FluidRegistry.getFluidStack(FluidHandler.WATER, 50),
+					FluidReference.WATER.getFluidStack(50),
 					new ItemStack(DynamicEarth.adobeDust),
 					100
 				);
@@ -494,7 +494,7 @@ public final class RecipeManager {
 					new ItemStack[] {
 						new ItemStack(DynamicEarth.earthbowlRaw)
 					},
-					FluidRegistry.getFluidStack(FluidHandler.WATER, 150),
+					FluidReference.WATER.getFluidStack(150),
 					new ItemStack(DynamicEarth.adobeDust, 3),
 					100
 				);
@@ -503,7 +503,7 @@ public final class RecipeManager {
 					new ItemStack[] {
 						new ItemStack(DynamicEarth.vaseRaw)
 					},
-					FluidRegistry.getFluidStack(FluidHandler.WATER, 250),
+					FluidReference.WATER.getFluidStack(250),
 					new ItemStack(DynamicEarth.adobeDust, 5),
 					100
 				);
@@ -514,7 +514,7 @@ public final class RecipeManager {
 					new ItemStack[] {
 						new ItemStack(DynamicEarth.peatClump)
 					},
-					FluidRegistry.getFluidStack(FluidHandler.WATER, 100),
+					FluidReference.WATER.getFluidStack(100),
 					ModHandler.getPeatBrick(),
 					100
 				);

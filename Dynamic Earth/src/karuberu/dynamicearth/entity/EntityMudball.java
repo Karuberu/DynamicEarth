@@ -4,7 +4,7 @@ import java.util.Random;
 
 import karuberu.dynamicearth.DynamicEarth;
 
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
@@ -16,7 +16,7 @@ public class EntityMudball extends EntityThrowable {
         super(world);
     }
 
-    public EntityMudball(World world, EntityLiving entityLiving) {
+    public EntityMudball(World world, EntityLivingBase entityLiving) {
         super(world, entityLiving);
     }
 

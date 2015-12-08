@@ -1,27 +1,15 @@
 package karuberu.dynamicearth.client;
 
-import java.util.EnumMap;
-
-import karuberu.dynamicearth.CommonProxy;
-
-import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.Icon;
 import net.minecraft.util.ResourceLocation;
 
 public class TextureManager {
-	private static TextureManager
-		instance;
-	private TextureMap
-		blocks,
-		items;
 	public static final String
 		dirBase = "dynamicearth:",
 		dirBlocks = dirBase + "textures/blocks",
 		dirItems = dirBase + "textures/items",
-		dirEntities = dirBase + "textures/entity";
+		dirEntities = dirBase + "textures/entities";
 	public static final ResourceLocation
-		clayGolemTexture = new ResourceLocation(dirEntities, "/clayGolem.png");
+		clayGolemTexture = new ResourceLocation(dirEntities + "/clayGolem.png");
 	public static enum BlockTexture {
 		MUD("mud"),
 		MUDWET("mudwet"),
@@ -54,14 +42,16 @@ public class TextureManager {
 		SANDYSOIL("soilsandy"),
 		SANDYGRASSSIDE("soilsandygrass"),
 		SANDYMYCELIUMSIDE("soilsandymycelium"),
-		SANDYSNOWSIDE("soilsandysnow");
+		SANDYSNOWSIDE("soilsandysnow"),
+		MILK("milk"),
+		SOUP("soup");
 		
 		private final String name;
 		BlockTexture(String name) {
 			this.name = name;
 		}
 		public ResourceLocation getLocation() {
-			return new ResourceLocation (dirBlocks, "/" + name + ".png");
+			return new ResourceLocation (dirBlocks, name + ".png");
 		}
 		public String getIconPath() {
 			return dirBase + name;
@@ -86,9 +76,7 @@ public class TextureManager {
 		PEATMOSSSPECIMEN("peatmossspecimen"),
 		PEATCLUMP("peatclump"),
 		PEATBRICK("peatbrick"),
-		DIRTCLOD("dirtclod"),
-		MILK("milk"),
-		SOUP("soup");
+		DIRTCLOD("dirtclod");
 		
 		private final String name;
 		ItemIcon(String name) {

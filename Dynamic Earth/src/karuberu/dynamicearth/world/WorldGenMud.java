@@ -9,11 +9,7 @@ import karuberu.dynamicearth.blocks.BlockMud;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkProviderEnd;
-import net.minecraft.world.gen.ChunkProviderHell;
-import net.minecraft.world.gen.feature.WorldGenerator;
 import cpw.mods.fml.common.IWorldGenerator;
 
 public class WorldGenMud implements IWorldGenerator {
@@ -31,7 +27,7 @@ public class WorldGenMud implements IWorldGenerator {
 				if (world.getBiomeGenForCoords(x, z).rainfall >= 0.1F) {
 					for (int yi = 127; yi > 0; yi--) {
 				        if (world.getBlockMaterial(xi, yi, zi) == Material.water) {
-				            while (yi > yi - this.depth && yi > 0) {
+				            while (yi > yi - WorldGenMud.depth && yi > 0) {
 				            	yi--;
 				                int id = world.getBlockId(xi, yi, zi);
 				                if (id == Block.dirt.blockID

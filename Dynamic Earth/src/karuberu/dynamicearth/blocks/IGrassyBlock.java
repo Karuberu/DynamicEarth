@@ -1,11 +1,5 @@
 package karuberu.dynamicearth.blocks;
 
-import java.util.Random;
-
-import karuberu.core.MCHelper;
-import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.DELogger;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -24,6 +18,14 @@ public interface IGrassyBlock {
     	GRASS,
     	MYCELIUM
     };
+    /**
+     * Attempt to grow this block's version of the given type of grass.
+     * @param world: the world the blocks are in.
+     * @param x: the block's x coordinate.
+     * @param y: the block's y coordinate.
+     * @param z: the block's z coordinate.
+     */
+    public boolean canSpread(World world, int x, int y, int z);
     /**
      * Attempt to grow this block's version of the given type of grass.
      * @param world: the world the blocks are in.
@@ -58,6 +60,16 @@ public interface IGrassyBlock {
      * Implementation of IGrassyBlock for vanilla dirt, grass, and mycelium.
      */
     public static IGrassyBlock dirt = new IGrassyBlock() {
+    	@Override
+    	public boolean canSpread(World world, int x, int y, int z) {
+    		EnumGrassType type = this.getType(world, x, y, z);
+    		if ((type == EnumGrassType.GRASS || type == EnumGrassType.MYCELIUM)
+    		&& world.getBlockLightValue(x, y + 1, z) >= 9) {
+    			return true;
+    		}
+    		return false;
+    	}
+    	
     	@Override
     	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {
     		if (this.getType(world, x, y, z) == EnumGrassType.DIRT

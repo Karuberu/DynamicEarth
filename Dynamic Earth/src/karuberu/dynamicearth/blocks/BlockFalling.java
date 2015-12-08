@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 
-public class BlockFalling extends Block implements IFallingBlock {
+public abstract class BlockFalling extends Block implements IFallingBlock {
 	
 	public BlockFalling(int id, Material material) {
 		super(id, material);
@@ -20,10 +20,10 @@ public class BlockFalling extends Block implements IFallingBlock {
 	
 	@Override
 	public boolean tryToFall(World world, int x, int y, int z) {
-        if (this.canFallBelow(world, x, y, z)) {
+        if (BlockFalling.canFallBelow(world, x, y, z)) {
             byte radius = 32;
 
-            if (this.doSpawnEntity()
+            if (BlockFalling.doSpawnEntity()
             && world.checkChunksExist(x - radius, y - radius, z - radius, x + radius, y + radius, z + radius)) {
                 if (!world.isRemote) {
                     EntityFallingBlock fallingBlock = new EntityFallingBlock(world, (double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.blockID, world.getBlockMetadata(x, y, z));
@@ -31,7 +31,7 @@ public class BlockFalling extends Block implements IFallingBlock {
                 }
             } else {
                 world.setBlockToAir(x, y, z);
-                while (this.canFallBelow(world, x, y, z)) {
+                while (BlockFalling.canFallBelow(world, x, y, z)) {
                     --y;
                 } if (y > 0) {
                     world.setBlock(x, y, z, this.blockID, world.getBlockMetadata(x, y, z), MCHelper.NOTIFY_AND_UPDATE_REMOTE);

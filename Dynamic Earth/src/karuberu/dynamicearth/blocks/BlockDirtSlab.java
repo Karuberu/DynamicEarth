@@ -5,7 +5,6 @@ import java.util.Random;
 
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.block.material.Material;
@@ -14,7 +13,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.ColorizerGrass;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.EnumPlantType;
@@ -29,14 +27,16 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
     	slabType = new String[] {"dirt"};
     public static final int
     	DIRT = 0;
-
+    public static CreativeTabs
+		creativeTab = CreativeTabs.tabBlock;
+    
     public BlockDirtSlab(int id, boolean par2) {
 		super(id, par2, Material.ground);
 		this.setHardness(0.5F);
 		this.setStepSound(Block.soundGravelFootstep);
-        this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setCreativeTab(creativeTab);
         this.setTickRandomly(true);
-        this.useNeighborBrightness[id] = true;
+        Block.useNeighborBrightness[id] = true;
 	}
     
 	@Override
@@ -73,6 +73,11 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
         && world.getBlockLightOpacity(x, y + 1, z) <= 2;
     }
 	
+	@Override
+	public boolean canSpread(World world, int x, int y, int z) {
+		return false;
+	}
+    
 	@Override
 	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {
 		if (this.isLightSufficient(world, x, y, z)) {
@@ -145,9 +150,10 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
         if (blockId != DynamicEarth.dirtDoubleSlab.blockID) {
-            int numSubBlocks = this.slabType.length;
+            int numSubBlocks = BlockDirtSlab.slabType.length;
             for (int i = 0; i < numSubBlocks; ++i) {
                 list.add(new ItemStack(blockId, 1, i));
             }

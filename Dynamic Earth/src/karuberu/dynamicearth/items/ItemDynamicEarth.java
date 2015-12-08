@@ -1,18 +1,20 @@
 package karuberu.dynamicearth.items;
 
-import karuberu.dynamicearth.client.TextureManager;
-import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import karuberu.dynamicearth.client.TextureManager.ItemIcon;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
-public class ItemMudMod extends Item {
-	private ItemIcon iconTexture;
+public class ItemDynamicEarth extends Item {
+	private ItemIcon
+		iconTexture;
+	public static CreativeTabs
+		creativeTab = CreativeTabs.tabMaterials;
 
-	public ItemMudMod(int id, ItemIcon icon) {
+	public ItemDynamicEarth(int id, ItemIcon icon) {
 		super(id);
 		this.iconTexture = icon;
+		this.setCreativeTab(creativeTab);
 	}
 
 	@Override

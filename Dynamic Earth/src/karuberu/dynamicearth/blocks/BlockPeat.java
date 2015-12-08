@@ -9,10 +9,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.DELogger;
-import karuberu.dynamicearth.blocks.BlockDynamicEarth.Rate;
 import karuberu.dynamicearth.client.ITextureOverlay;
-import karuberu.dynamicearth.client.TextureManager;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -25,14 +22,10 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.ColorizerFoliage;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.event.entity.player.UseHoeEvent;
 
 public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITillable {
 	
@@ -63,13 +56,15 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 	private static ItemStack
 		wetPeat,
 		dryPeat;
+    public static CreativeTabs
+		creativeTab = CreativeTabs.tabBlock;
 	
 	public BlockPeat(int id) {
 		super(id, Material.ground);
 		this.setHardness(0.4F);
         this.setUnlocalizedName("peat");
 		this.setStepSound(Block.soundGravelFootstep);
-        this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setCreativeTab(creativeTab);
         this.setHydrateRadius(2);
         this.setTickRandomly(true);
 	}
@@ -398,6 +393,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
     
 	@Override
 	@SideOnly(Side.CLIENT)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
 		list.add(new ItemStack(blockId, 1, WET));
 		list.add(new ItemStack(blockId, 1, DRY));

@@ -2,14 +2,11 @@ package karuberu.dynamicearth.entity.ai;
 
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.blocks.BlockDirtSlab;
-import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import karuberu.dynamicearth.blocks.IGrassyBlock;
 import karuberu.dynamicearth.blocks.IGrassyBlock.EnumGrassType;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.ai.EntityAIEatGrass;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;

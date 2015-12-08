@@ -1,21 +1,11 @@
 package karuberu.dynamicearth.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
-
-import org.bouncycastle.util.Strings;
-
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
 
-import cpw.mods.fml.common.Mod.PostInit;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -34,7 +24,7 @@ public abstract class BlockDynamicEarth extends Block {
 	}
 	private boolean
 		useSimpleHydration;
-
+    
 	public BlockDynamicEarth(int id, Material material) {
 		super(id, material);
 		this.setTickRandomly(true);
@@ -230,7 +220,6 @@ public abstract class BlockDynamicEarth extends Block {
 			{0, 0, -1},
 			{0, 0, +1}
 		};
-		int metadata = world.getBlockMetadata(x, y, z);
 		for (int i = 0; i < attempts; ++i) {
 			int randomIndex = world.rand.nextInt(surroundingBlocks.length),
 				xi = surroundingBlocks[randomIndex][0] + x,

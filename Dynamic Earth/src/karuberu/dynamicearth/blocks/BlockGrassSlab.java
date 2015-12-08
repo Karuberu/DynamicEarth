@@ -1,16 +1,11 @@
 package karuberu.dynamicearth.blocks;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import karuberu.core.MCHelper;
-import karuberu.core.event.INeighborBlockEventHandler;
-import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.blocks.IGrassyBlock.EnumGrassType;
 import karuberu.dynamicearth.client.ITextureOverlay;
-import karuberu.dynamicearth.client.TextureManager;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 
 import net.minecraft.block.Block;
@@ -19,11 +14,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.stats.StatList;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.ColorizerGrass;
@@ -35,7 +27,7 @@ import net.minecraftforge.common.IPlantable;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IGrassyBlock {
+public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IGrassyBlock, ISoil {
 
     public static final String[]
     	slabType = new String[] {"grass", "mycelium"};
@@ -47,14 +39,16 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
     	textureMyceliumSide,
     	textureSnowySide,
     	textureOverlayGrassSide;
+    public static CreativeTabs
+		creativeTab = CreativeTabs.tabBlock;
 
     public BlockGrassSlab(int id, boolean isDoubleSlab) {
 		super(id, isDoubleSlab, Material.grass);
 		this.setHardness(0.6F);
 		this.setStepSound(Block.soundGrassFootstep);
-        this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setCreativeTab(creativeTab);
         this.setTickRandomly(true);
-        this.useNeighborBrightness[id] = true;
+        Block.useNeighborBrightness[id] = true;
 	}
     
 	@Override
@@ -90,6 +84,16 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
     }
 	
 	@Override
+	public boolean canSpread(World world, int x, int y, int z) {
+		EnumGrassType type = this.getType(world, x, y, z);
+		if ((type == EnumGrassType.GRASS || type == EnumGrassType.MYCELIUM)
+		&& world.getBlockLightValue(x, y + 1, z) >= 9) {
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
 	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {}
 
 	@Override
@@ -108,6 +112,20 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
 	@Override
 	public ItemStack getBlockForType(World world, int x, int y, int z, EnumGrassType type) {
 		return ((IGrassyBlock)DynamicEarth.dirtSlab).getBlockForType(world, x, y, z, type);
+	}
+	
+	@Override
+	public boolean willForcePlantToStay(World world, int x, int y, int z, IPlantable plant) {
+		int metadata = world.getBlockMetadata(x, y, z);
+		if (MCHelper.isTopSlab(metadata)) {
+			switch (MCHelper.getSlabMetadata(metadata)) {
+			case MYCELIUM:
+				if (plant.getPlantType(world, x, y + 1, z) == EnumPlantType.Cave) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	public boolean isLightSufficient(World world, int x, int y, int z) {
@@ -345,9 +363,10 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
 	
 	@Override
 	@SideOnly(Side.CLIENT)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
         if (blockId != DynamicEarth.grassDoubleSlab.blockID) {
-            int numSubBlocks = this.slabType.length;
+            int numSubBlocks = BlockGrassSlab.slabType.length;
             for (int i = 0; i < numSubBlocks; ++i) {
                 list.add(new ItemStack(blockId, 1, i));
             }

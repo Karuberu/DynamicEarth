@@ -12,7 +12,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.blocks.IFallingBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockSand;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
@@ -21,7 +20,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.IPlantable;
 
 public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawnData
 {
@@ -183,7 +181,8 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
         }
     }
 
-    @Override
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
     protected void fall(float floatFallTime) {
         if (this.dealsFallDamage) {
             int fallTime = MathHelper.ceiling_float_int(floatFallTime - 1.0F);
@@ -263,8 +262,8 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
         return false;
     }
 
-    public void func_85029_a(CrashReportCategory par1CrashReportCategory) {
-        super.func_85029_a(par1CrashReportCategory);
+    public void addEntityCrashInfo(CrashReportCategory par1CrashReportCategory) {
+        super.addEntityCrashInfo(par1CrashReportCategory);
         par1CrashReportCategory.addCrashSection("Immitating block ID", Integer.valueOf(this.blockID));
         par1CrashReportCategory.addCrashSection("Immitating block metadata", Integer.valueOf(this.metadata));
     }

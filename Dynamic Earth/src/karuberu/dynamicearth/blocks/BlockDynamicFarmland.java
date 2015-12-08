@@ -9,7 +9,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import karuberu.core.MCHelper;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.client.ITextureOverlay;
-import karuberu.dynamicearth.client.TextureManager;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -56,7 +55,6 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 		peat5,
 		peat6,
 		peat7,
-		peat8,
 		soil,
 		sandy,
 		farmlandPeatDry,
@@ -73,7 +71,7 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
         this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.9375F, 1.0F);
         this.setLightOpacity(255);
 		this.setTickRandomly(true);
-		this.useNeighborBrightness[id] = true;
+		Block.useNeighborBrightness[id] = true;
 	}
 	
 	@Override

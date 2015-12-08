@@ -1,8 +1,10 @@
 package karuberu.dynamicearth.entity;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.client.TextureManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntityIronGolem;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
@@ -13,8 +15,12 @@ public class EntityAdobeGolem extends EntityIronGolem {
 
 	public EntityAdobeGolem(World world) {
 		super(world);
-//        this.texture = TextureManager.clayGolemTexture;
-        this.setEntityHealth(20);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@Override
+	public int getAttackTimer() {
+		return this.attackTimer;
 	}
 	
 	@Override
@@ -26,10 +32,34 @@ public class EntityAdobeGolem extends EntityIronGolem {
         if (entityDamaged) {
             entity.motionY += 0.2000000059604645D;
         }
-
+        
         this.worldObj.playSoundAtEntity(this, "mob.irongolem.throw", 1.0F, 1.0F);
         return entityDamaged;
     }
+    
+	@Override
+	protected void applyEntityAttributes() {
+		super.applyEntityAttributes();
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setAttribute(20.0D);
+	}
+	
+	@Override
+	public void onLivingUpdate() {
+		super.onLivingUpdate();
+		if (this.attackTimer > 0) {
+			--this.attackTimer;
+		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void handleHealthUpdate(byte status) {
+		if (status == 4) {
+			this.attackTimer = 10;
+			this.playSound("mob.irongolem.throw", 1.0F, 1.0F);
+		} else {
+			super.handleHealthUpdate(status);
+		}
+	}
     
 	@Override
     protected void dropFewItems(boolean par1, int par2) {

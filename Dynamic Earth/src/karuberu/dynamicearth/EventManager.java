@@ -1,7 +1,5 @@
 package karuberu.dynamicearth;
 
-import java.util.Random;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -10,14 +8,8 @@ import karuberu.core.event.BlockUpdateEvent;
 import karuberu.core.event.CanPlantStayEvent;
 import karuberu.core.event.INeighborBlockEventHandler;
 import karuberu.core.event.NeighborBlockChangeEvent;
-import karuberu.dynamicearth.blocks.BlockAdobe;
-import karuberu.dynamicearth.blocks.BlockFertileSoil;
-import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import karuberu.dynamicearth.blocks.BlockMud;
 import karuberu.dynamicearth.blocks.BlockDynamicEarth;
-import karuberu.dynamicearth.blocks.BlockDynamicFarmland;
-import karuberu.dynamicearth.blocks.BlockPeat;
-import karuberu.dynamicearth.blocks.BlockPeatMoss;
 import karuberu.dynamicearth.blocks.BlockPermafrost;
 import karuberu.dynamicearth.blocks.IGrassyBlock;
 import karuberu.dynamicearth.blocks.ISoil;
@@ -25,12 +17,9 @@ import karuberu.dynamicearth.blocks.ITillable;
 import karuberu.dynamicearth.blocks.IGrassyBlock.EnumGrassType;
 import karuberu.dynamicearth.entity.EntityBomb;
 import karuberu.dynamicearth.entity.ai.EntityAIEatGrassyBlock;
-import karuberu.dynamicearth.fluids.FluidHandler;
-import karuberu.dynamicearth.items.ItemBombLit;
+import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 import karuberu.dynamicearth.items.ItemVase;
-import karuberu.dynamicearth.world.WorldGenMudMod;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockPumpkin;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityCow;
@@ -40,7 +29,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.ForgeHooks;
@@ -51,19 +39,13 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
-import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
-import net.minecraftforge.event.terraingen.BiomeEvent;
-import net.minecraftforge.event.terraingen.ChunkProviderEvent;
-import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
-import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.fluids.FluidRegistry;
 
-public class DEEventHandler {
-	public static DEEventHandler
-		instance = new DEEventHandler();
+public class EventManager {
+	public static EventManager
+		instance = new EventManager();
 	
 	public static void register() {
 		 MinecraftForge.EVENT_BUS.register(instance);
@@ -72,7 +54,9 @@ public class DEEventHandler {
 	@SideOnly(Side.CLIENT)
 	@ForgeSubscribe
 	public void postTextureStitch(TextureStitchEvent.Post event) {
-		CommonProxy.proxy.registerLiquidIcons();
+		if (event.map.textureType == 1) {
+			CommonProxy.proxy.registerLiquidIcons();
+		}
 	}
 	
 	@ForgeSubscribe
@@ -119,7 +103,7 @@ public class DEEventHandler {
 				Item item = itemStack.getItem();
 				if (item == DynamicEarth.vase
 				&& entityInteractEvent.target instanceof EntityCow) {
-					player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(DynamicEarth.vase, 1, ItemVase.getDamage(FluidRegistry.getFluidStack(FluidHandler.MILK, 1000))));
+					player.inventory.setInventorySlotContents(player.inventory.currentItem, new ItemStack(DynamicEarth.vase, 1, ItemVase.getDamage(FluidReference.MILK.getFluidStack(1000))));
 				} else if (item == DynamicEarth.earthbowl
 				&& entityInteractEvent.target instanceof EntityMooshroom) {
 					ItemStack soup = new ItemStack(DynamicEarth.earthbowlSoup);
@@ -188,7 +172,8 @@ public class DEEventHandler {
 		int z = event.z;
 		
 		int blockId = world.getBlockId(x, y, z);
-		if (!DynamicEarth.restoreDirtOnChunkLoad) {
+		if (!DynamicEarth.restoreDirtOnChunkLoad
+		&& event.isRandomTick) {
 			if (blockId == Block.dirt.blockID) {
 				if (BlockDynamicEarth.willBlockHydrate(world, x, y, z, 1, 0, 1, 1)) {
 					world.setBlock(x, y, z, DynamicEarth.mud.blockID, BlockMud.NORMAL, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
@@ -213,7 +198,7 @@ public class DEEventHandler {
 						block = (IGrassyBlock)Block.blocksList[blockId];
 					}
 					EnumGrassType type = block.getType(world, x, y, z);
-					if (type != EnumGrassType.DIRT) {
+					if (block.canSpread(world, x, y, z)) {
 						for (int i = 0; i < 4; ++i) {
 							int xi = x + world.rand.nextInt(3) - 1;
 							int yi = y + world.rand.nextInt(5) - 3;
@@ -243,27 +228,31 @@ public class DEEventHandler {
 		int x = event.x;
 		int y = event.y;
 		int z = event.z;
-		int neighborBlockID = event.neighborBlockID;
-		int side = event.side;
 		
-		Block block = Block.blocksList[world.getBlockId(x, y, z)];
-		if (block instanceof INeighborBlockEventHandler) {
-			((INeighborBlockEventHandler)block).handleNeighborBlockChangeEvent(event);
+		if (event.getResult() == Result.DEFAULT) {
+			Block block = Block.blocksList[world.getBlockId(x, y, z)];
+			if (block instanceof INeighborBlockEventHandler) {
+				((INeighborBlockEventHandler)block).handleNeighborBlockChangeEvent(event);
+				if (event.getResult() == Result.DEFAULT) {
+					event.setResult(Result.ALLOW);
+				}
+			}
 		}
-		
-		int blockID = world.getBlockId(x, y, z);
-		if (DynamicEarth.enableGrassBurning) {
-			if (blockID == Block.grass.blockID
-			|| blockID == Block.mycelium.blockID
-			|| Block.blocksList[blockID] instanceof IGrassyBlock) {
-				Material material = world.getBlockMaterial(x, y + 1, z);
-				if (material == Material.fire || material == Material.lava) {
-					if (blockID == Block.grass.blockID || blockID == Block.mycelium.blockID) {
-						world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-					} else {
-						ItemStack itemStack = ((IGrassyBlock)Block.blocksList[blockID]).getBlockForType(world, x, y, z, EnumGrassType.DIRT);
-						if (itemStack != null) {
-							world.setBlock(x, y, z, itemStack.itemID, itemStack.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+		if (event.getResult() != Result.DENY) {
+			int blockID = world.getBlockId(x, y, z);
+			if (DynamicEarth.enableGrassBurning) {
+				if (blockID == Block.grass.blockID
+				|| blockID == Block.mycelium.blockID
+				|| Block.blocksList[blockID] instanceof IGrassyBlock) {
+					Material material = world.getBlockMaterial(x, y + 1, z);
+					if (material == Material.fire || material == Material.lava) {
+						if (blockID == Block.grass.blockID || blockID == Block.mycelium.blockID) {
+							world.setBlock(x, y, z, Block.dirt.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+						} else {
+							ItemStack itemStack = ((IGrassyBlock)Block.blocksList[blockID]).getBlockForType(world, x, y, z, EnumGrassType.DIRT);
+							if (itemStack != null) {
+								world.setBlock(x, y, z, itemStack.itemID, itemStack.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+							}
 						}
 					}
 				}
@@ -341,10 +330,9 @@ public class DEEventHandler {
 		int y = event.y;
 		int z = event.z;
 		Block soil = Block.blocksList[world.getBlockId(x, y - 1, z)];
-		if (soil instanceof ISoil) {
-			event.setCanceled(!((ISoil)soil).willForcePlantToStay(world, x, y - 1, z, event.plant));
-		} else {
-			event.setCanceled(true);
+		if (soil instanceof ISoil
+		&& ((ISoil)soil).willForcePlantToStay(world, x, y - 1, z, event.plant)) {
+			event.setResult(Result.ALLOW);
 		}
 	}
 }

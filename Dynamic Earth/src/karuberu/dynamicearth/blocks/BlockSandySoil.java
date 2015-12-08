@@ -6,35 +6,25 @@ import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import karuberu.core.MCHelper;
-import karuberu.core.event.INeighborBlockEventHandler;
-import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.DELogger;
-import karuberu.dynamicearth.blocks.IGrassyBlock.EnumGrassType;
 import karuberu.dynamicearth.client.ITextureOverlay;
-import karuberu.dynamicearth.client.TextureManager;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockMushroom;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.ColorizerGrass;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.WorldGenBigMushroom;
 import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IPlantable;
 
-public class BlockSandySoil extends Block implements ITextureOverlay, ITillable, IGrassyBlock {
+public class BlockSandySoil extends Block implements ITextureOverlay, ITillable, IGrassyBlock, ISoil {
 	public static final int
 		DIRT = 0,
 		GRASS = 1,
@@ -45,12 +35,14 @@ public class BlockSandySoil extends Block implements ITextureOverlay, ITillable,
 		myceliumSide,
 		snowSide,
 		grassSideOverlay;
+    public static CreativeTabs
+		creativeTab = CreativeTabs.tabBlock;
 	
 	public BlockSandySoil(int id) {
 		super(id, Material.ground);
 		this.setHardness(0.4F);
 		this.setStepSound(Block.soundGravelFootstep);
-		this.setCreativeTab(CreativeTabs.tabBlock);
+		this.setCreativeTab(creativeTab);
 		this.setTickRandomly(true);
 	}
 	
@@ -233,6 +225,16 @@ public class BlockSandySoil extends Block implements ITextureOverlay, ITillable,
     }
     
 	@Override
+	public boolean canSpread(World world, int x, int y, int z) {
+		EnumGrassType type = this.getType(world, x, y, z);
+		if ((type == EnumGrassType.GRASS || type == EnumGrassType.MYCELIUM)
+		&& world.getBlockLightValue(x, y + 1, z) >= 9) {
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
 	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {
 		if (this.getType(world, x, y, z) == EnumGrassType.DIRT
 		&& this.isLightSufficient(world, x, y, z)) {
@@ -293,7 +295,6 @@ public class BlockSandySoil extends Block implements ITextureOverlay, ITillable,
 	
 	@Override
 	public boolean canSustainPlant(World world, int x, int y, int z, ForgeDirection direction, IPlantable plant) {
-		int plantID = plant.getPlantID(world, x, y + 1, z);
 		int metadata = world.getBlockMetadata(x, y, z);
 		switch (metadata) {
 		case DIRT:
@@ -309,6 +310,18 @@ public class BlockSandySoil extends Block implements ITextureOverlay, ITillable,
 			}
 		}
 		return super.canSustainPlant(world, x, y, z, direction, plant);
+	}
+	
+	@Override
+	public boolean willForcePlantToStay(World world, int x, int y, int z, IPlantable plant) {
+		int metadata = world.getBlockMetadata(x, y, z);
+		switch (metadata) {
+		case MYCELIUM:
+			if (plant.getPlantType(world, x, y + 1, z) == EnumPlantType.Cave) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	@Override
@@ -333,6 +346,7 @@ public class BlockSandySoil extends Block implements ITextureOverlay, ITillable,
 	
 	@Override
 	@SideOnly(Side.CLIENT)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
 		for (int i = 0; i < 3; ++i) {
             list.add(new ItemStack(blockId, 1, i));

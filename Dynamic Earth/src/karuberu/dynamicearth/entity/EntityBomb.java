@@ -2,34 +2,23 @@ package karuberu.dynamicearth.entity;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
-
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.client.FXManager;
-import karuberu.dynamicearth.items.ItemBomb;
 import karuberu.dynamicearth.items.ItemBombLit;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityFireworkRocket;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityThrowable;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.src.ModLoader;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
@@ -154,17 +143,18 @@ public class EntityBomb extends EntityThrowable {
 		this.setDead();
 	}
 	
+	@SuppressWarnings("rawtypes")
 	protected void splash(Entity entityHit) {
 		ItemStack bomb = this.dataWatcher.getWatchableObjectItemStack(8);
 		if (!this.worldObj.isRemote) {
 			List list = ItemBombLit.getSplashEffects(bomb.getTagCompound());
 			if (list != null && !list.isEmpty()) {
 				AxisAlignedBB boundingBox = this.boundingBox.expand(4.0D, 2.0D, 4.0D);
-				List entitiesHit = this.worldObj.getEntitiesWithinAABB(EntityLiving.class, boundingBox);
+				List entitiesHit = this.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, boundingBox);
 				if (entitiesHit != null && !entitiesHit.isEmpty()) {
 					Iterator iterator = entitiesHit.iterator();
 					while (iterator.hasNext()) {
-						EntityLiving entityliving = (EntityLiving)iterator.next();
+						EntityLivingBase entityliving = (EntityLivingBase)iterator.next();
 						double distance = this.getDistanceSqToEntity(entityliving);
 						if (distance < 16.0D) {
 							double effectiveness = 1.0D - Math.sqrt(distance) / 4.0D;
