@@ -1,13 +1,10 @@
 package karuberu.mods.mudmod.items.crafting;
 
-import java.util.ArrayList;
-
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.items.ItemBombLit;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,6 +21,7 @@ public class RecipeBombs implements IRecipe {
 	@Override
 	public boolean matches(InventoryCrafting inventorycrafting, World world) {
 		ItemStack bomb = null;
+		ItemStack potion = null;
 		int bowls = 0;
 		int gunpowder = 0;
 		int string = 0;
@@ -52,6 +50,11 @@ public class RecipeBombs implements IRecipe {
 					if (item.hasTagCompound() && item.getTagCompound().hasKey("Explosion")) {
 						list.appendTag(item.getTagCompound().getCompoundTag("Explosion"));
 					}
+				} else if (item.itemID == Item.potion.itemID) {
+					if (potion != null) {
+						return false;
+					}
+					potion = item;
 				} else {
 					return false;
 				}
@@ -68,9 +71,16 @@ public class RecipeBombs implements IRecipe {
 			if (hasFireworks) {
 				compound.setTag("Explosions", list);
 			}
+			if (potion != null) {
+				compound.setInteger("Potion-charged", potion.getItemDamage());
+				if (potion.hasTagCompound() && potion.getTagCompound().hasKey("CustomPotionEffects")) {
+					compound.setTag("CustomPotionEffects", potion.getTagCompound().getTagList("CustomPotionEffects"));
+				}
+			}
 			result.setTagCompound(compound);
 			return true;
-		} else if (bomb != null && string >= 1) {
+		} else if (bomb != null && string >= 1
+		&& bowls == 0 && gunpowder == 0 && fireCharges == 0 && !hasFireworks) {
 			result = new ItemStack(MudMod.bomb);
 			NBTTagCompound compound;
 			if (bomb.hasTagCompound()) {

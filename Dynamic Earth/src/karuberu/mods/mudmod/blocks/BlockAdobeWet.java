@@ -7,8 +7,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
 
 public class BlockAdobeWet extends BlockMudMod {
+	
+	private static final ItemStack
+		dryBlock = new ItemStack(MudMod.adobe.blockID, 1, 0);
 	
 	public BlockAdobeWet(int id) {
 		super(id, Material.ground);
@@ -26,7 +30,7 @@ public class BlockAdobeWet extends BlockMudMod {
 	}
 	
 	@Override
-	protected int getDryBlock(int metadata) {
-		return MudMod.adobe.blockID;
+	protected ItemStack getDryBlock(int metadata) {
+		return dryBlock;
 	}
 }

@@ -5,31 +5,20 @@ import java.util.Random;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.client.TextureManager;
 import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.passive.EntityCow;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.ColorizerFoliage;
-import net.minecraft.world.ColorizerGrass;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.EnumPlantType;
-import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.IPlantable;
 
 public class BlockPeatMoss extends BlockMudMod {
 	
@@ -110,8 +99,8 @@ public class BlockPeatMoss extends BlockMudMod {
 	
 	private boolean canBlockStay(World world, int x, int y, int z, int metadata) {
 		int soilID = world.getBlockId(x, y - 1, z);
-		if (world.getFullBlockLightValue(x, y, z) >= this.minimumLightLevel
-		&& (this.soilIsValid(soilID, metadata))) {
+		if (world.getFullBlockLightValue(x, y, z) >= BlockPeatMoss.minimumLightLevel
+		&& BlockPeatMoss.soilIsValid(soilID, metadata)) {
 			return true;
 		}
 		return false;
@@ -123,7 +112,8 @@ public class BlockPeatMoss extends BlockMudMod {
 		case GROWTHSTAGE_2:
 		case GROWTHSTAGE_3:
 		case GROWTHSTAGE_4:
-			return soilID == Block.tilledField.blockID;
+			return soilID == Block.tilledField.blockID
+			|| soilID == MudMod.farmland.blockID;
 		default:
 			return soilID == Block.dirt.blockID
 				|| soilID == Block.grass.blockID
@@ -131,7 +121,8 @@ public class BlockPeatMoss extends BlockMudMod {
 				|| soilID == Block.tilledField.blockID
 				|| soilID == MudMod.mud.blockID
 				|| soilID == MudMod.peat.blockID
-				|| soilID == MudMod.peatDry.blockID;
+				|| soilID == MudMod.farmland.blockID
+				|| soilID == MudMod.fertileSoil.blockID;
 		}
 	}
 
@@ -238,7 +229,6 @@ public class BlockPeatMoss extends BlockMudMod {
 	
 	@Override
 	public void updateTick(World world, int x, int y, int z, Random random) {
-		int soilID = world.getBlockId(x, y - 1, z);
 		int metadata = world.getBlockMetadata(x, y, z);
 		if (this.isLightSufficient(world, x, y, z)
 		&& this.isHydrated(world, x, y, z)) {
@@ -260,7 +250,7 @@ public class BlockPeatMoss extends BlockMudMod {
 	
 	@Override
 	public int tickRate(World world) {
-		return this.tickRate;
+		return BlockPeatMoss.tickRate;
 	}
 	
 	private boolean isLightSufficient(World world, int x, int y, int z) {
@@ -273,20 +263,23 @@ public class BlockPeatMoss extends BlockMudMod {
 		int soilID;
 		int i = 1;
 		while (soilIsValid(soilID = world.getBlockId(x, y - i, z), metadata)) {
-			if (soilID != MudMod.peat.blockID
-			&& soilID != MudMod.peatDry.blockID) {
-				world.setBlock(x, y - i, z, MudMod.peat.blockID, i == 1 ? BlockPeat.META_NONE : BlockPeat.META_1EIGHTH, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+			if (soilID != MudMod.peat.blockID) {
+				world.setBlock(x, y - i, z, MudMod.peat.blockID, i == 1 ? BlockPeat.ZERO_EIGHTHS : BlockPeat.ONE_EIGHTH, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 				return;
 			} else if (soilID == MudMod.peat.blockID) {
 				int soilMeta = world.getBlockMetadata(x, y - i, z);
 				switch (soilMeta) {
-				case BlockPeat.META_FULL: break;
-				case BlockPeat.META_7EIGHTHS:
-					world.setBlock(x, y - i, z, MudMod.peat.blockID, BlockPeat.META_FULL, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				case BlockPeat.WET:
+				case BlockPeat.DRY:
+					break;
+				case BlockPeat.SEVEN_EIGHTHS:
+					world.setBlock(x, y - i, z, MudMod.peat.blockID, BlockPeat.WET, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 					return;
 				default:
-					world.setBlock(x, y - i, z, MudMod.peat.blockID, soilMeta + 1, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-					return;
+					if (BlockPeat.isPartiallyFormed(soilMeta)) {
+						world.setBlock(x, y - i, z, MudMod.peat.blockID, soilMeta + 1, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+						return;
+					}
 				}
 			}
 			i++;
@@ -296,22 +289,28 @@ public class BlockPeatMoss extends BlockMudMod {
 	protected void grow(World world, int x, int y, int z) {
 		if (this.isLightSufficient(world, x, y, z)) {
 			int metadata = world.getBlockMetadata(x, y, z);
-			switch(metadata) {
+			BiomeGenBase biome = world.getBiomeGenForCoords(x, z);
+			float humidity = biome.rainfall;
+			switch (metadata) {
 			case GROWTHSTAGE_FULLGROWN:
 				if (world.rand.nextInt(50) == 0) {
 					int random = world.rand.nextInt(100);
 					int newMetadata = GROWTHSTAGE_FULLGROWN;
-					if (random > 95) {
+					if (random >= 95) {
 						newMetadata = GROWTH_NONE;
-					} else if (random > 45) {
+					} else if (random >= 45) {
 						newMetadata = GROWTH_GRASS;
-					} else if (random > 44) {
+					} else if (random >= 44
+					&& humidity < 0.9F) {
 						newMetadata = GROWTH_FLOWER_RED;
-					} else if (random > 43) {
+					} else if (random >= 43
+					&& humidity < 0.9F) {
 						newMetadata = GROWTH_FLOWER_YELLOW;
-					} else if (random > 40) {
+					} else if (random >= 40
+					&& humidity >= 0.5F) {
 						newMetadata = GROWTH_MUSHROOM_BROWN;
-					} else if (random > 39) {
+					} else if (random >= 39
+					&& humidity >= 0.5F) {
 						newMetadata = GROWTH_MUSHROOM_RED;
 					} else {
 						break;
@@ -333,8 +332,8 @@ public class BlockPeatMoss extends BlockMudMod {
 	}
 	
 	@Override
-	protected int getDryBlock(int metadata) {
-		return 0;
+	protected ItemStack getDryBlock(int metadata) {
+		return new ItemStack(0, 1, 0);
 	}
 	
 	@Override
@@ -349,19 +348,16 @@ public class BlockPeatMoss extends BlockMudMod {
 	
 	@Override
 	protected void spread(World world, int x, int y, int z, int n) {
-		int metadata = world.getBlockMetadata(x, y, z);
 		for (int i = 0; i < n; ++i) {
 			int xi = x + world.rand.nextInt(3) - 1,
 				yi = y + world.rand.nextInt(2) - 1,
 				zi = z + world.rand.nextInt(3) - 1;
-			int soilID = world.getBlockId(xi, yi - 1, zi);
-			int newMetadata = this.getMetadataForSpread(world, xi, yi, zi);
+			int newMetadata = BlockPeatMoss.getMetadataForSpread(world, xi, yi, zi);
 			if (newMetadata != -1
-			&& this.isHydrated(world, xi, yi, zi)
-			&& this.canBlockStay(world, xi, yi, zi, metadata)
-			&& world.getBlockLightValue(xi, yi, zi) >= this.minimumLightLevel) {
+			&& this.getHydrationDistance(world, xi, yi, zi) > 0
+			&& this.canBlockStay(world, xi, yi, zi, newMetadata)
+			&& world.getBlockLightValue(xi, yi, zi) >= BlockPeatMoss.minimumLightLevel) {
 				world.setBlock(xi, yi, zi, this.blockID, newMetadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-				break;
 			}
 		}
 	}

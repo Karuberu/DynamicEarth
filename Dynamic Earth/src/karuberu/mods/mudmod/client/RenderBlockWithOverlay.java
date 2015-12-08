@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.client.ForgeHooksClient;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -28,7 +27,6 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
 		float color = 1.0F;
 		Tessellator tessellator = Tessellator.instance;
         int renderColor = block.getRenderColor(metadata);
-        int renderType;
         float r = (float)(renderColor >> 16 & 255) / 255.0F;
         float g = (float)(renderColor >> 8 & 255) / 255.0F;
         float b = (float)(renderColor & 255) / 255.0F;
@@ -44,7 +42,7 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
         GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
         
         for (int side = 0; side < 6; side++) {
-        	blockTexture = block.getBlockTextureFromSideAndMetadata(side, metadata);
+        	blockTexture = block.getIcon(side, metadata);
         	switch (side) {
         	case MCHelper.SIDE_BOTTOM:
         		normalX = 0.0F;
@@ -86,17 +84,17 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
             tessellator.setNormal(normalX, normalY, normalZ);
             switch (side) {
         	case MCHelper.SIDE_BOTTOM:
-        		renderer.renderBottomFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceYNeg(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_TOP:
-        		renderer.renderTopFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceYPos(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_EAST:
-        		renderer.renderEastFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceZNeg(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_WEST:
-        		renderer.renderWestFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceZPos(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_NORTH:
-        		renderer.renderNorthFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceXNeg(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_SOUTH:
-        		renderer.renderSouthFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceXPos(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
             }
             tessellator.draw();
         }
@@ -137,7 +135,6 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
 		renderer.enableAO = false;
         Tessellator tessellator = Tessellator.instance;
         boolean blockRendered = false;
-        int blockMetadata = blockAccess.getBlockMetadata(x, y, z);
         int mixedBrightness = block.getMixedBrightnessForBlock(blockAccess, x, y, z);
         int checkX = x;
         int checkY = y;
@@ -200,28 +197,29 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
         		texture = block.getBlockTexture(blockAccess, x, y, z, side);
         		int numberOfPasses = textureOverlay.getNumberOfPasses(blockAccess.getBlockMetadata(x, y, z));
         		for (int pass = 0; pass < numberOfPasses; pass++) {
+        			int metadata = blockAccess.getBlockMetadata(x, y, z);
         			if (pass > 0) {
-    		            texture = textureOverlay.getOverlayTexture(blockAccess, x, y, z, side, pass);        				
+    		            texture = textureOverlay.getOverlayTexture(blockAccess, x, y, z, metadata, side, pass);        				
         			}
         			if (texture != null) {
-	                	if (textureOverlay.willColorizeTexture(blockAccess, x, y, z, side, pass)) {
+	                	if (textureOverlay.willColorizeTexture(blockAccess, x, y, z, metadata, side, pass)) {
 	        				tessellator.setColorOpaque_F(r * sideColor, g * sideColor, b * sideColor);	            		
 	                	} else {
 	        				tessellator.setColorOpaque_F(sideColor, sideColor, sideColor);	            		
 	                	}
 		            	switch(side) {
 		            	case MCHelper.SIDE_BOTTOM:
-		            		renderer.renderBottomFace(block, (double)x, (double)y, (double)z, texture); break;
+		            		renderer.renderFaceYNeg(block, (double)x, (double)y, (double)z, texture); break;
 		            	case MCHelper.SIDE_TOP:
-		            		renderer.renderTopFace(block, (double)x, (double)y, (double)z, texture); break;
+		            		renderer.renderFaceYPos(block, (double)x, (double)y, (double)z, texture); break;
 		            	case MCHelper.SIDE_EAST:
-		            		renderer.renderEastFace(block, (double)x, (double)y, (double)z, texture); break;
+		            		renderer.renderFaceZNeg(block, (double)x, (double)y, (double)z, texture); break;
 		            	case MCHelper.SIDE_WEST:
-		            		renderer.renderWestFace(block, (double)x, (double)y, (double)z, texture); break;
+		            		renderer.renderFaceZPos(block, (double)x, (double)y, (double)z, texture); break;
 		            	case MCHelper.SIDE_NORTH:
-		            		renderer.renderNorthFace(block, (double)x, (double)y, (double)z, texture); break;
+		            		renderer.renderFaceXNeg(block, (double)x, (double)y, (double)z, texture); break;
 		            	case MCHelper.SIDE_SOUTH:
-		            		renderer.renderSouthFace(block, (double)x, (double)y, (double)z, texture); break;
+		            		renderer.renderFaceXPos(block, (double)x, (double)y, (double)z, texture); break;
 		            	}
 		                blockRendered = true;
         			}
@@ -235,9 +233,6 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
 		assert block instanceof ITextureOverlay;
 		
 		ITextureOverlay textureOverlay = (ITextureOverlay)block;
-		int blockMetadata = blockAccess.getBlockMetadata(x, y, z);
-		boolean doTextureOverlay;
-		Icon blockTexture;
 		Icon texture;
 		int side;
 		
@@ -262,8 +257,6 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
 		int checkY = y;
 		int checkZ = z;
 		float sideColor = 0.0F;
-		float lightValue = 0.0F;
-		int brightness = 0;
 		boolean willColorizeTexture = false;
 		for (side = 0; side < 6; side++) {
 			boolean renderingAtBounds = false;
@@ -671,11 +664,12 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
 				texture = block.getBlockTexture(blockAccess, x, y, z, side);
 				int numberOfPasses = textureOverlay.getNumberOfPasses(blockAccess.getBlockMetadata(x, y, z));
 				for (int pass = 0; pass <= numberOfPasses; pass++) {
+					int metadata = blockAccess.getBlockMetadata(x, y, z);
 					if (pass > 0) {
-						texture = textureOverlay.getOverlayTexture(blockAccess, x, y, z, side, pass);
+						texture = textureOverlay.getOverlayTexture(blockAccess, x, y, z, metadata, side, pass);
 					}
 					if (texture != null) {
-						willColorizeTexture = textureOverlay.willColorizeTexture(blockAccess, x, y, z, side, pass);
+						willColorizeTexture = textureOverlay.willColorizeTexture(blockAccess, x, y, z, metadata, side, pass);
 						renderer.colorRedTopLeft = renderer.colorRedBottomLeft = renderer.colorRedBottomRight = renderer.colorRedTopRight = (willColorizeTexture ? r : 1.0F) * sideColor;
 						renderer.colorGreenTopLeft = renderer.colorGreenBottomLeft = renderer.colorGreenBottomRight = renderer.colorGreenTopRight = (willColorizeTexture ? g : 1.0F) * sideColor;
 						renderer.colorBlueTopLeft = renderer.colorBlueBottomLeft = renderer.colorBlueBottomRight = renderer.colorBlueTopRight = (willColorizeTexture ? b : 1.0F) * sideColor;
@@ -693,17 +687,17 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
 						renderer.colorBlueTopRight *= lightValueTopRight;
 						switch(side) {
 						case MCHelper.SIDE_BOTTOM:
-							renderer.renderBottomFace(block, (double)x, (double)y, (double)z, texture); break;
+							renderer.renderFaceYNeg(block, (double)x, (double)y, (double)z, texture); break;
 						case MCHelper.SIDE_TOP:
-							renderer.renderTopFace(block, (double)x, (double)y, (double)z, texture); break;
+							renderer.renderFaceYPos(block, (double)x, (double)y, (double)z, texture); break;
 						case MCHelper.SIDE_EAST:
-							renderer.renderEastFace(block, (double)x, (double)y, (double)z, texture); break;
+							renderer.renderFaceZNeg(block, (double)x, (double)y, (double)z, texture); break;
 						case MCHelper.SIDE_WEST:
-							renderer.renderWestFace(block, (double)x, (double)y, (double)z, texture); break;
+							renderer.renderFaceZPos(block, (double)x, (double)y, (double)z, texture); break;
 						case MCHelper.SIDE_NORTH:
-							renderer.renderNorthFace(block, (double)x, (double)y, (double)z, texture); break;
+							renderer.renderFaceXNeg(block, (double)x, (double)y, (double)z, texture); break;
 						case MCHelper.SIDE_SOUTH:
-							renderer.renderSouthFace(block, (double)x, (double)y, (double)z, texture); break;
+							renderer.renderFaceXPos(block, (double)x, (double)y, (double)z, texture); break;
 						}
 						blockRendered = true;
 					}

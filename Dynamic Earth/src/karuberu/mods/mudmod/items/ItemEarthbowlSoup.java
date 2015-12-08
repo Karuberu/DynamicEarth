@@ -13,11 +13,12 @@ public class ItemEarthbowlSoup extends ItemSoup {
 
     public ItemEarthbowlSoup(int id) {
 		super(id, 8);
+		this.setContainerItem(MudMod.earthbowl);
 	}
     
 	@Override
-	public void updateIcons(IconRegister iconRegister) {
-		this.iconIndex = TextureManager.instance().getItemTexture(Texture.EARTHBOWLSOUP);
+	public void registerIcons(IconRegister iconRegister) {
+		this.itemIcon = TextureManager.instance().getItemTexture(Texture.EARTHBOWLSOUP);
 	}
 	
     @Override

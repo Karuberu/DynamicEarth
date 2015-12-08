@@ -1,12 +1,9 @@
 package karuberu.mods.mudmod.blocks;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import karuberu.core.MCHelper;
-import karuberu.core.event.INeighborBlockEventHandler;
-import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.client.ITextureOverlay;
 import karuberu.mods.mudmod.client.TextureManager;
@@ -18,18 +15,19 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.stats.StatList;
 import net.minecraft.util.Icon;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.ColorizerGrass;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.IPlantable;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, INeighborBlockEventHandler {
+public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IGrassyBlock {
 
     public static final String[]
     	slabType = new String[] {"grass", "mycelium"};
@@ -48,7 +46,7 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
 		this.setStepSound(Block.soundGrassFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
         this.setTickRandomly(true);
-        this.useNeighborBrightness[id] = true;
+        Block.useNeighborBrightness[id] = true;
 	}
     
 	@Override
@@ -80,58 +78,40 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
     	&& world.getBlockLightOpacity(x, y + 1, z) > 2) {
     		int metadata = world.getBlockMetadata(x, y, z);
             world.setBlock(x, y, z, MudMod.dirtSlab.blockID, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT), MCHelper.NOTIFY_WITHOUT_UPDATE);
-		} else {
-			this.tryToSpread(world, x, y, z, random);
 		}
     }
-    
-	@Override
-	public void handleNeighborBlockChangeEvent(NeighborBlockChangeEvent event) {
-		int metadata = event.world.getBlockMetadata(event.x, event.y, event.z);
-		if (MudMod.enableGrassBurning
-		&& event.side == MCHelper.SIDE_TOP
-		&& MCHelper.isTopSlab(metadata)) {
-			Block block = Block.blocksList[event.neighborBlockID];
-			if (block != null
-			&& (block.blockMaterial == Material.fire || block.blockMaterial == Material.lava)) {
-				event.world.setBlock(event.x, event.y, event.z, MudMod.dirtSlab.blockID, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-			}
-		}
-	}
 	
-    private void tryToSpread(World world, int x, int y, int z, Random random) {
-        if (!world.isRemote) {
-        	if (world.getBlockLightValue(x, y + 1, z) >= 9 && world.getBlockLightOpacity(x, y + 1, z) <= 2) {
-                for (int i = 0; i < 4; i++) {
-                    int xi = x + random.nextInt(3) - 1,
-                    	yi = y + random.nextInt(5) - 3,
-                    	zi = z + random.nextInt(3) - 1;
-                    int blockId = world.getBlockId(xi, yi, zi);
-                    if (world.getBlockLightValue(xi, yi + 1, zi) >= 4
-                    && world.getBlockLightOpacity(xi, yi + 1, zi) <= 2) {
-                    	int metadata = world.getBlockMetadata(x, y, z);
-                    	switch (MCHelper.getSlabMetadata(metadata)) {
-                    	case GRASS:
-                    		if (blockId == Block.dirt.blockID) {
-	                    		world.setBlock(xi, yi, zi, Block.grass.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-                    		} else if (blockId == MudMod.dirtSlab.blockID) {
-	                    		world.setBlock(xi, yi, zi, this.blockID, MCHelper.convertSlabMetadata(world.getBlockMetadata(xi, yi, zi), GRASS), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-                    		}
-                    		break;
-                    	case MYCELIUM:
-                    		if (blockId == Block.dirt.blockID) {
-                        		world.setBlock(xi, yi, zi, Block.mycelium.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-                    		} else if (blockId == MudMod.dirtSlab.blockID) {
-                    			world.setBlock(xi, yi, zi, this.blockID, MCHelper.convertSlabMetadata(world.getBlockMetadata(xi, yi, zi), MYCELIUM), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
-                    		}
-                    		break;
-                    	}
-                    }
-                }
-            }
+	@Override
+	public void tryToGrow(World world, int x, int y, int z, EnumGrassType type) {}
+
+	@Override
+	public EnumGrassType getType(World world, int x, int y, int z) {
+		int metadata = world.getBlockMetadata(x, y, z);
+        switch (MCHelper.getSlabMetadata(metadata)) {
+    	case GRASS:
+    		return EnumGrassType.GRASS;
+    	case MYCELIUM:
+    		return EnumGrassType.MYCELIUM;
+    	default:
+    		return EnumGrassType.DIRT;
         }
 	}
-    
+	
+	@Override
+	public ItemStack getBlockForType(World world, int x, int y, int z, EnumGrassType type) {
+		return ((IGrassyBlock)MudMod.dirtSlab).getBlockForType(world, x, y, z, type);
+	}
+	
+	public boolean isLightSufficient(World world, int x, int y, int z) {
+		return world.getBlockLightValue(x, y + 1, z) >= 4
+        && world.getBlockLightOpacity(x, y + 1, z) <= 2;
+	}
+	
+	@Override
+	public boolean canSustainPlant(World world, int x, int y, int z, ForgeDirection direction, IPlantable plant) {
+		return MudMod.dirtSlab.canSustainPlant(world, x, y, z, direction, plant);
+	}
+	    
     @Override
     public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
     	int metadata = blockAccess.getBlockMetadata(x, y, z);
@@ -153,11 +133,11 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
 	        	}
 	        }
     	}
-    	return this.getBlockTextureFromSideAndMetadata(side, metadata);
+    	return this.getIcon(side, metadata);
     }
     
     @Override
-    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata) {
+    public Icon getIcon(int side, int metadata) {
         switch (MCHelper.getSlabMetadata(metadata)) {
     	case GRASS:
     		switch (side) {
@@ -172,7 +152,7 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
     		default: return this.textureMyceliumSide;
     		}
         }
-        return super.getBlockTextureFromSideAndMetadata(side, metadata);
+        return super.getIcon(side, metadata);
     }
     
     private boolean isSnowAdjacent(IBlockAccess blockAccess, int x, int y, int z) {
@@ -197,22 +177,20 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
     
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getOverlayTexture(IBlockAccess blockAccess, int x, int y, int z, int side, int pass) {
+	public Icon getOverlayTexture(IBlockAccess blockAccess, int x, int y, int z, int metadata, int side, int pass) {
 		if (side == MCHelper.SIDE_TOP
 		|| side == MCHelper.SIDE_BOTTOM
 		|| pass != 1) {
 			return null;
 		} else {
-			int metadata = blockAccess.getBlockMetadata(x, y, z);
-			switch (metadata & 7) {
+			switch (MCHelper.getSlabMetadata(metadata)) {
 			case GRASS:
-				switch (metadata & 8) {
-				case MCHelper.BOTTOM_SLAB:
+				if (MCHelper.isBottomSlab(metadata)) {
 					if (!this.isSnowAdjacent(blockAccess, x, y, z)) {
 						return this.textureOverlayGrassSide;
 					}
 					return null;
-				case MCHelper.TOP_SLAB:
+				} else {
 		        	Material material = blockAccess.getBlockMaterial(x, y + 1, z);
 		        	if (material != Material.snow && material != Material.craftedSnow) {
 		        		return this.textureOverlayGrassSide;
@@ -223,6 +201,7 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
 			}
 		}
 	}
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getNumberOfPasses(int metadata) {
@@ -231,10 +210,10 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
 		default: return 0;
 		}
 	}
+	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean willColorizeTexture(IBlockAccess blockAccess, int x, int y, int z, int side, int pass) {
-		int metadata = blockAccess.getBlockMetadata(x, y, z);
+	public boolean willColorizeTexture(IBlockAccess blockAccess, int x, int y, int z, int metadata, int side, int pass) {
 		if (MCHelper.getSlabMetadata(metadata) == GRASS) {
 			switch(pass) {
 			case 0:
@@ -256,10 +235,11 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
 		}
 		return false;
 	}
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean willColorizeInventoryBaseTexture(int side, int metadata) {
-		if ((metadata & 7) == GRASS) {
+		if (MCHelper.getSlabMetadata(metadata) == GRASS) {
 			switch(side) {
 			case MCHelper.SIDE_TOP: return true;
 			default: return false;
@@ -278,7 +258,7 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
     @SideOnly(Side.CLIENT)
     public int colorMultiplier(IBlockAccess blockAccess, int x, int y, int z) {
     	int metadata = blockAccess.getBlockMetadata(x, y, z);
-    	if ((metadata & 7) == GRASS) {
+    	if (MCHelper.getSlabMetadata(metadata) == GRASS) {
 	    	int r = 0;
 	        int g = 0;
 	        int b = 0;
@@ -307,7 +287,7 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
     @SideOnly(Side.CLIENT)
     @Override
     public int getRenderColor(int metadata) {
-    	if ((metadata & 7) == GRASS) {
+    	if (MCHelper.getSlabMetadata(metadata) == GRASS) {
     		return this.getBlockColor();
     	} else {
     		return super.getBlockColor();
@@ -319,10 +299,10 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
     public void randomDisplayTick(World world, int x, int y, int z, Random random) {
         super.randomDisplayTick(world, x, y, z, random);
         int metadata = world.getBlockMetadata(x, y, z);
-        if ((metadata & 7) == MYCELIUM
+        if (MCHelper.getSlabMetadata(metadata) == MYCELIUM
         && random.nextInt(10) == 0) {
         	float yAdjustment = 0;
-        	if ((metadata & 8) == 0) { yAdjustment = -0.5F; }
+        	if (MCHelper.isBottomSlab(metadata)) { yAdjustment = -0.5F; }
             world.spawnParticle("townaura", (double)((float)x + random.nextFloat()), (double)((float)y + 1.1F + yAdjustment), (double)((float)z + random.nextFloat()), 0.0D, 0.0D, 0.0D);
         }
     }
@@ -355,11 +335,12 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
         return super.getUnlocalizedName() + "." + slabType[metadata];
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	@SideOnly(Side.CLIENT)
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
         if (blockId != MudMod.grassDoubleSlab.blockID) {
-            int numSubBlocks = this.slabType.length;
+            int numSubBlocks = BlockGrassSlab.slabType.length;
             for (int i = 0; i < numSubBlocks; ++i) {
                 list.add(new ItemStack(blockId, 1, i));
             }
@@ -371,4 +352,9 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IN
     public int idPicked(World world, int x, int y, int z) {
     	return this.blockID;
     }
+    
+	@Override
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
+		return new ItemStack(this.idPicked(world, x, y, z), 1, world.getBlockMetadata(x, y, z));
+	}
 }

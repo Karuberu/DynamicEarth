@@ -12,7 +12,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.blocks.IFallingBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockSand;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
@@ -21,7 +20,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.IPlantable;
 
 public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawnData
 {
@@ -117,6 +115,7 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
             this.motionX *= 0.9800000190734863D;
             this.motionY *= 0.9800000190734863D;
             this.motionZ *= 0.9800000190734863D;
+            Block block = Block.blocksList[this.blockID];
 
             if (!this.worldObj.isRemote) {
                 int x = MathHelper.floor_double(this.posX);
@@ -138,16 +137,15 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
 
                     if (this.worldObj.getBlockId(x, y, z) != Block.pistonMoving.blockID) {
                         this.setDead();
-
                         if (!this.blockDestroyed
                         && this.worldObj.canPlaceEntityOnSide(this.blockID, x, y, z, true, 1, (Entity)null, (ItemStack)null)
                         && !BlockSand.canFallBelow(this.worldObj, x, y - 1, z)
                         && this.worldObj.setBlock(x, y, z, this.blockID, this.metadata, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
-                        	if (Block.blocksList[this.blockID] instanceof IFallingBlock) {
-                                ((IFallingBlock)Block.blocksList[this.blockID]).onFinishFalling(this.worldObj, x, y, z, this.metadata);
+                        	if (block instanceof IFallingBlock) {
+                                ((IFallingBlock)block).onFinishFalling(this.worldObj, x, y, z, this.metadata);
                             }
                         } else if (this.shouldDropItem && !this.blockDestroyed) {
-                            this.entityDropItem(new ItemStack(this.blockID, 1, Block.blocksList[this.blockID].damageDropped(this.metadata)), 0.0F);
+                            this.dropItems();
                         }
                     }
                 } else if (this.fallTime > 600
@@ -155,15 +153,36 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
                 && !this.worldObj.isRemote
                 && (y < 1 || y > 256)) {
                     if (this.shouldDropItem) {
-                        this.entityDropItem(new ItemStack(this.blockID, 1, Block.blocksList[this.blockID].damageDropped(this.metadata)), 0.0F);
+                    	this.dropItems();
                     }
                     this.setDead();
                 }
             }
         }
     }
+    
+    /**
+     * Drop items based on the block that is falling.
+     */
+    private void dropItems() {
+        int x = MathHelper.floor_double(this.posX);
+        int y = MathHelper.floor_double(this.posY);
+        int z = MathHelper.floor_double(this.posZ);
+        Block block = Block.blocksList[this.blockID];
+        if (block instanceof IFallingBlock) {
+        	ArrayList<ItemStack> drops = ((IFallingBlock)block).getItemsDropped(this.worldObj, x, y, z, fallTime, this.metadata, this.rand);
+        	if (drops != null) {
+            	for (ItemStack itemStack : drops) {
+            		this.entityDropItem(itemStack, 0.0F);
+            	}
+        	}
+        } else {
+        	this.entityDropItem(new ItemStack(this.blockID, 1, Block.blocksList[this.blockID].damageDropped(this.metadata)), 0.0F);
+        }
+    }
 
-    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
     protected void fall(float floatFallTime) {
         if (this.dealsFallDamage) {
             int fallTime = MathHelper.ceiling_float_int(floatFallTime - 1.0F);
@@ -179,8 +198,7 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
                     entity.attackEntityFrom(damageSource, Math.min(MathHelper.floor_float((float)fallTime * this.fallDamage), this.fallDamageMax));
                 }
 
-                if (block instanceof IFallingBlock
-                && ((IFallingBlock)block).isDamagedByFall()) {
+                if (block instanceof IFallingBlock) {
                 	int meta = ((IFallingBlock)block).getMetaForFall(fallTime, this.metadata, this.rand);
                 	if (meta <= -1) {
                 		this.blockDestroyed = true;
@@ -194,24 +212,24 @@ public class EntityFallingBlock extends Entity implements IEntityAdditionalSpawn
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound tagCompound) {
-        tagCompound.setInteger(BLOCKID, this.blockID);
+        tagCompound.setShort(BLOCKID, (short)this.blockID);
         tagCompound.setByte(METADATA, (byte)this.metadata);
         tagCompound.setByte(FALLTIME, (byte)this.fallTime);
         tagCompound.setBoolean(SHOULDDROPITEM, this.shouldDropItem);
         tagCompound.setBoolean(DEALSFALLDAMAGE, this.dealsFallDamage);
         tagCompound.setFloat(FALLDAMAGE, this.fallDamage);
-        tagCompound.setInteger(FALLDAMAGEMAX, this.fallDamageMax);
+        tagCompound.setShort(FALLDAMAGEMAX, (short)this.fallDamageMax);
     }
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound tagCompound) {
-        this.blockID = tagCompound.getInteger(BLOCKID);
+        this.blockID = tagCompound.getShort(BLOCKID);
         this.metadata = tagCompound.getByte(METADATA) & 255;
         this.fallTime = tagCompound.getByte(FALLTIME) & 255;
         if (tagCompound.hasKey(DEALSFALLDAMAGE)) {
             this.dealsFallDamage = tagCompound.getBoolean(DEALSFALLDAMAGE);
             this.fallDamage = tagCompound.getFloat(FALLDAMAGE);
-            this.fallDamageMax = tagCompound.getInteger(FALLDAMAGEMAX);
+            this.fallDamageMax = tagCompound.getShort(FALLDAMAGEMAX);
         }
         if (tagCompound.hasKey(SHOULDDROPITEM)) {
             this.shouldDropItem = tagCompound.getBoolean(SHOULDDROPITEM);

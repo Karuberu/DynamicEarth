@@ -1,10 +1,7 @@
 package karuberu.mods.mudmod.client;
 
-import java.util.EnumMap;
-
 import karuberu.mods.mudmod.CommonProxy;
 
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.Icon;
 
@@ -41,6 +38,8 @@ public class TextureManager {
 		PEATMOSSYOVERLAYTOP("peatmossyoverlaytop"),
 		PEATMOSSYOVERLAYSIDE("peatmossyoverlayside"),
 		PEATDRY("peatdry"),
+		PEATFARMLAND("peatfarmland"),
+		PEATFARMLANDWET("peatfarmlandwet"),
 		MUDBLOB("mudblob"),
 		MUDBRICK("mudbrick"),
 		ADOBEDUST("adobedust"),
@@ -49,6 +48,8 @@ public class TextureManager {
 		VASE("vase"),
 		VASEWATER("vasewater"),
 		VASEMILK("vasemilk"),
+		VASESEALED("vasesealed"),
+		VASECONTENTS("vasecontents"),
 		EARTHBOWLRAW("earthbowlraw"),
 		EARTHBOWL("earthbowl"),
 		EARTHBOWLSOUP("earthbowlsoup"),
@@ -56,7 +57,18 @@ public class TextureManager {
 		BOMB("bomb"),
 		PEATMOSSSPECIMEN("peatmossspecimen"),
 		PEATCLUMP("peatclump"),
-		PEATBRICK("peatbrick");
+		PEATBRICK("peatbrick"),
+		MILK("milk"),
+		SOUP("soup"),
+		FERTILESOIL("soilfertile"),
+		FERTILEGRASSSIDE("soilfertilegrass"),
+		FERTILEMYCELIUMSIDE("soilfertilemycelium"),
+		FERTILESNOWSIDE("soilfertilesnow"),
+		SANDYSOIL("soilsandy"),
+		SANDYGRASSSIDE("soilsandygrass"),
+		SANDYMYCELIUMSIDE("soilsandymycelium"),
+		SANDYSNOWSIDE("soilsandysnow"),
+		DIRTCLOD("dirtclod");
 		
 		private final String name;
 		Texture(String name) {

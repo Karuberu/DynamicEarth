@@ -1,26 +1,16 @@
 package karuberu.mods.mudmod.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
-
-import org.bouncycastle.util.Strings;
-
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 
-import cpw.mods.fml.common.Mod.PostInit;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
 public abstract class BlockMudMod extends Block {
-	
 	public int
 		hydrateRadiusX,
 		hydrateRadiusYUp,
@@ -32,6 +22,8 @@ public abstract class BlockMudMod extends Block {
 		SLOW,
 		NONE
 	}
+	private boolean
+		useSimpleHydration;
 
 	public BlockMudMod(int id, Material material) {
 		super(id, material);
@@ -58,33 +50,46 @@ public abstract class BlockMudMod extends Block {
 		hydrateRadiusZ = z;
 		return this;
 	}
-	
 	protected final BlockMudMod setHydrateRadius(int x, int y, int z) {
 		return setHydrateRadius(x, y, y, z);
 	}
-	
 	protected final BlockMudMod setHydrateRadius(int radius) {
 		return setHydrateRadius(radius, radius, radius, radius);
 	}
 	
-	protected int getDryBlock(int metadata) {
-		return -1;
+	protected final BlockMudMod setSimpleHydration(boolean bool) {
+		this.useSimpleHydration = bool;
+		return this;
 	}
 	
-	protected int getWetBlock(int metadata) {
-		return -1;
+	protected ItemStack getDryBlock(int metadata) {
+		return null;
+	}
+	
+	protected ItemStack getWetBlock(int metadata) {
+		return null;
 	}
 	
 	protected boolean canDry(int metadata) {
-		return this.getDryBlock(metadata) > -1;
+		ItemStack dryBlock = this.getDryBlock(metadata);
+		return dryBlock != null  && Block.blocksList[dryBlock.itemID] != null;
 	}
 	
 	protected boolean canHydrate(int metadata) {
-		return this.getWetBlock(metadata) > -1;
+		ItemStack wetBlock = this.getWetBlock(metadata);
+		return wetBlock != null  && Block.blocksList[wetBlock.itemID] != null;
 	}
 	 
 	protected boolean canSpread(int metadata) {
 		return false;
+	}
+	
+	protected ItemStack getBlockForSpread(World world, int x, int y, int z, int targetX, int targetY, int targetZ) {
+		return this.getDryBlock(world.getBlockMetadata(x, y, z));
+	}
+	
+	protected boolean useSimpleHydration() {
+		return this.useSimpleHydration;
 	}
 	
 	protected int getHydrationDistance(World world, int x, int y, int z) {
@@ -135,11 +140,15 @@ public abstract class BlockMudMod extends Block {
 	protected boolean willHydrate(World world, int x, int y, int z) {
 		int metadata = world.getBlockMetadata(x, y, z);
 		if (this.canHydrate(metadata)) {
-			if (this.isBeingHeated(world, x, y, z)) {
-				return false;
-			} else if (this.isHydrated(world, x, y, z)){
-				int rate = this.getHydrationRate(world, x, y, z);
-				return rate == 0 ? true : rate < 0 ? false : world.rand.nextInt(rate) == 0;
+			if (MudMod.useSimpleHydration || this.useSimpleHydration()) {
+				return this.isHydrated(world, x, y, z);
+			} else {
+				if (this.isBeingHeated(world, x, y, z)) {
+					return false;
+				} else if (this.isHydrated(world, x, y, z)){
+					int rate = this.getHydrationRate(world, x, y, z);
+					return rate == 0 ? true : rate < 0 ? false : world.rand.nextInt(rate) == 0;
+				}
 			}
 		}
 		return false;
@@ -153,28 +162,32 @@ public abstract class BlockMudMod extends Block {
 	protected boolean willDry(World world, int x, int y, int z) {
 		int metadata = world.getBlockMetadata(x, y, z);
 		if (this.canDry(metadata)) {
-			if (this.isBeingHeated(world, x, y, z)) {
-				return true;
-			}
-			if (!this.isHydrated(world, x, y, z)) {
-				int rate = this.getDryRate(world, x, y, z);
-				return rate == 0 ? true : rate < 0 ? false : world.rand.nextInt(rate) == 0;
+			if (MudMod.useSimpleHydration || this.useSimpleHydration()) {
+				return !this.isHydrated(world, x, y, z);
+			} else {
+				if (this.isBeingHeated(world, x, y, z)) {
+					return true;
+				}
+				if (!this.isHydrated(world, x, y, z)) {
+					int rate = this.getDryRate(world, x, y, z);
+					return rate == 0 ? true : rate < 0 ? false : world.rand.nextInt(rate) == 0;
+				}
 			}
 		}
 		return false;
 	}
 	
 	protected void becomeDry(World world, int x, int y, int z) {
-		int dryBlock = this.getDryBlock(world.getBlockMetadata(x, y, z));
-		if (dryBlock >= 0) {
-			world.setBlock(x, y, z, dryBlock, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+		ItemStack dryBlock = this.getDryBlock(world.getBlockMetadata(x, y, z));
+		if (dryBlock != null && Block.blocksList[dryBlock.itemID] != null) {
+			world.setBlock(x, y, z, dryBlock.itemID, dryBlock.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 		}
 	}
 	
 	protected void becomeWet(World world, int x, int y, int z) {
-		int wetBlock = this.getWetBlock(world.getBlockMetadata(x, y, z));
-		if (wetBlock >= 0) {
-			world.setBlock(x, y, z, wetBlock, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+		ItemStack wetBlock = this.getWetBlock(world.getBlockMetadata(x, y, z));
+		if (wetBlock != null && Block.blocksList[wetBlock.itemID] != null) {
+			world.setBlock(x, y, z, wetBlock.itemID, wetBlock.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 		}
 	}
 	
@@ -207,16 +220,16 @@ public abstract class BlockMudMod extends Block {
 			{0, 0, -1},
 			{0, 0, +1}
 		};
-		int metadata = world.getBlockMetadata(x, y, z);
 		for (int i = 0; i < attempts; ++i) {
 			int randomIndex = world.rand.nextInt(surroundingBlocks.length),
 				xi = surroundingBlocks[randomIndex][0] + x,
 				yi = surroundingBlocks[randomIndex][1] + y,
 				zi = surroundingBlocks[randomIndex][2] + z;
-			if (world.getBlockId(xi, yi, zi) == this.getDryBlock(metadata)
+			ItemStack spreadBlock = this.getBlockForSpread(world, x, y, z, xi, yi, zi);
+			if (spreadBlock != null
 			&& this.isHydrated(world, xi, yi, zi)
 			&& this.canBlockStay(world, xi, yi, zi)) {
-				world.setBlock(xi, yi, zi, this.blockID, 0, MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+				world.setBlock(xi, yi, zi, spreadBlock.itemID, spreadBlock.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
 				break;
 			}
 		}

@@ -1,19 +1,15 @@
 package karuberu.mods.mudmod.items.crafting;
 
-import java.util.ArrayList;
-
-import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.items.ItemBombLit;
+import karuberu.mods.mudmod.liquids.LiquidHandler;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
+import net.minecraftforge.liquids.LiquidContainerRegistry;
+import net.minecraftforge.liquids.LiquidDictionary;
+import net.minecraftforge.liquids.LiquidStack;
 
 public class RecipeWetBlocks implements IRecipe {
 	public static final RecipeWetBlocks
@@ -28,19 +24,28 @@ public class RecipeWetBlocks implements IRecipe {
 		for (int i = 0; i < inventorycrafting.getSizeInventory(); i++) {
 			ItemStack item = inventorycrafting.getStackInSlot(i);
 			if (item != null) {
-				if (item.itemID == Item.bucketWater.itemID
-				|| item.itemID == MudMod.vaseWater.itemID) {
-					if (hasWater) {
-						return false;
+				if (LiquidContainerRegistry.isFilledContainer(item)) {
+					LiquidStack containerLiquid = LiquidContainerRegistry.getLiquidForFilledItem(item);
+					if (containerLiquid.isLiquidEqual(LiquidDictionary.getLiquid(LiquidHandler.WATER, LiquidContainerRegistry.BUCKET_VOLUME))) {
+						if (hasWater) {
+							return false;
+						}
+						hasWater = true;
 					}
-					hasWater = true;
-				} else if (item.itemID == Block.dirt.blockID) {
+				} else if (item.itemID == MudMod.dirtClod.itemID) {
 					if (count == 0) {
-						result = new ItemStack(MudMod.mud, 1);
-					} else if (result.itemID != MudMod.mud.blockID) {
+						result = new ItemStack(MudMod.mudBlob, 1);
+					} else if (result.itemID != MudMod.mudBlob.itemID) {
 						return false;
 					}
 					count++;
+				} else if (item.itemID == Block.dirt.blockID) {
+					if (count == 0) {
+						result = new ItemStack(MudMod.mudBlob, 4);
+					} else if (result.itemID != MudMod.mudBlob.itemID) {
+						return false;
+					}
+					count += 4;
 				} else if (MudMod.includeAdobe) {
 					if (item.itemID == MudMod.earthbowlRaw.itemID) {
 						if (count == 0) {
@@ -73,6 +78,9 @@ public class RecipeWetBlocks implements IRecipe {
 			if (result.itemID == MudMod.adobeBlob.itemID
 			&& count % 4 == 0) {
 				result = new ItemStack(MudMod.adobeWet, count / 4);
+			} else if (result.itemID == MudMod.adobeBlob.itemID
+			&& count % 4 == 0) {
+				result = new ItemStack(MudMod.mud, count / 4);
 			} else {
 				result.stackSize = count;
 			}

@@ -2,22 +2,22 @@ package karuberu.mods.mudmod.entity.ai;
 
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.blocks.BlockDirtSlab;
-import karuberu.mods.mudmod.blocks.BlockGrassSlab;
+import karuberu.mods.mudmod.blocks.IGrassyBlock;
+import karuberu.mods.mudmod.blocks.IGrassyBlock.EnumGrassType;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.ai.EntityAIEatGrass;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-public class EntityAIEatGrassSlab extends EntityAIBase {
+public class EntityAIEatGrassyBlock extends EntityAIBase {
 	
     protected EntityLiving theEntity;
     protected World theWorld;
     protected int eatGrassTick = 0;
 
-    public EntityAIEatGrassSlab(EntityLiving entityLiving) {
+    public EntityAIEatGrassyBlock(EntityLiving entityLiving) {
         this.theEntity = entityLiving;
         this.theWorld = entityLiving.worldObj;
         this.setMutexBits(7);
@@ -32,10 +32,9 @@ public class EntityAIEatGrassSlab extends EntityAIBase {
             int y = MathHelper.floor_double(this.theEntity.posY);
             int z = MathHelper.floor_double(this.theEntity.posZ);
             for (int yi = y; yi >= y - 1; yi--) {
-	            int blockId = this.theWorld.getBlockId(x, yi, z);
-	            int metadata = this.theWorld.getBlockMetadata(x, yi, z);
-	            if (blockId == MudMod.grassSlab.blockID
-	            && MCHelper.getSlabMetadata(metadata) == BlockGrassSlab.GRASS) {
+	            Block block = Block.blocksList[this.theWorld.getBlockId(x, yi, z)];
+	            if (block instanceof IGrassyBlock
+	            && ((IGrassyBlock)block).getType(this.theWorld, x, yi, z) == EnumGrassType.GRASS) {
 	            	return true;
 	            }
             }
@@ -68,14 +67,14 @@ public class EntityAIEatGrassSlab extends EntityAIBase {
             int y = MathHelper.floor_double(this.theEntity.posY);
             int z = MathHelper.floor_double(this.theEntity.posZ);
             for (int yi = y; yi >= y - 1; yi--) {
-                int blockId = this.theWorld.getBlockId(x, yi, z);
-                int metadata = this.theWorld.getBlockMetadata(x, yi, z);
-                if (blockId == MudMod.grassSlab.blockID
-                && MCHelper.getSlabMetadata(metadata) == BlockGrassSlab.GRASS) {
+	            Block block = Block.blocksList[this.theWorld.getBlockId(x, yi, z)];
+	            if (block instanceof IGrassyBlock
+	            && ((IGrassyBlock)block).getType(this.theWorld, x, yi, z) == EnumGrassType.GRASS) {
+                    ItemStack itemStack = ((IGrassyBlock)block).getBlockForType(this.theWorld, x, yi, z, EnumGrassType.DIRT);
                     this.theWorld.playAuxSFX(2001, x, yi, z, MudMod.grassSlab.blockID);
-                    this.theWorld.setBlock(x, yi, z, MudMod.dirtSlab.blockID, MCHelper.convertSlabMetadata(metadata, BlockDirtSlab.DIRT), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
+                    this.theWorld.setBlock(x, yi, z, itemStack.itemID, itemStack.getItemDamage(), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
                     this.theEntity.eatGrassBonus();
-                }
+	            }
             }
         }
     }

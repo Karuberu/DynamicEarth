@@ -2,7 +2,6 @@ package karuberu.mods.mudmod.client;
 
 import org.lwjgl.opengl.GL11;
 
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.blocks.BlockPeatMoss;
@@ -13,7 +12,6 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.client.ForgeHooksClient;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -25,11 +23,6 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 	public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer) {
 		float color = 1.0F;
 		Tessellator tessellator = Tessellator.instance;
-        int renderColor = block.getRenderColor(metadata);
-        int renderType;
-        float r = (float)(renderColor >> 16 & 255) / 255.0F;
-        float g = (float)(renderColor >> 8 & 255) / 255.0F;
-        float b = (float)(renderColor & 255) / 255.0F;
         float normalX = 0.0F;
         float normalY = 0.0F;
         float normalZ = 0.0F;
@@ -42,7 +35,7 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
         GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
         
         for (int side = 0; side < 6; side++) {
-        	blockTexture = block.getBlockTextureFromSideAndMetadata(side, metadata);
+        	blockTexture = block.getIcon(side, metadata);
         	switch (side) {
         	case MCHelper.SIDE_BOTTOM:
         		normalX = 0.0F;
@@ -80,17 +73,17 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
             tessellator.setNormal(normalX, normalY, normalZ);
             switch (side) {
         	case MCHelper.SIDE_BOTTOM:
-        		renderer.renderBottomFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceYNeg(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_TOP:
-        		renderer.renderTopFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceYPos(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_EAST:
-        		renderer.renderEastFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceZNeg(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_WEST:
-        		renderer.renderWestFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceZPos(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_NORTH:
-        		renderer.renderNorthFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceXNeg(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
         	case MCHelper.SIDE_SOUTH:
-        		renderer.renderSouthFace(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
+        		renderer.renderFaceXPos(block, 0.0D, 0.0D, 0.0D, blockTexture); break;
             }
             tessellator.draw();
         }
@@ -125,7 +118,6 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 		renderer.enableAO = false;
         Tessellator tessellator = Tessellator.instance;
         boolean blockRendered = false;
-        int blockMetadata = blockAccess.getBlockMetadata(x, y, z);
         int mixedBrightness = block.getMixedBrightnessForBlock(blockAccess, x, y, z);
         int checkX = x;
         int checkY = y;
@@ -190,17 +182,17 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
     				tessellator.setColorOpaque_F(sideColor, sideColor, sideColor);
 	            	switch(side) {
 	            	case MCHelper.SIDE_BOTTOM:
-	            		renderer.renderBottomFace(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceYNeg(block, (double)x, (double)y, (double)z, texture); break;
 	            	case MCHelper.SIDE_TOP:
-	            		renderer.renderTopFace(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceYPos(block, (double)x, (double)y, (double)z, texture); break;
 	            	case MCHelper.SIDE_EAST:
-	            		renderer.renderEastFace(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceZNeg(block, (double)x, (double)y, (double)z, texture); break;
 	            	case MCHelper.SIDE_WEST:
-	            		renderer.renderWestFace(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceZPos(block, (double)x, (double)y, (double)z, texture); break;
 	            	case MCHelper.SIDE_NORTH:
-	            		renderer.renderNorthFace(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceXNeg(block, (double)x, (double)y, (double)z, texture); break;
 	            	case MCHelper.SIDE_SOUTH:
-	            		renderer.renderSouthFace(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceXPos(block, (double)x, (double)y, (double)z, texture); break;
 	            	}
 	                blockRendered = true;
     			}
@@ -234,8 +226,6 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 		int checkY = y;
 		int checkZ = z;
 		float sideColor = 0.0F;
-		float lightValue = 0.0F;
-		int brightness = 0;
 		boolean willColorizeTexture = false;
 		for (side = 0; side < 6; side++) {
 			boolean renderingAtBounds = false;
@@ -660,17 +650,17 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 					renderer.colorBlueTopRight *= lightValueTopRight;
 					switch(side) {
 					case MCHelper.SIDE_BOTTOM:
-						renderer.renderBottomFace(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceYNeg(block, (double)x, (double)y, (double)z, texture); break;
 					case MCHelper.SIDE_TOP:
-						renderer.renderTopFace(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceYPos(block, (double)x, (double)y, (double)z, texture); break;
 					case MCHelper.SIDE_EAST:
-						renderer.renderEastFace(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceZNeg(block, (double)x, (double)y, (double)z, texture); break;
 					case MCHelper.SIDE_WEST:
-						renderer.renderWestFace(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceZPos(block, (double)x, (double)y, (double)z, texture); break;
 					case MCHelper.SIDE_NORTH:
-						renderer.renderNorthFace(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceXNeg(block, (double)x, (double)y, (double)z, texture); break;
 					case MCHelper.SIDE_SOUTH:
-						renderer.renderSouthFace(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceXPos(block, (double)x, (double)y, (double)z, texture); break;
 					}
 					blockRendered = true;
 				}

@@ -4,11 +4,13 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import karuberu.core.asm.ObfHelper;
+
 import cpw.mods.fml.common.FMLLog;
 
 public final class MMLogger {
 	
-	private static final boolean debugEnabled = false;
+	private static final boolean debugEnabled = !ObfHelper.obfuscated;
 	
 	private static final String
 		sourceString = "MudMod";
@@ -38,7 +40,9 @@ public final class MMLogger {
 		if (debugEnabled) {
 			StringBuilder message = new StringBuilder();
 			for (Object object : objects) {
-				if (object instanceof Object[]) {
+				if (object == null) {
+					message.append("null");
+				} else if (object instanceof Object[]) {
 					Object[] array = (Object[])object;
 					message.append(Arrays.toString(array));
 				} else if (object instanceof int[]) {

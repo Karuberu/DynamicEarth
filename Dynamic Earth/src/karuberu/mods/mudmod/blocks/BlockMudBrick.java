@@ -1,6 +1,5 @@
 package karuberu.mods.mudmod.blocks;
 
-import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.client.TextureManager;
 import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;

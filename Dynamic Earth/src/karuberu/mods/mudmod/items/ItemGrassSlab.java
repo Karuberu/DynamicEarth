@@ -1,7 +1,6 @@
 package karuberu.mods.mudmod.items;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import karuberu.core.MCHelper;
@@ -58,14 +57,4 @@ public class ItemGrassSlab extends ItemDirtSlab {
     	}
     	return blockPlaced;
     }
-
-	@Override
-    public void onCreated(ItemStack itemStack, World world, EntityPlayer player) {
-		ItemStack dirtSlabs = new ItemStack(MudMod.dirtSlab, itemStack.stackSize);
-		boolean success = player.inventory.addItemStackToInventory(dirtSlabs);
-		if (!success) {
-			player.dropPlayerItem(dirtSlabs);
-		}
-	}
-
 }

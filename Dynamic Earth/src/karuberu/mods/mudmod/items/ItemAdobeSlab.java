@@ -33,7 +33,7 @@ public class ItemAdobeSlab extends ItemBlock {
     @Override
     @SideOnly(Side.CLIENT)
     public Icon getIconFromDamage(int damageValue) {
-        return Block.blocksList[this.itemID].getBlockTextureFromSideAndMetadata(2, damageValue);
+        return Block.blocksList[this.itemID].getIcon(2, damageValue);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class ItemAdobeSlab extends ItemBlock {
             if ((side == 1 && !var14 || side == 0 && var14)
             && blockId == this.singleSlab.blockID
             && slabType == itemStack.getItemDamage()) {
-                if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlock(x, y, z, this.doubleSlab.blockID, slabType, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
+                if (world.checkBlockCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlock(x, y, z, this.doubleSlab.blockID, slabType, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
                     world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
                     --itemStack.stackSize;
                 }
@@ -140,7 +140,7 @@ public class ItemAdobeSlab extends ItemBlock {
         int slabType = metadata & 7;
 
         if (blockId == this.singleSlab.blockID && slabType == itemStack.getItemDamage()) {
-            if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlock(x, y, z, this.doubleSlab.blockID, slabType, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
+            if (world.checkBlockCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z)) && world.setBlock(x, y, z, this.doubleSlab.blockID, slabType, MCHelper.NOTIFY_AND_UPDATE_REMOTE)) {
                 world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
                 --itemStack.stackSize;
             }

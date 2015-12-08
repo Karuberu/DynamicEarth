@@ -18,16 +18,18 @@ public class BlockMudBrickWall extends BlockWall {
 		super(id, block);
 	}
     
-    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
     @SideOnly(Side.CLIENT)
     public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List) {
         par3List.add(new ItemStack(par1, 1, 0));
     }
     
-    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata){
+    @Override
+    public Icon getIcon(int side, int metadata){
     	switch(metadata) {
     	case 0: return MudMod.blockMudBrick.getBlockTextureFromSide(side);
     	}
-    	return super.getBlockTextureFromSideAndMetadata(side, metadata);
+    	return super.getIcon(side, metadata);
     }
 }

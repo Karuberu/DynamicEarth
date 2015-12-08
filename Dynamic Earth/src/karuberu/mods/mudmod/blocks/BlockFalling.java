@@ -1,5 +1,6 @@
 package karuberu.mods.mudmod.blocks;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import karuberu.core.MCHelper;
@@ -7,6 +8,7 @@ import karuberu.mods.mudmod.entity.EntityFallingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 
@@ -18,10 +20,10 @@ public class BlockFalling extends Block implements IFallingBlock {
 	
 	@Override
 	public boolean tryToFall(World world, int x, int y, int z) {
-        if (this.canFallBelow(world, x, y, z)) {
+        if (BlockFalling.canFallBelow(world, x, y, z)) {
             byte radius = 32;
 
-            if (this.doSpawnEntity()
+            if (BlockFalling.doSpawnEntity()
             && world.checkChunksExist(x - radius, y - radius, z - radius, x + radius, y + radius, z + radius)) {
                 if (!world.isRemote) {
                     EntityFallingBlock fallingBlock = new EntityFallingBlock(world, (double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.blockID, world.getBlockMetadata(x, y, z));
@@ -29,7 +31,7 @@ public class BlockFalling extends Block implements IFallingBlock {
                 }
             } else {
                 world.setBlockToAir(x, y, z);
-                while (this.canFallBelow(world, x, y, z)) {
+                while (BlockFalling.canFallBelow(world, x, y, z)) {
                     --y;
                 } if (y > 0) {
                     world.setBlock(x, y, z, this.blockID, world.getBlockMetadata(x, y, z), MCHelper.NOTIFY_AND_UPDATE_REMOTE);
@@ -45,11 +47,6 @@ public class BlockFalling extends Block implements IFallingBlock {
 
 	@Override
 	public void onFinishFalling(World world, int x, int y, int z, int metadata) { }
-
-	@Override
-	public boolean isDamagedByFall() {
-		return false;
-	}
 
 	@Override
 	public int getMetaForFall(int fallTime, int metadata, Random random) {
@@ -85,5 +82,12 @@ public class BlockFalling extends Block implements IFallingBlock {
 	
 	public static boolean doSpawnEntity() {
 		return !BlockSand.fallInstantly;
+	}
+
+	@Override
+	public ArrayList<ItemStack> getItemsDropped(World world, int x, int y, int z, int fallTime, int metadata, Random random) {
+		ArrayList<ItemStack> list = new ArrayList<ItemStack>();
+		list.add(new ItemStack(this.blockID, 1, this.damageDropped(metadata)));
+		return list;
 	}
 }

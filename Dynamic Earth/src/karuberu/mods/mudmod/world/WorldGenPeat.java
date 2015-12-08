@@ -1,33 +1,25 @@
 package karuberu.mods.mudmod.world;
 
-import java.util.Arrays;
 import java.util.Random;
 
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.blocks.BlockMud;
 import karuberu.mods.mudmod.blocks.BlockPeat;
 import karuberu.mods.mudmod.blocks.BlockPeatMoss;
 import karuberu.mods.mudmod.blocks.MaterialPeatMoss;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.world.ChunkPosition;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkProviderEnd;
-import net.minecraft.world.gen.ChunkProviderHell;
-import net.minecraft.world.gen.feature.WorldGenLakes;
 import cpw.mods.fml.common.IWorldGenerator;
 
 public class WorldGenPeat implements IWorldGenerator {
 	
 	public static int
-		maximumGenHeight = 65,
-		minimumGenHeight = 60;
+		maximumGenHeight = 75,
+		minimumGenHeight = 55;
 	private int
 		diameter,
 		depth,
@@ -173,20 +165,20 @@ public class WorldGenPeat implements IWorldGenerator {
 			&& material != MaterialPeatMoss.material) {
 				world.setBlock(x, y + 1, z, MudMod.peatMoss.blockID, BlockPeatMoss.GROWTHSTAGE_FULLGROWN, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
 			}
-			world.setBlock(x, y, z, MudMod.peat.blockID, BlockPeat.META_FULL, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+			world.setBlock(x, y, z, MudMod.peat.blockID, BlockPeat.WET, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
 		}
 		if (depth > 1) {
 			depth -= random.nextInt(depth / 2);
 		}
 		int i;
     	for	(i = 1; i < depth; i++) {
-        	world.setBlock(x, y - i, z, MudMod.peat.blockID, BlockPeat.META_FULL, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
+        	world.setBlock(x, y - i, z, MudMod.peat.blockID, BlockPeat.WET, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
     	}
-    	int meta = BlockPeat.META_1EIGHTH;
+    	int meta = BlockPeat.ONE_EIGHTH;
     	switch(random.nextInt(4)) {
-    	case 1: meta = BlockPeat.META_2EIGHTHS; break;
-    	case 2: meta = BlockPeat.META_3EIGHTHS; break;
-    	case 3: meta = BlockPeat.META_HALF; break;
+    	case 1: meta = BlockPeat.TWO_EIGHTHS; break;
+    	case 2: meta = BlockPeat.THREE_EIGHTHS; break;
+    	case 3: meta = BlockPeat.FOUR_EIGHTHS; break;
     	}
     	world.setBlock(x, y - i, z, MudMod.peat.blockID, meta, MCHelper.DO_NOT_NOTIFY_OR_UPDATE);
 	}

@@ -5,10 +5,8 @@ import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.blocks.BlockPeatMoss;
 import karuberu.mods.mudmod.client.TextureManager.Texture;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.EnumPlantType;
@@ -16,7 +14,7 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 
 public class ItemPeatMossSpecimen extends ItemMudMod implements IPlantable {
-
+	
 	public ItemPeatMossSpecimen(int id, Texture icon) {
 		super(id, icon);
 		this.setCreativeTab(CreativeTabs.tabDecorations);

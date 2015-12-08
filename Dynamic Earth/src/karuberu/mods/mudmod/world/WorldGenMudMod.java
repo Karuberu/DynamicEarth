@@ -4,16 +4,12 @@ import java.util.Random;
 
 import karuberu.mods.mudmod.MudMod;
 
-import net.minecraft.block.Block;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderEnd;
 import net.minecraft.world.gen.ChunkProviderHell;
-import net.minecraft.world.gen.feature.WorldGenMinable;
 import cpw.mods.fml.common.IWorldGenerator;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class WorldGenMudMod implements IWorldGenerator {
 	public static WorldGenMudMod

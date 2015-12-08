@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;

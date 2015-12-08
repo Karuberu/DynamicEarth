@@ -5,13 +5,10 @@ import java.util.List;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-import karuberu.core.KaruberuLogger;
 import karuberu.core.MCHelper;
 import karuberu.mods.mudmod.MudMod;
-import karuberu.mods.mudmod.client.TextureManager;
 import karuberu.mods.mudmod.client.TextureManager.Texture;
 import karuberu.mods.mudmod.entity.EntityBomb;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -36,7 +33,7 @@ public class ItemBombLit extends ItemMudMod {
 		this.setMaxDamage(getMaxFuseBurnTime());
 		this.setNoRepair();
     }
-	
+		
 	public int getFuseLength() {
 		return fuseLength;
 	}
@@ -53,6 +50,7 @@ public class ItemBombLit extends ItemMudMod {
     	return getMaxFuseBurnTime() / (fuseBurnTime * fuseLength);
     }
     
+	@SuppressWarnings("rawtypes")
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void addInformation(ItemStack itemStack, EntityPlayer player, List information, boolean bool) {
@@ -139,6 +137,28 @@ public class ItemBombLit extends ItemMudMod {
         
     public static int getTrueFuseLength(ItemStack bombStack) {
     	return (bombStack.getMaxDamage() - bombStack.getItemDamage()) / ((ItemBombLit)bombStack.getItem()).getDamagePerTick();
+    }
+    
+    @SuppressWarnings("rawtypes")
+	public static List getSplashEffects(NBTTagCompound tagCompound) {
+    	if (tagCompound != null && tagCompound.hasKey("Potion-charged")) {
+    		ItemStack potion = new ItemStack(Item.potion.itemID, 1, tagCompound.getInteger("Potion-charged"));
+    		if (tagCompound.hasKey("CustomPotionEffects")) {
+    			NBTTagCompound potionTag = new NBTTagCompound();
+    			potionTag.setTag("CustomPotionEffects", tagCompound.getTagList("CustomPotionEffects"));
+    			potion.setTagCompound(potionTag);
+    		}
+        	return Item.potion.getEffects(potion);
+    	}
+    	return Item.potion.getEffects(new ItemStack(Item.potion));
+    }
+    
+    public static int getPotionDamage(NBTTagCompound tagCompound) {
+    	if (tagCompound != null && tagCompound.hasKey("Potion-charged")) {
+    		return tagCompound.getInteger("Potion-charged");
+    	} else {
+    		return 0;
+    	}
     }
     
 	public static void spawnThrownBomb(World world, EntityPlayer player, ItemStack itemStack) {

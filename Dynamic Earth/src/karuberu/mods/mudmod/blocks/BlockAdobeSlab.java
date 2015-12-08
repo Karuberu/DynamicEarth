@@ -31,21 +31,21 @@ public class BlockAdobeSlab extends BlockHalfSlab {
 		this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
 		this.setUnlocalizedName("adobeSlab");
-        this.useNeighborBrightness[id] = true;
+        Block.useNeighborBrightness[id] = true;
 	}
     
 	@Override
 	public void registerIcons(IconRegister iconRegister) {}
 
     @Override
-    public Icon getBlockTextureFromSideAndMetadata(int side, int metadata) {
+    public Icon getIcon(int side, int metadata) {
         switch (MCHelper.getSlabMetadata(metadata)) {
         case 0:
             return MudMod.adobe.getBlockTextureFromSide(side);
         case 1:
             return MudMod.blockMudBrick.getBlockTextureFromSide(side);
         default:
-        	return super.getBlockTextureFromSideAndMetadata(side, metadata);
+        	return super.getIcon(side, metadata);
         }
     }
     
@@ -67,10 +67,11 @@ public class BlockAdobeSlab extends BlockHalfSlab {
         return super.getUnlocalizedName() + "." + slabType[metadata];
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	@SideOnly(Side.CLIENT)
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
-		int numSubBlocks = this.slabType.length;
+		int numSubBlocks = BlockAdobeSlab.slabType.length;
 		if (blockId != MudMod.adobeDoubleSlab.blockID) {
             for (int i = 0; i < numSubBlocks; ++i) {
                 list.add(new ItemStack(blockId, 1, i));

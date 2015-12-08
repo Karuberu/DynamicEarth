@@ -34,7 +34,7 @@ public class ItemDirtSlab extends ItemBlock {
     @Override
     @SideOnly(Side.CLIENT)
     public Icon getIconFromDamage(int damageValue) {
-        return Block.blocksList[this.itemID].getBlockTextureFromSideAndMetadata(MCHelper.SIDE_EAST, damageValue);
+        return Block.blocksList[this.itemID].getIcon(MCHelper.SIDE_EAST, damageValue);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ItemDirtSlab extends ItemBlock {
             boolean isTopSlab = MCHelper.isTopSlab(metadata);
             if ((side == MCHelper.SIDE_TOP && !isTopSlab || side == MCHelper.SIDE_BOTTOM && isTopSlab)
             && this.blockMatches(id, metadata)) {
-                if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
+                if (world.checkBlockCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
                 	if (this.tryFormDoubleSlab(itemStack, world, x, y, z, side)) {
 	                    world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
 	                    itemStack.stackSize--;
@@ -98,8 +98,8 @@ public class ItemDirtSlab extends ItemBlock {
     	return blockPlaced;
     }
 
-    @SideOnly(Side.CLIENT)
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean canPlaceItemBlockOnSide(World world, int x, int y, int z, int side, EntityPlayer player, ItemStack itemStack) {
         int originalX = x;
         int originalY = y;
@@ -120,6 +120,8 @@ public class ItemDirtSlab extends ItemBlock {
         	case MCHelper.SIDE_NORTH: --x; break;
         	case MCHelper.SIDE_SOUTH: ++x; break;
             }
+        	id = world.getBlockId(x, y, z);
+        	metadata = world.getBlockMetadata(x, y, z);
             return this.blockMatches(id, metadata) ? true : super.canPlaceItemBlockOnSide(world, originalX, originalY, originalZ, side, player, itemStack);
         }
     }
@@ -136,7 +138,7 @@ public class ItemDirtSlab extends ItemBlock {
         int id = world.getBlockId(x, y, z);
         int metadata = world.getBlockMetadata(x, y, z);
         if (this.blockMatches(id, metadata)) {
-            if (world.checkIfAABBIsClear(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
+            if (world.checkBlockCollision(this.doubleSlab.getCollisionBoundingBoxFromPool(world, x, y, z))) {
             	if (this.tryFormDoubleSlab(itemStack, world, x, y, z, side)) {
                     world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), this.doubleSlab.stepSound.getStepSound(), (this.doubleSlab.stepSound.getVolume() + 1.0F) / 2.0F, this.doubleSlab.stepSound.getPitch() * 0.8F);
                     --itemStack.stackSize;

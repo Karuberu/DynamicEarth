@@ -9,11 +9,8 @@ import net.minecraft.world.World;
 
 public class EntityClayGolem extends EntityIronGolem {
 	
-	private int attackTimer;
-
 	public EntityClayGolem(World world) {
 		super(world);
-        this.getNavigator().setAvoidsWater(false);
         this.texture = TextureManager.clayGolemTexture;
 	}
 	
@@ -24,7 +21,6 @@ public class EntityClayGolem extends EntityIronGolem {
 	
 	@Override
     public boolean attackEntityAsMob(Entity entity) {
-        this.attackTimer = 10;
         this.worldObj.setEntityState(this, (byte)4);
         boolean entityDamaged = entity.attackEntityFrom(DamageSource.causeMobDamage(this), 5);
 
