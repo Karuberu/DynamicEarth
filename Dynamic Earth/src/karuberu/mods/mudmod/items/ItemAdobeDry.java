@@ -24,7 +24,7 @@ public class ItemAdobeDry extends ItemMudMod {
         	if (cauldronMeta > 0) {
         		world.setBlockMetadataWithNotify(x, y, z, cauldronMeta - 1);
 	        	if (!player.inventory.addItemStackToInventory(new ItemStack(MudMod.adobeBlob, 1))) {
-	                player.dropPlayerItem(new ItemStack(MudMod.adobeBlob.shiftedIndex, 1, 0));
+	                player.dropPlayerItem(new ItemStack(MudMod.adobeBlob.itemID, 1, 0));
 	            }
 	        	if (!player.capabilities.isCreativeMode) {
 	                itemStack.stackSize--;
@@ -60,7 +60,7 @@ public class ItemAdobeDry extends ItemMudMod {
 
                 if (world.getBlockMaterial(x, y, z) == Material.water) {
                 	if (!player.inventory.addItemStackToInventory(new ItemStack(MudMod.adobeBlob, 1))) {
-                        player.dropPlayerItem(new ItemStack(MudMod.adobeBlob.shiftedIndex, 1, 0));
+                        player.dropPlayerItem(new ItemStack(MudMod.adobeBlob.itemID, 1, 0));
                     }
                 	if (!player.capabilities.isCreativeMode) {
                         itemStack.stackSize--;

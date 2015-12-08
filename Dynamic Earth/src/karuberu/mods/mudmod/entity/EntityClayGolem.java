@@ -39,7 +39,7 @@ public class EntityClayGolem extends EntityIronGolem {
     protected void dropFewItems(boolean par1, int par2) {
         int numDust = 3 + this.rand.nextInt(6);
         for (int i = 0; i < numDust; ++i) {
-            this.dropItem(MudMod.adobeDust.shiftedIndex, 1);
+            this.dropItem(MudMod.adobeDust.itemID, 1);
         }
     }
 

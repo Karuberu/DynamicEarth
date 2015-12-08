@@ -4,6 +4,7 @@ import karuberu.mods.mudmod.CommonProxy;
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.MudMod.ItemIcon;
 import karuberu.mods.mudmod.entity.EntityBomb;
+import karuberu.mods.mudmod.entity.EntityFallingBlock;
 import karuberu.mods.mudmod.entity.EntityMudball;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.entity.item.EntityFallingSand;
@@ -81,7 +82,7 @@ public class ClientProxy extends CommonProxy {
 		MinecraftForgeClient.preloadTexture(MudMod.terrainFile);
         MinecraftForgeClient.preloadTexture(MudMod.itemsFile);
  		RenderingRegistry.registerEntityRenderingHandler(EntityMudball.class, new RenderMudball(MudMod.itemsFile, MudMod.ItemIcon.MUDBLOB.ordinal()));
-		RenderingRegistry.registerEntityRenderingHandler(EntityFallingSand.class, new RenderFallingSand());
+		RenderingRegistry.registerEntityRenderingHandler(EntityFallingBlock.class, new RenderFallingBlock());
 		if (MudMod.includeBombs) {
 			RenderingRegistry.registerEntityRenderingHandler(EntityBomb.class, new RenderMudball(MudMod.itemsFile, MudMod.ItemIcon.BOMB.ordinal()));
 		}

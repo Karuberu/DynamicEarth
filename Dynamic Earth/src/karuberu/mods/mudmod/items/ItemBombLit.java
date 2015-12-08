@@ -25,8 +25,8 @@ public class ItemBombLit extends Item {
 		ItemBombLit.spawnThrownBomb(world, player, itemStack);
 		if (!player.capabilities.isCreativeMode) {
 			itemStack.stackSize--;
-			if (player.inventory.hasItem(MudMod.bomb.shiftedIndex)) {
-				player.inventory.consumeInventoryItem(MudMod.bomb.shiftedIndex);
+			if (player.inventory.hasItem(MudMod.bomb.itemID)) {
+				player.inventory.consumeInventoryItem(MudMod.bomb.itemID);
 				return new ItemStack(MudMod.bomb);
 			}
 		}
@@ -39,7 +39,7 @@ public class ItemBombLit extends Item {
     		EntityPlayer player = (EntityPlayer)entity;
 	    	int damage = itemStack.getItemDamage();
 	    	if (itemStack.stackSize == 0) {
-	            player.inventory.clearInventory(itemStack.getItem().shiftedIndex, itemStack.getItemDamage());
+	            player.inventory.clearInventory(itemStack.getItem().itemID, itemStack.getItemDamage());
 	    	} else {
 		    	if (damage >= this.getMaxDamage()) {
 		            this.spawnThrownBomb(world, player, itemStack);

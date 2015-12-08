@@ -27,8 +27,9 @@ import net.minecraftforge.common.IPlantable;
 
 public class BlockPeatMoss extends BlockMudMod {
 	
-	protected static int minimumLightLevel = 6;
+	public static int minimumLightLevel = 6;
 	public static int tickRate = 20;
+	public static int hydrationRadius = 3;
 	public static final int
 		GROWTHSTAGE_1 = 0,
 		GROWTHSTAGE_2 = 1,
@@ -41,9 +42,10 @@ public class BlockPeatMoss extends BlockMudMod {
         this.setBlockName("peatMoss");
 		this.setStepSound(Block.soundGrassFootstep);
 		this.setLightOpacity(0);
+		this.setHardness(0.1F);
 		this.setTickRandomly(true);
 		this.setTextureFile(MudMod.terrainFile);
-		this.setHydrateRadius(3, 2, 0, 3);
+		this.setHydrateRadius(hydrationRadius, 2, 0, hydrationRadius);
 	}
 
     @Override
@@ -138,7 +140,7 @@ public class BlockPeatMoss extends BlockMudMod {
     @Override
     public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int metadata, int fortune) {
         ArrayList<ItemStack> items = new ArrayList<ItemStack>();
-        if (world.rand.nextInt(Math.max(0, 9 - metadata - fortune)) == 0) {
+        if (world.rand.nextInt(Math.max(1, 10 - metadata - fortune)) == 0) {
         	items.add(new ItemStack(MudMod.peatMossSpecimen));
         }
         return items;
@@ -250,6 +252,6 @@ public class BlockPeatMoss extends BlockMudMod {
     
     @Override
     public int idPicked(World world, int x, int y, int z) {
-    	return MudMod.peatMossSpecimen.shiftedIndex;
+    	return MudMod.peatMossSpecimen.itemID;
     }
 }

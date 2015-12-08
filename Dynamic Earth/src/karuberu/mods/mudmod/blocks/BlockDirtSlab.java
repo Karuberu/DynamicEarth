@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import karuberu.mods.mudmod.MudMod;
+import karuberu.mods.mudmod.Reference;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
@@ -75,14 +76,19 @@ public class BlockDirtSlab extends BlockHalfSlab {
             }
         }
     }
+	
+    @Override
+    public int getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
+    	int metadata = blockAccess.getBlockMetadata(x, y, z);
+    	return this.getBlockTextureFromSideAndMetadata(side, metadata);
+    }
     
-	@SideOnly(Side.CLIENT)
     @Override
     public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
         switch (metadata & 7) {
-        	case DIRT: return TEXTURE_DIRT;
+        case DIRT: return TEXTURE_DIRT;
+        default: return TEXTURE_DIRT;
         }
-        return TEXTURE_DIRT;
     }
     
     @Override

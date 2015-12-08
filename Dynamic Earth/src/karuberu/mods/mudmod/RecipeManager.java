@@ -16,7 +16,9 @@ import cpw.mods.fml.common.registry.GameRegistry;
 
 public class RecipeManager {
 	
-	public static boolean canCraftBombs;
+	public static boolean
+		canCraftBombs,
+		canCraftMossyStone;
 
 	public static void addRecipes() {
         RecipeManager.addMudRecipes();
@@ -36,13 +38,13 @@ public class RecipeManager {
 	public static void addSmelting() {
 	    GameRegistry.addSmelting(MudMod.mud.blockID, new ItemStack(Block.dirt), 0.1F);
 	    if (MudMod.includeMudBrick) {
-	    	GameRegistry.addSmelting(MudMod.mudBlob.shiftedIndex, new ItemStack(MudMod.mudBrick), 0.1F);
+	    	GameRegistry.addSmelting(MudMod.mudBlob.itemID, new ItemStack(MudMod.mudBrick), 0.1F);
 	    }
 	    if (MudMod.includePermafrost) {
 	    	GameRegistry.addSmelting(MudMod.permafrost.blockID, new ItemStack(Block.dirt), 0.1F);
 	    }
 	    if (MudMod.includePeat) {
-	    	GameRegistry.addSmelting(MudMod.peatClump.shiftedIndex, new ItemStack(MudMod.peatBrick), 0.1F);
+	    	GameRegistry.addSmelting(MudMod.peatClump.itemID, new ItemStack(MudMod.peatBrick), 0.1F);
 	    }
 	}
 	
@@ -222,8 +224,8 @@ public class RecipeManager {
 			);
 	    }
 	    GameRegistry.addSmelting(MudMod.adobeWet.blockID, new ItemStack(MudMod.adobe), 0.1F);
-	    GameRegistry.addSmelting(MudMod.vaseRaw.shiftedIndex, new ItemStack(MudMod.vase), 0.1F);
-	    GameRegistry.addSmelting(MudMod.earthbowlRaw.shiftedIndex, new ItemStack(MudMod.earthbowl), 0.1F);
+	    GameRegistry.addSmelting(MudMod.vaseRaw.itemID, new ItemStack(MudMod.vase), 0.1F);
+	    GameRegistry.addSmelting(MudMod.earthbowlRaw.itemID, new ItemStack(MudMod.earthbowl), 0.1F);
 	}
 	
 	private static void addPeatRecipes() {
@@ -241,6 +243,28 @@ public class RecipeManager {
 				MudMod.peat
 			}
 		);
+		GameRegistry.addShapelessRecipe(
+			new ItemStack(MudMod.peatBrick, 4),
+			new Object[] {
+				MudMod.peatDry
+			}
+		);
+		if (RecipeManager.canCraftMossyStone) {
+			GameRegistry.addShapelessRecipe(
+				new ItemStack(Block.cobblestoneMossy),
+				new Object[] {
+					MudMod.peatMossSpecimen,
+					Block.cobblestone
+				}
+			);
+			GameRegistry.addShapelessRecipe(
+				new ItemStack(Block.stoneBrick, 1, 1),
+				new Object[] {
+					MudMod.peatMossSpecimen,
+					new ItemStack(Block.stoneBrick, 1, 0)
+				}
+			);
+		}
 	}
 	
 	private static void addStairAndSlabRecipes() {

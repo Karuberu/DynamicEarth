@@ -18,14 +18,21 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class WorldGenMudMod implements IWorldGenerator {
 	public static boolean
 		doGenerateMud,
-		doGeneratePermafrost;
-	private static final IWorldGenerator
+		doGeneratePermafrost,
+		doGeneratePeat;
+	public static final IWorldGenerator
 		permafrost = new WorldGenPermafrost(),
-		mud = new WorldGenMud(4);
+		mud = new WorldGenMud(),
+		peat = new WorldGenPeat();
 
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
-		if (!(chunkProvider instanceof ChunkProviderHell) && !(chunkProvider instanceof ChunkProviderEnd) && !MudMod.restoreDirtOnChunkLoad) {
+		if (!MudMod.restoreDirtOnChunkLoad
+		&& !(chunkProvider instanceof ChunkProviderHell)
+		&& !(chunkProvider instanceof ChunkProviderEnd)) {
+	        if (doGeneratePeat && MudMod.includePeat) {
+	        	peat.generate(random, chunkX, chunkZ, world, chunkGenerator, chunkProvider);
+	        }
 			if (doGeneratePermafrost && MudMod.includePermafrost) {
 	        	permafrost.generate(random, chunkX, chunkZ, world, chunkGenerator, chunkProvider);
 	        }

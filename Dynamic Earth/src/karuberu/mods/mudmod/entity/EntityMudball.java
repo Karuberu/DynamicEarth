@@ -27,7 +27,7 @@ public class EntityMudball extends EntityThrowable {
     @Override
     protected void onImpact(MovingObjectPosition movingObjectPosition) {
         if (movingObjectPosition.entityHit != null) {
-            movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.func_85052_h()), 0);
+            movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 0);
         }
 
         Random rand = new Random();
@@ -35,7 +35,7 @@ public class EntityMudball extends EntityThrowable {
         	double x = rand.nextInt(4) / 10D;
         	double y = rand.nextInt(4) / 10D;
         	double z = rand.nextInt(4) / 10D;
-            this.worldObj.spawnParticle("iconcrack_" + new ItemStack(MudMod.mudBlob).getItem().shiftedIndex, this.posX, this.posY, this.posZ, -0.2D + x, -0.2D + y, -0.2D + z);
+            this.worldObj.spawnParticle("iconcrack_" + new ItemStack(MudMod.mudBlob).getItem().itemID, this.posX, this.posY, this.posZ, -0.2D + x, -0.2D + y, -0.2D + z);
         }
 
         if (!this.worldObj.isRemote){

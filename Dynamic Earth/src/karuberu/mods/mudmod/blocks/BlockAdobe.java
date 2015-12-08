@@ -73,7 +73,7 @@ public class BlockAdobe extends Block {
     
     @Override
 	public int idDropped(int i, Random random, int j) {
-        return MudMod.adobeDust.shiftedIndex;
+        return MudMod.adobeDust.itemID;
     }
     
     @Override

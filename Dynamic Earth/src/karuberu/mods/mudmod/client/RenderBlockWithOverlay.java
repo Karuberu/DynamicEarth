@@ -36,9 +36,9 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
         float normalZ = 0.0F;
         int blockTexture;
            
-        renderer.updateCustomBlockBounds(block);
+        renderer.setRenderBoundsFromBlock(block);
         block.setBlockBoundsForItemRender();
-        renderer.updateCustomBlockBounds(block);
+        renderer.setRenderBoundsFromBlock(block);
         GL11.glRotatef(90.0F, 0.0F, 1.0F, 0.0F);
         GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
         
@@ -154,42 +154,42 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
         		checkX = x;
         		checkY = y - 1;
         		checkZ = z;
-        		brightnessCheck = renderer.customMinY > 0.0D;
+        		brightnessCheck = renderer.renderMinY > 0.0D;
         		sideColor = 0.5F;
         		break;
         	case Reference.SIDE_TOP:
         		checkX = x;
         		checkY = y + 1;
         		checkZ = z;
-        		brightnessCheck = renderer.customMaxY < 1.0D;
+        		brightnessCheck = renderer.renderMaxY < 1.0D;
         		sideColor = 1.0F;
         		break;
         	case Reference.SIDE_EAST:
         		checkX = x;
         		checkY = y;
         		checkZ = z - 1;
-        		brightnessCheck = renderer.customMinZ > 0.0D;
+        		brightnessCheck = renderer.renderMinZ > 0.0D;
         		sideColor = 0.8F;
         		break;
         	case Reference.SIDE_WEST:
         		checkX = x;
         		checkY = y;
         		checkZ = z + 1;
-        		brightnessCheck = renderer.customMaxZ < 1.0D;
+        		brightnessCheck = renderer.renderMaxZ < 1.0D;
         		sideColor = 0.8F;
         		break;
         	case Reference.SIDE_NORTH:
         		checkX = x - 1;
         		checkY = y;
         		checkZ = z;
-        		brightnessCheck = renderer.customMinX > 0.0D;
+        		brightnessCheck = renderer.renderMinX > 0.0D;
         		sideColor = 0.6F;
         		break;
         	case Reference.SIDE_SOUTH:
         		checkX = x + 1;
         		checkY = y;
         		checkZ = z;
-        		brightnessCheck = renderer.customMaxX < 1.0D;
+        		brightnessCheck = renderer.renderMaxX < 1.0D;
         		sideColor = 0.6F;
         		break;
         	}
@@ -272,22 +272,22 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
         int mixedBrightnessMaxY = mixedBrightness;
         int mixedBrightnessMaxZ = mixedBrightness;
 
-        if (renderer.customMinY <= 0.0D) {
+        if (renderer.renderMinY <= 0.0D) {
             mixedBrightnessMinY = block.getMixedBrightnessForBlock(blockAccess, x, y - 1, z);
         }
-        if (renderer.customMaxY >= 1.0D) {
+        if (renderer.renderMaxY >= 1.0D) {
             mixedBrightnessMaxY = block.getMixedBrightnessForBlock(blockAccess, x, y + 1, z);
         }
-        if (renderer.customMinX <= 0.0D) {
+        if (renderer.renderMinX <= 0.0D) {
             mixedBrightnessMinX = block.getMixedBrightnessForBlock(blockAccess, x - 1, y, z);
         }
-        if (renderer.customMaxX >= 1.0D) {
+        if (renderer.renderMaxX >= 1.0D) {
             mixedBrightnessMaxX = block.getMixedBrightnessForBlock(blockAccess, x + 1, y, z);
         }
-        if (renderer.customMinZ <= 0.0D) {
+        if (renderer.renderMinZ <= 0.0D) {
             mixedBrightnessMinZ = block.getMixedBrightnessForBlock(blockAccess, x, y, z - 1);
         }
-        if (renderer.customMaxZ >= 1.0D) {
+        if (renderer.renderMaxZ >= 1.0D) {
             mixedBrightnessMaxZ = block.getMixedBrightnessForBlock(blockAccess, x, y, z + 1);
         }
 
@@ -345,22 +345,22 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
                 if (renderer.aoType > 0) {
                 	switch (side) {
                 	case Reference.SIDE_BOTTOM:
-                        if (renderer.customMinY <= 0.0D) { --y; }
+                        if (renderer.renderMinY <= 0.0D) { --y; }
                         break;
                 	case Reference.SIDE_TOP:
-                        if (renderer.customMaxY >= 1.0D) { ++y; }
+                        if (renderer.renderMaxY >= 1.0D) { ++y; }
                         break;
                 	case Reference.SIDE_EAST:
-                        if (renderer.customMinZ <= 0.0D) { --z; }
+                        if (renderer.renderMinZ <= 0.0D) { --z; }
                         break;
                 	case Reference.SIDE_WEST:
-                        if (renderer.customMaxZ >= 1.0D) { ++z; }
+                        if (renderer.renderMaxZ >= 1.0D) { ++z; }
                         break;
                 	case Reference.SIDE_NORTH:
-                        if (renderer.customMinX <= 0.0D) { --x; }
+                        if (renderer.renderMinX <= 0.0D) { --x; }
                         break;
                 	case Reference.SIDE_SOUTH:
-                        if (renderer.customMaxX >= 1.0D) { ++x; }
+                        if (renderer.renderMaxX >= 1.0D) { ++x; }
                         break;
                 	}
                 	switch (side) {
@@ -609,22 +609,22 @@ public class RenderBlockWithOverlay implements ISimpleBlockRenderingHandler {
                 	}
                 	switch (side) {
                 	case Reference.SIDE_BOTTOM:
-                        if (renderer.customMinY <= 0.0D) { ++y; }
+                        if (renderer.renderMinY <= 0.0D) { ++y; }
                         break;
                 	case Reference.SIDE_TOP:
-                        if (renderer.customMaxY >= 1.0D) { --y; }
+                        if (renderer.renderMaxY >= 1.0D) { --y; }
                         break;
                 	case Reference.SIDE_EAST:
-                        if (renderer.customMinZ <= 0.0D) { ++z; }
+                        if (renderer.renderMinZ <= 0.0D) { ++z; }
                         break;
                 	case Reference.SIDE_WEST:
-                        if (renderer.customMaxZ >= 1.0D) { --z; }
+                        if (renderer.renderMaxZ >= 1.0D) { --z; }
                         break;
                 	case Reference.SIDE_NORTH:
-                        if (renderer.customMinX <= 0.0D) { ++x; }
+                        if (renderer.renderMinX <= 0.0D) { ++x; }
                         break;
                 	case Reference.SIDE_SOUTH:
-                        if (renderer.customMaxX >= 1.0D) { --x; }
+                        if (renderer.renderMaxX >= 1.0D) { --x; }
                         break;
                 	}
                 	switch (side) {

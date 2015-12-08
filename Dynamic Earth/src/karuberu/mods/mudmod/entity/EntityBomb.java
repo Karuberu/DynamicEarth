@@ -47,7 +47,7 @@ public class EntityBomb extends EntityThrowable {
     @Override
     protected void onImpact(MovingObjectPosition movingObjectPosition) {
     	if (movingObjectPosition.entityHit != null) {
-            movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.func_85052_h()), 2);
+            movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()), 2);
             movingObjectPosition.entityHit.addVelocity(this.motionX / 2, 0.3D, this.motionZ / 2);
     	}
         Random rand = new Random();
@@ -55,7 +55,7 @@ public class EntityBomb extends EntityThrowable {
         	double px = rand.nextInt(4) / 10D;
         	double py = rand.nextInt(4) / 10D;
         	double pz = rand.nextInt(4) / 10D;
-            this.worldObj.spawnParticle("iconcrack_" + new ItemStack(MudMod.bomb).getItem().shiftedIndex, this.posX, this.posY, this.posZ, -0.2D + px, -0.2D + py, -0.2D + pz);
+            this.worldObj.spawnParticle("iconcrack_" + new ItemStack(MudMod.bomb).getItem().itemID, this.posX, this.posY, this.posZ, -0.2D + px, -0.2D + py, -0.2D + pz);
         }
         this.explode();
     }

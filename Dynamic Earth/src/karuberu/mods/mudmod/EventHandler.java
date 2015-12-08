@@ -1,6 +1,9 @@
 package karuberu.mods.mudmod;
 
+import karuberu.mods.mudmod.blocks.BlockPeat;
+import karuberu.mods.mudmod.blocks.BlockPeatMoss;
 import karuberu.mods.mudmod.entity.ai.EntityAIEatGrassSlab;
+import karuberu.mods.mudmod.world.WorldGenMudMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
@@ -10,11 +13,14 @@ import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 
 public class EventHandler {

@@ -8,12 +8,12 @@ import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.world.World;
 
-public class BlockMudDirt extends BlockMudMod
-{
-	public BlockMudDirt(int par1, int par2, Material material) {
-        this(par1, par2);
-    }
-    
+public class BlockMudDirt extends BlockMudMod {
+	
+	public BlockMudDirt(int id, int textureIndex, Material material) {
+		this(id, textureIndex);
+	}
+	
     public BlockMudDirt(int id, int textureIndex) {
         super(id, textureIndex, Material.ground);
         this.setCreativeTab(CreativeTabs.tabBlock);

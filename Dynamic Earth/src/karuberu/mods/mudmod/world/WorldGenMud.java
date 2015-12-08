@@ -16,12 +16,8 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 import cpw.mods.fml.common.IWorldGenerator;
 
 public class WorldGenMud implements IWorldGenerator {
-    private int depth;
-    
-    public WorldGenMud(int depth) {
-        this.depth = depth;
-    }
-    
+    public static int depth = 4;
+        
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
 		assert WorldGenMudMod.doGenerateMud;

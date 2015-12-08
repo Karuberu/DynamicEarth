@@ -6,6 +6,9 @@ import karuberu.mods.mudmod.MudMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 
 public class BlockPeatDry extends BlockMudMod {
 
@@ -14,6 +17,7 @@ public class BlockPeatDry extends BlockMudMod {
 		this.setHardness(0.4F);
         this.setStepSound(Block.soundGravelFootstep);
         this.setBlockName("peatDry");
+        this.setCreativeTab(CreativeTabs.tabBlock);
         this.setTextureFile(MudMod.terrainFile);
 		this.setHydrateRadius(2);
 	}
@@ -24,12 +28,17 @@ public class BlockPeatDry extends BlockMudMod {
 	}
 	
     @Override
-    public int idDropped(int metadata, Random random, int par3) {
-    	return MudMod.peatBrick.shiftedIndex;
+    public int getFlammability(IBlockAccess world, int x, int y, int z, int metadata, ForgeDirection face) {
+    	return 2;
     }
     
     @Override
-    public int quantityDropped(int metadata, int fortune, Random random) {
-    	return 4;
+    public int getFireSpreadSpeed(World world, int x, int y, int z, int metadata, ForgeDirection face) {
+    	return 40;
+    }
+    
+    @Override
+    public boolean isFireSource(World world, int x, int y, int z, int metadata, ForgeDirection side) {
+    	return side == ForgeDirection.UP;
     }
 }

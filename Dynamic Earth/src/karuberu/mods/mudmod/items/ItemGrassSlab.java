@@ -13,7 +13,7 @@ public class ItemGrassSlab extends ItemDirtSlab {
 		super(id);
 		this.singleSlab = MudMod.grassSlab;
         this.doubleSlab = MudMod.grassDoubleSlab;
-        if (this.shiftedIndex == this.doubleSlab.blockID - 256) {
+        if (this.itemID == this.doubleSlab.blockID - 256) {
             this.isDoubleSlab = true;
         } else  {
 	        this.isDoubleSlab = false;

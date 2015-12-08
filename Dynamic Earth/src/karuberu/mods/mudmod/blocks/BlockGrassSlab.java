@@ -110,7 +110,6 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay {
 	}
     
     @Override
-    @SideOnly(Side.CLIENT)
     public int getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
     	int metadata = blockAccess.getBlockMetadata(x, y, z);
     	if ((metadata & 7) == GRASS
@@ -133,11 +132,10 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay {
 	        	}
 	        }
     	}
-    	return getBlockTextureFromSideAndMetadata(side, metadata);
+    	return this.getBlockTextureFromSideAndMetadata(side, metadata);
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
     public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
         switch (metadata & 7) {
     	case GRASS:

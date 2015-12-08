@@ -21,7 +21,7 @@ public class ItemDirtSlab extends ItemBlock {
 		super(id);
 		this.singleSlab = MudMod.dirtSlab;
         this.doubleSlab = MudMod.dirtDoubleSlab;
-        if (this.shiftedIndex == this.doubleSlab.blockID - 256) {
+        if (this.itemID == this.doubleSlab.blockID - 256) {
             this.isDoubleSlab = true;
         } else  {
 	        this.isDoubleSlab = false;
@@ -33,7 +33,7 @@ public class ItemDirtSlab extends ItemBlock {
     @Override
     @SideOnly(Side.CLIENT)
     public int getIconFromDamage(int damageValue) {
-        return Block.blocksList[this.shiftedIndex].getBlockTextureFromSideAndMetadata(2, damageValue);
+        return Block.blocksList[this.itemID].getBlockTextureFromSideAndMetadata(2, damageValue);
     }
 
     @Override

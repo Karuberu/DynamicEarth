@@ -101,7 +101,7 @@ public class ItemVase extends ItemMudMod {
                         }
 
                         if (!player.inventory.addItemStackToInventory(new ItemStack(MudMod.vaseWater))) {
-                            player.dropPlayerItem(new ItemStack(MudMod.vaseWater.shiftedIndex, 1, 0));
+                            player.dropPlayerItem(new ItemStack(MudMod.vaseWater.itemID, 1, 0));
                         }
 
                         return itemStack;

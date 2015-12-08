@@ -9,6 +9,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 import karuberu.mods.mudmod.MudMod;
 import karuberu.mods.mudmod.Reference;
+import karuberu.mods.mudmod.blocks.BlockMudMod.Rate;
 import karuberu.mods.mudmod.client.ITextureOverlay;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -18,6 +19,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.ColorizerFoliage;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.ForgeDirection;
 
 public class BlockPeat extends BlockMudMod implements ITextureOverlay {
@@ -26,7 +28,7 @@ public class BlockPeat extends BlockMudMod implements ITextureOverlay {
 	public final int
 		TEXTURE_OVERLAY_TOP = MudMod.BlockTexture.PEATMOSSYTOPOVERLAY.ordinal(),
 		TEXTURE_OVERLAY_SIDE = MudMod.BlockTexture.PEATMOSSYSIDEOVERLAY.ordinal();
-	protected static final int
+	public static final int
 		META_FULL = 0,
 		META_NONE = 1,
 		META_1EIGHTH = 2,
@@ -152,27 +154,17 @@ public class BlockPeat extends BlockMudMod implements ITextureOverlay {
     		|| super.isHydrated(world, x, y, z);
     }
 	
-    @Override
-    public int getFlammability(IBlockAccess world, int x, int y, int z, int metadata, ForgeDirection face) {
-    	switch(metadata) {
-    	case META_NONE: return 0;
-    	default: return 2;
-    	}
-    }
-    
-    @Override
-    public int getFireSpreadSpeed(World world, int x, int y, int z, int metadata, ForgeDirection face) {
-    	switch(metadata) {
-    	case META_NONE: return 0;
-    	default: return 10;
-    	}
-    }
-    
-    @Override
-    public boolean isFireSource(World world, int x, int y, int z, int metadata, ForgeDirection side) {
-    	switch(metadata) {
-    	case META_NONE: return false;
-    	default: return side == ForgeDirection.UP;
+	@Override
+    protected Rate getDryRateForBiome(BiomeGenBase biome) {
+    	float biomeHumidity = biome.rainfall;
+    	if (biomeHumidity >= 0.9F) {
+    		return Rate.NONE;
+    	} else if (biomeHumidity >= 0.7F) {
+    		return Rate.SLOW;
+    	} else if (biomeHumidity >= 0.5F) {
+    		return Rate.MEDIUM;
+    	} else {
+    		return Rate.QUICK;
     	}
     }
     
@@ -180,7 +172,7 @@ public class BlockPeat extends BlockMudMod implements ITextureOverlay {
     public int idDropped(int metadata, Random random, int par3) {
     	switch (metadata) {
     	case META_NONE: return Block.dirt.blockID;
-    	default: return MudMod.peatClump.shiftedIndex;
+    	default: return MudMod.peatClump.itemID;
     	}
     }
     
