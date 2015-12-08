@@ -9,10 +9,6 @@ public class BlockAdobeStairs extends BlockStairs {
 	protected BlockAdobeStairs(int par1, Block par2Block, int par3) {
 		super(par1, par2Block, par3);
 		this.setLightOpacity(0);
+        this.setTextureFile(MudMod.terrainFile);
 	}
-
-    @Override
-    public String getTextureFile() {
-    	return MudMod.terrainFile;
-    }
 }

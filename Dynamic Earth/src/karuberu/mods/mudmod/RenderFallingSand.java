@@ -3,6 +3,7 @@ package karuberu.mods.mudmod;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 import net.minecraft.src.Block;
+import net.minecraft.src.BlockAnvil;
 import net.minecraft.src.Entity;
 import net.minecraft.src.EntityFallingSand;
 import net.minecraft.src.MathHelper;
@@ -33,12 +34,12 @@ public class RenderFallingSand extends Render
         World world = fallingMud.getWorld();
         this.loadTexture(block.getTextureFile());
 
-        if (block.getRenderType() != 0) {
+        if (block instanceof BlockAnvil && block.getRenderType() == 35) {
             this.renderBlocks.blockAccess = world;
             Tessellator tessellator = Tessellator.instance;
             tessellator.startDrawingQuads();
             tessellator.setTranslation((double)((float)(-MathHelper.floor_double(fallingMud.posX)) - 0.5F), (double)((float)(-MathHelper.floor_double(fallingMud.posY)) - 0.5F), (double)((float)(-MathHelper.floor_double(fallingMud.posZ)) - 0.5F));
-            this.renderBlocks.renderBlockByRenderType(block, MathHelper.floor_double(fallingMud.posX), MathHelper.floor_double(fallingMud.posY), MathHelper.floor_double(fallingMud.posZ));
+            this.renderBlocks.func_85096_a((BlockAnvil)block, MathHelper.floor_double(fallingMud.posX), MathHelper.floor_double(fallingMud.posY), MathHelper.floor_double(fallingMud.posZ), fallingMud.field_70285_b);
             tessellator.setTranslation(0.0D, 0.0D, 0.0D);
             tessellator.draw();
         } else if (block != null) {

@@ -1,5 +1,7 @@
 package karuberu.mods.mudmod;
 
+import cpw.mods.fml.common.Side;
+import cpw.mods.fml.common.asm.SideOnly;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.EnumAction;
@@ -15,11 +17,7 @@ public class ItemVaseMilk extends ItemBucketMilk
         this.setMaxStackSize(1);
         this.setCreativeTab(CreativeTabs.tabMisc);
         this.setContainerItem(MudMod.vase);
-    }
-    
-    @Override
-    public String getTextureFile() {
-    	return MudMod.itemsFile;
+        this.setTextureFile(MudMod.itemsFile);
     }
     
     @Override

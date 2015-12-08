@@ -2,6 +2,9 @@ package karuberu.mods.mudmod;
 
 import java.util.Random;
 
+import cpw.mods.fml.common.Side;
+import cpw.mods.fml.common.asm.SideOnly;
+
 import net.minecraft.src.Block;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EnchantmentHelper;
@@ -21,12 +24,8 @@ public class BlockAdobe extends Block {
         this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
         this.setBlockName("adobeDry");
+        this.setTextureFile(MudMod.terrainFile);
 	}
-	
-    @Override
-    public String getTextureFile() {
-    	return MudMod.terrainFile;
-    }
     
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {

@@ -10,17 +10,12 @@ import net.minecraft.src.Material;
 import net.minecraft.src.MovingObjectPosition;
 import net.minecraft.src.World;
 
-public class ItemAdobeDry extends Item {
+public class ItemAdobeDry extends ItemMudMod {
 
     protected ItemAdobeDry(int par1) {
 		super(par1);
 		this.setCreativeTab(CreativeTabs.tabMaterials);
 	}
-
-    @Override
-    public String getTextureFile() {
-    	return MudMod.itemsFile;
-    }
     
     @Override
 	public boolean onItemUseFirst(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {

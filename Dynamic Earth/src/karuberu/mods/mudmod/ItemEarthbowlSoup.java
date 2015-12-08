@@ -1,5 +1,7 @@
 package karuberu.mods.mudmod;
 
+import cpw.mods.fml.common.Side;
+import cpw.mods.fml.common.asm.SideOnly;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.ItemSoup;
 import net.minecraft.src.ItemStack;
@@ -9,12 +11,8 @@ public class ItemEarthbowlSoup extends ItemSoup {
 
     public ItemEarthbowlSoup(int par1, int par2) {
 		super(par1, par2);
+        this.setTextureFile(MudMod.itemsFile);
 	}
-
-    @Override
-    public String getTextureFile() {
-    	return MudMod.itemsFile;
-    }
     
     @Override
 	public ItemStack onFoodEaten(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer) {

@@ -15,13 +15,8 @@ public class BlockMudBrickWall extends BlockWall {
 
 	public BlockMudBrickWall(int id, Block block) {
 		super(id, block);
+        this.setTextureFile(MudMod.terrainFile);
 	}
-	
-    @Override
-    @SideOnly(Side.CLIENT)
-    public String getTextureFile() {
-    	return MudMod.terrainFile;
-    }
     
     @Override
     @SideOnly(Side.CLIENT)

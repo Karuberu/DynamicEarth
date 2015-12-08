@@ -15,10 +15,6 @@ public class BlockMudBrick extends Block {
 		this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
 		this.setBlockName("blockMudBrick");
+        this.setTextureFile(MudMod.terrainFile);
 	}
-	
-    @Override
-    public String getTextureFile() {
-    	return MudMod.terrainFile;
-    }
 }

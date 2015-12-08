@@ -12,41 +12,36 @@ import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Material;
 
-public class BlockAdobeSlab extends BlockHalfSlab {
+public class BlockDirtSlab extends BlockHalfSlab {
 
-    public static final String[] slabType = new String[] {"adobe", "mudbrick"};
+    public static final String[] slabType = new String[] {"dirt"};
 
-    public BlockAdobeSlab(int par1, boolean par2) {
-		super(par1, par2, Material.rock);
-		this.setHardness(1.5F);
-		this.setResistance(5.0F);
-		this.setStepSound(Block.soundStoneFootstep);
+    public BlockDirtSlab(int par1, boolean par2) {
+		super(par1, par2, Material.ground);
+		this.setHardness(0.5F);
+		this.setStepSound(soundGravelFootstep);
         this.setCreativeTab(CreativeTabs.tabBlock);
-		this.setBlockName("adobeSlab");
+		this.setBlockName("dirtSlab");
         this.setLightOpacity(0);
-        this.setTextureFile(MudMod.terrainFile);
 	}
     
     @Override
     public int getBlockTextureFromSideAndMetadata(int side, int metadata) {
         switch (metadata & 7) {
-            case 0:
-                return MudMod.BlockTexture.ADOBEDRY.ordinal();
-            case 1:
-                return MudMod.BlockTexture.MUDBRICK.ordinal();
+        	case 0: return 2;
             default:
-                return 0;
+                return 2;
         }
     }
     
     @Override
     public int idDropped(int par1, Random par2Random, int par3) {
-        return MudMod.adobeSingleSlab.blockID;
+    	return MudMod.dirtSlab.blockID;
     }
     
     @Override
     protected ItemStack createStackedBlock(int i) {
-        return new ItemStack(MudMod.adobeSingleSlab.blockID, 2, i & 7);
+        return new ItemStack(MudMod.dirtSlab.blockID, 2, i & 7);
     }
     
 	@Override
@@ -61,16 +56,13 @@ public class BlockAdobeSlab extends BlockHalfSlab {
 	@SideOnly(Side.CLIENT)
     public void getSubBlocks(int blockId, CreativeTabs creativeTabs, List list) {
 		int numSubBlocks = this.slabType.length;
-		if (blockId != MudMod.adobeDoubleSlab.blockID) {
-            for (int i = 0; i < numSubBlocks; ++i) {
-                list.add(new ItemStack(blockId, 1, i));
-            }
+        for (int i = 0; i < numSubBlocks; ++i) {
+            list.add(new ItemStack(blockId, 1, i));
         }
     }
 	
     @SideOnly(Side.CLIENT)
-    private static boolean isBlockSingleSlab(int blockId)
-    {
-        return blockId == MudMod.adobeSingleSlab.blockID;
+    private static boolean isBlockSingleSlab(int blockId) {
+        return blockId == MudMod.dirtSlab.blockID;
     }
 }

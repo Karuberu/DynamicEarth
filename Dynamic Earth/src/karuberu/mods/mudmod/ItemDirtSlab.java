@@ -10,16 +10,16 @@ import net.minecraft.src.ItemSlab;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.World;
 
-public class ItemAdobeSlab extends ItemBlock {
+public class ItemDirtSlab extends ItemBlock {
     private final boolean isDoubleSlab;
     private final BlockHalfSlab singleSlab;
-    private final BlockHalfSlab doubleSlab;
+    private final Block doubleSlab;
 	
-    public ItemAdobeSlab(int id) {
+    public ItemDirtSlab(int id) {
 		super(id);
-		this.singleSlab = MudMod.adobeSingleSlab;
-        this.doubleSlab = MudMod.adobeDoubleSlab;
-        if (this.shiftedIndex == MudMod.adobeDoubleSlab.blockID - 256) {
+		this.singleSlab = MudMod.dirtSlab;
+        this.doubleSlab = Block.dirt;
+        if (this.shiftedIndex == this.doubleSlab.blockID - 256) {
             this.isDoubleSlab = true;
         } else  {
 	        this.isDoubleSlab = false;

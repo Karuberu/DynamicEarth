@@ -7,17 +7,12 @@ import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.World;
 
-public class ItemMudBlob extends Item {
+public class ItemMudBlob extends ItemMudMod {
 
 	protected ItemMudBlob(int i) {
 		super(i);
 		this.setCreativeTab(CreativeTabs.tabMaterials);
 	}
-	
-    @Override
-    public String getTextureFile() {
-    	return MudMod.itemsFile;
-    }
     
     public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer player) {
         if (!player.capabilities.isCreativeMode) {

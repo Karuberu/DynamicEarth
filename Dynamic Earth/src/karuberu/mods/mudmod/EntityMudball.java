@@ -28,7 +28,7 @@ public class EntityMudball extends EntityThrowable implements IMob
     @Override
     protected void onImpact(MovingObjectPosition movingObjectPosition) {
         if (movingObjectPosition.entityHit != null) {
-            movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.thrower), 0);
+            movingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.func_85052_h()), 0);
         }
 
         Random rand = new Random();

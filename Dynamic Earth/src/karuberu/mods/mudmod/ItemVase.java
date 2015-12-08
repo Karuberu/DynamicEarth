@@ -22,7 +22,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.Event;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 
-public class ItemVase extends Item implements IDispenserHandler {
+public class ItemVase extends ItemMudMod {
     /** field for checking if the bucket has been filled. */
     private int contents;
 
@@ -32,11 +32,6 @@ public class ItemVase extends Item implements IDispenserHandler {
         this.contents = contents;
         this.setCreativeTab(CreativeTabs.tabMisc);
         this.setContainerItem(MudMod.vase);
-    }
-
-    @Override
-    public String getTextureFile() {
-    	return MudMod.itemsFile;
     }
 
     // Very hacky way to milk a cow without editing the cow class.
@@ -192,23 +187,4 @@ public class ItemVase extends Item implements IDispenserHandler {
             return true;
         }
     }
-
-	@Override
-	public int dispense(int x, int y, int z, int xVelocity, int zVelocity,
-			World world, ItemStack item, Random random, double entX,
-			double entY, double entZ) {
-		if (contents == 0) {
-			Material material = world.getBlockMaterial(x, y, z);
-			if (Material.water.equals(material)) {
-				item.itemID = MudMod.vaseWater.shiftedIndex;
-				world.setBlockWithNotify(x, y, z, 0);
-			}
-			return 0;
-		} else if (this.tryPlaceContainedLiquid(world, entX, entY, entZ, x, y, z)) {
-			item.itemID = MudMod.vase.shiftedIndex;
-			return 0;
-		}
-		return -1;
-	}
-
 }
