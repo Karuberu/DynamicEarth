@@ -11,8 +11,7 @@ import net.minecraft.src.ItemStack;
 import net.minecraft.src.MovingObjectPosition;
 import net.minecraft.src.World;
 
-public class EntityMudball extends EntityThrowable implements IMob
-{
+public class EntityMudball extends EntityThrowable {
     public EntityMudball(World world) {
         super(world);
     }

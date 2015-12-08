@@ -107,7 +107,7 @@ public class ItemVase extends ItemMudMod {
                     if (world.getBlockMaterial(movingObjectPosX, movingObjectPosY, movingObjectPosZ) == Material.water && world.getBlockMetadata(movingObjectPosX, movingObjectPosY, movingObjectPosZ) == 0) {
                         world.setBlockWithNotify(movingObjectPosX, movingObjectPosY, movingObjectPosZ, 0);
 
-                        if (!player.func_82247_a(movingObjectPosX, movingObjectPosY, movingObjectPosZ, movingObjectPosition.sideHit, itemStack)) {
+                        if (!player.canPlayerEdit(movingObjectPosX, movingObjectPosY, movingObjectPosZ, movingObjectPosition.sideHit, itemStack)) {
                             return itemStack;
                         }
                         
@@ -155,7 +155,7 @@ public class ItemVase extends ItemMudMod {
                         ++movingObjectPosX;
                     }
 
-                    if (!player.func_82247_a(movingObjectPosX, movingObjectPosY, movingObjectPosZ, movingObjectPosition.sideHit, itemStack)) {
+                    if (!player.canPlayerEdit(movingObjectPosX, movingObjectPosY, movingObjectPosZ, movingObjectPosition.sideHit, itemStack)) {
                         return itemStack;
                     }
 

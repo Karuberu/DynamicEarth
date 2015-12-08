@@ -37,6 +37,7 @@ public class ClientProxy extends CommonProxy {
         LanguageRegistry.addName(MudMod.earthbowlRaw, "Unfired Bowl");
         LanguageRegistry.addName(MudMod.earthbowl, "Earthenware Bowl");
         LanguageRegistry.addName(MudMod.earthbowlSoup, "Mushroom Stew");
+        LanguageRegistry.addName(MudMod.bomb, "Handbomb");
 	}
 	
 	@Override
@@ -50,5 +51,6 @@ public class ClientProxy extends CommonProxy {
         MinecraftForgeClient.preloadTexture(MudMod.itemsFile);
 		RenderingRegistry.registerEntityRenderingHandler(EntityMudball.class, new RenderMudball(MudMod.itemsFile, MudMod.ItemIcon.MUDBLOB.ordinal()));
 		RenderingRegistry.registerEntityRenderingHandler(EntityFallingSand.class, new RenderFallingSand());
+		RenderingRegistry.registerEntityRenderingHandler(EntityBomb.class, new RenderMudball(MudMod.itemsFile, MudMod.ItemIcon.EARTHBOWL.ordinal()));
  	}
 }

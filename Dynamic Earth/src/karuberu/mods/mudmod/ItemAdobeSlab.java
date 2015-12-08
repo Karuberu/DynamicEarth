@@ -50,7 +50,7 @@ public class ItemAdobeSlab extends ItemBlock {
             return super.onItemUse(itemStack, player, world, x, y, z, side, hitX, hitY, hitZ);
         } else if (itemStack.stackSize == 0) {
             return false;
-        } else if (!player.func_82247_a(x, y, z, side, itemStack)) {
+        } else if (!player.canPlayerEdit(x, y, z, side, itemStack)) {
             return false;
         } else {
             int blockId = world.getBlockId(x, y, z);

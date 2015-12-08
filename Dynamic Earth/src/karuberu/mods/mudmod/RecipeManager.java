@@ -228,6 +228,12 @@ public class RecipeManager {
 				MudMod.earthbowl, Block.mushroomBrown, Block.mushroomRed
 			}
 		);
+	    GameRegistry.addShapelessRecipe(
+			new ItemStack(MudMod.bomb),
+			new Object[] {
+				MudMod.earthbowl, MudMod.earthbowl, Item.gunpowder, Item.silk
+			}
+		);
 	    CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(
 	    	Item.cake,
 			true,

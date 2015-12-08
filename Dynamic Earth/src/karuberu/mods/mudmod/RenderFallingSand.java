@@ -39,12 +39,12 @@ public class RenderFallingSand extends Render
             Tessellator tessellator = Tessellator.instance;
             tessellator.startDrawingQuads();
             tessellator.setTranslation((double)((float)(-MathHelper.floor_double(fallingMud.posX)) - 0.5F), (double)((float)(-MathHelper.floor_double(fallingMud.posY)) - 0.5F), (double)((float)(-MathHelper.floor_double(fallingMud.posZ)) - 0.5F));
-            this.renderBlocks.func_85096_a((BlockAnvil)block, MathHelper.floor_double(fallingMud.posX), MathHelper.floor_double(fallingMud.posY), MathHelper.floor_double(fallingMud.posZ), fallingMud.field_70285_b);
+            this.renderBlocks.func_85096_a((BlockAnvil)block, MathHelper.floor_double(fallingMud.posX), MathHelper.floor_double(fallingMud.posY), MathHelper.floor_double(fallingMud.posZ), fallingMud.metadata);
             tessellator.setTranslation(0.0D, 0.0D, 0.0D);
             tessellator.draw();
         } else if (block != null) {
             this.renderBlocks.func_83018_a(block);
-            this.renderBlocks.func_78588_a(block, world, MathHelper.floor_double(fallingMud.posX), MathHelper.floor_double(fallingMud.posY), MathHelper.floor_double(fallingMud.posZ), fallingMud.field_70285_b);
+            this.renderBlocks.func_78588_a(block, world, MathHelper.floor_double(fallingMud.posX), MathHelper.floor_double(fallingMud.posY), MathHelper.floor_double(fallingMud.posZ), fallingMud.metadata);
         }
 
         GL11.glEnable(GL11.GL_LIGHTING);

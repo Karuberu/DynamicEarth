@@ -50,7 +50,7 @@ public class ItemAdobeDry extends ItemMudMod {
                 int y = movingObjectPos.blockY;
                 int z = movingObjectPos.blockZ;
 
-                if (!player.func_82247_a(x, y, z, movingObjectPos.sideHit, itemStack)) {
+                if (!player.canPlayerEdit(x, y, z, movingObjectPos.sideHit, itemStack)) {
                     return itemStack;
                 }
                 

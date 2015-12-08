@@ -64,7 +64,8 @@ public class MudMod {
     	vaseMilk,
     	earthbowl,
     	earthbowlRaw,
-    	earthbowlSoup;
+    	earthbowlSoup,
+    	bomb;
 	public static ItemVase
 		vase,
 		vaseWater;
@@ -111,7 +112,8 @@ public class MudMod {
 		ITEMID_VASEMILK				= ITEMID_VASEWATER+1,
 		ITEMID_EARTHBOWLRAW			= ITEMID_VASEMILK+1,
 		ITEMID_EARTHBOWL			= ITEMID_EARTHBOWLRAW+1,
-		ITEMID_EARTHBOWLSOUP		= ITEMID_EARTHBOWL+1;
+		ITEMID_EARTHBOWLSOUP		= ITEMID_EARTHBOWL+1,
+		ITEMID_BOMB					= ITEMID_EARTHBOWLSOUP+1;
 
 	public static String
 		terrainFile = "/karuberu/mods/mudmod/mudTerrain.png",
@@ -134,7 +136,7 @@ public class MudMod {
 		BLOCKID_ADOBESTAIRS		= config.getBlock("AdobeStairs", BLOCKID_ADOBESTAIRS).getInt();
 		BLOCKID_MUDBRICKSTAIRS	= config.getBlock("MudBrickStairs", BLOCKID_MUDBRICKSTAIRS).getInt();
 		BLOCKID_MUDBRICKWALL	= config.getBlock("MudBrickWall", BLOCKID_MUDBRICKWALL).getInt();
-		BLOCKID_DIRTSLAB	= config.getBlock("DirtSlab", BLOCKID_DIRTSLAB).getInt();
+		BLOCKID_DIRTSLAB		= config.getBlock("DirtSlab", BLOCKID_DIRTSLAB).getInt();
 		ITEMID_MUDBLOB			= config.getItem("MudBlob", ITEMID_MUDBLOB).getInt();
 		ITEMID_MUDBRICK			= config.getItem("MudBrick", ITEMID_MUDBRICK).getInt();
 		ITEMID_ADOBEDUST		= config.getItem("AdobeDust", ITEMID_ADOBEDUST).getInt();
@@ -146,6 +148,7 @@ public class MudMod {
 		ITEMID_EARTHBOWLRAW		= config.getItem("EarthbowlRaw", ITEMID_EARTHBOWLRAW).getInt();
 		ITEMID_EARTHBOWL		= config.getItem("Earthbowl", ITEMID_EARTHBOWL).getInt();
 		ITEMID_EARTHBOWLSOUP	= config.getItem("EarthbowlSoup", ITEMID_EARTHBOWLSOUP).getInt();
+		ITEMID_BOMB				= config.getItem("Bomb", ITEMID_BOMB).getInt();
 		config.save();
 	}
 	
@@ -173,6 +176,7 @@ public class MudMod {
 	    earthbowlRaw = (new ItemMudMod(ITEMID_EARTHBOWLRAW)).setIconCoord(ItemIcon.EARTHBOWLRAW.ordinal(), 0).setItemName("earthbowlRaw").setMaxStackSize(16);
 	    earthbowl = (new ItemEarthbowl(ITEMID_EARTHBOWL)).setIconCoord(ItemIcon.EARTHBOWL.ordinal(), 0).setItemName("earthbowl");
 	    earthbowlSoup = (new ItemEarthbowlSoup(ITEMID_EARTHBOWLSOUP, 8)).setIconCoord(ItemIcon.EARTHBOWLSOUP.ordinal(), 0).setItemName("earthbowlSoup");
+	    bomb = (new ItemBomb(ITEMID_BOMB)).setIconCoord(ItemIcon.EARTHBOWL.ordinal(), 0).setItemName("bomb");
         GameRegistry.registerBlock(mud);
         GameRegistry.registerBlock(permafrost);
         GameRegistry.registerBlock(adobeWet);
@@ -189,6 +193,7 @@ public class MudMod {
         BlockDispenser.dispenseBehaviorRegistry.putObject(mudBlob, new BehaviorMudballDispense());
         EntityRegistry.registerModEntity(EntityMudball.class, "mudball", 0, this, 250, 1, true);
         EntityRegistry.registerModEntity(EntityClayGolem.class, "clayGolem", 1, this, 250, 5, true);
+        EntityRegistry.registerModEntity(EntityBomb.class, "bomb", 2, this, 250, 1, true);
         CommonProxy.proxy.registerNames();
         CommonProxy.proxy.registerLocalizations();
         CommonProxy.proxy.registerRenderInformation();
