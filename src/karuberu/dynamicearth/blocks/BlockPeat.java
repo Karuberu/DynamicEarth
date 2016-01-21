@@ -32,7 +32,7 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.ForgeDirection;
 
-public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITillable, IVanillaReplaceable {
+public class BlockPeat extends BlockDynamicEarthWet implements ITextureOverlay, ITillable, IVanillaReplaceable {
 	
 	public static final int
 		WET = 0,
@@ -65,10 +65,9 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
     public static CreativeTabs
 		creativeTab = CreativeTabs.tabBlock;
 	
-	public BlockPeat(int id) {
-		super(id, Material.ground);
+	public BlockPeat(String unlocalizedName) {
+		super(unlocalizedName, Material.ground);
 		this.setHardness(0.4F);
-        this.setUnlocalizedName("peat");
 		this.setStepSound(Block.soundGravelFootstep);
         this.setCreativeTab(creativeTab);
         this.setHydrateRadius(2);
@@ -291,6 +290,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 		}
 	}
 	
+	@Override
 	protected void becomeDry(World world, int x, int y, int z) {
 		int metadata = world.getBlockMetadata(x, y, z);
 		switch(metadata) {
@@ -302,6 +302,7 @@ public class BlockPeat extends BlockDynamicEarth implements ITextureOverlay, ITi
 		world.setBlock(x, y, z, DynamicEarth.peat.blockID, metadata, Helper.NOTIFY_AND_UPDATE_REMOTE);
 	}
 	
+	@Override
 	protected void becomeWet(World world, int x, int y, int z) {
 		int metadata = world.getBlockMetadata(x, y, z);
 		switch(metadata) {

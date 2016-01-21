@@ -7,16 +7,15 @@ import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 
-public class BlockAdobeWet extends BlockDynamicEarth {
+public class BlockAdobeWet extends BlockDynamicEarthWet {
 	public static CreativeTabs
 		creativeTab = CreativeTabs.tabBlock;
     
-	public BlockAdobeWet(int id) {
-		super(id, Material.ground);
+	public BlockAdobeWet(String unlocalizedName) {
+		super(unlocalizedName, Material.ground);
 		this.setHardness(0.5F);
 		this.setStepSound(Block.soundGravelFootstep);
         this.setCreativeTab(creativeTab);
-		this.setUnlocalizedName("adobeWet");
         this.setTickRandomly(true);
         this.setHydrateRadius(2, 1, 2);
         this.setTextureName(BlockTexture.ADOBEWET.getIconPath());

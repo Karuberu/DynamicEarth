@@ -1,4 +1,4 @@
-package karuberu.dynamicearth.plugins;
+package karuberu.dynamicearth.api;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 

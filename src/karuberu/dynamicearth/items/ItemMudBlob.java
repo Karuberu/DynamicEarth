@@ -12,7 +12,6 @@ import karuberu.core.util.client.fx.FXHelper;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.api.IItemStackHandler;
 import karuberu.dynamicearth.client.TextureManager.ItemIcon;
-import karuberu.dynamicearth.client.fx.FXManager;
 
 public class ItemMudBlob extends ItemClump implements IItemStackHandler {
 	public static final int
@@ -22,10 +21,9 @@ public class ItemMudBlob extends ItemClump implements IItemStackHandler {
 	public static final String
 		TAG_SPECIAL = "SpecialExpiration";
 	
-	public ItemMudBlob(int id, ItemIcon icon) {
-		super(id, icon);
+	public ItemMudBlob(String unlocalizedName, ItemIcon icon) {
+		super(unlocalizedName, icon);
 		this.setHasSubtypes(true);
-		this.setUnlocalizedName("mudBlob");
 		this.setThrowable(true);
 	}
 	

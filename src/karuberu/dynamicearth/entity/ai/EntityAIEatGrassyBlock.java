@@ -41,17 +41,20 @@ public class EntityAIEatGrassyBlock extends EntityAIBase {
         }
     }
 
-    public void startExecuting() {
+    @Override
+	public void startExecuting() {
         this.eatGrassTick = 40;
         this.theWorld.setEntityState(this.theEntity, (byte)10);
         this.theEntity.getNavigator().clearPathEntity();
     }
 
-    public void resetTask() {
+    @Override
+	public void resetTask() {
         this.eatGrassTick = 0;
     }
 
-    public boolean continueExecuting() {
+    @Override
+	public boolean continueExecuting() {
         return this.eatGrassTick > 0;
     }
 
@@ -59,7 +62,8 @@ public class EntityAIEatGrassyBlock extends EntityAIBase {
         return this.eatGrassTick;
     }
     
-    public void updateTask() {
+    @Override
+	public void updateTask() {
         this.eatGrassTick = Math.max(0, this.eatGrassTick - 1);
         if (this.eatGrassTick == 4) {
             int x = MathHelper.floor_double(this.theEntity.posX);

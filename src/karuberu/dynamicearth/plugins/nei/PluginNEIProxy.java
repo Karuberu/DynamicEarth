@@ -2,10 +2,10 @@ package karuberu.dynamicearth.plugins.nei;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import karuberu.dynamicearth.plugins.IDynamicEarthPlugin;
+import karuberu.core.util.plugin.IPlugin;
 import karuberu.dynamicearth.plugins.PluginHandler;
 
-public class PluginNEIProxy implements IDynamicEarthPlugin {
+public class PluginNEIProxy implements IPlugin {
 
 	@Override
 	public String getName() {
@@ -14,7 +14,7 @@ public class PluginNEIProxy implements IDynamicEarthPlugin {
 
 	@Override
 	public String getErrorReportRequestMessage() {
-		return PluginHandler.pleaseNotify;
+		return PluginHandler.instance.getErrorReportRequestMessage();
 	}
 
 	@Override

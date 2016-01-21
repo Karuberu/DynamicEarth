@@ -55,7 +55,7 @@ public class RenderFallingBlock extends Render {
 			this.renderBlocks.blockAccess = world;
 			tessellator = Tessellator.instance;
 			tessellator.startDrawingQuads();
-			tessellator.setTranslation((double)((float)(-MathHelper.floor_double(entityFallingBlock.posX)) - 0.5F), (double)((float)(-MathHelper.floor_double(entityFallingBlock.posY)) - 0.5F), (double)((float)(-MathHelper.floor_double(entityFallingBlock.posZ)) - 0.5F));
+			tessellator.setTranslation((-MathHelper.floor_double(entityFallingBlock.posX)) - 0.5F, (-MathHelper.floor_double(entityFallingBlock.posY)) - 0.5F, (-MathHelper.floor_double(entityFallingBlock.posZ)) - 0.5F);
 			this.renderBlocks.renderBlockAnvilMetadata((BlockAnvil)block, MathHelper.floor_double(entityFallingBlock.posX), MathHelper.floor_double(entityFallingBlock.posY), MathHelper.floor_double(entityFallingBlock.posZ), entityFallingBlock.metadata);
 			tessellator.setTranslation(0.0D, 0.0D, 0.0D);
 			tessellator.draw();
@@ -63,7 +63,7 @@ public class RenderFallingBlock extends Render {
 			this.renderBlocks.blockAccess = world;
 			tessellator = Tessellator.instance;
 			tessellator.startDrawingQuads();
-			tessellator.setTranslation((double)((float)(-MathHelper.floor_double(entityFallingBlock.posX)) - 0.5F), (double)((float)(-MathHelper.floor_double(entityFallingBlock.posY)) - 0.5F), (double)((float)(-MathHelper.floor_double(entityFallingBlock.posZ)) - 0.5F));
+			tessellator.setTranslation((-MathHelper.floor_double(entityFallingBlock.posX)) - 0.5F, (-MathHelper.floor_double(entityFallingBlock.posY)) - 0.5F, (-MathHelper.floor_double(entityFallingBlock.posZ)) - 0.5F);
 			this.renderBlocks.renderBlockDragonEgg((BlockDragonEgg)block, MathHelper.floor_double(entityFallingBlock.posX), MathHelper.floor_double(entityFallingBlock.posY), MathHelper.floor_double(entityFallingBlock.posZ));
 			tessellator.setTranslation(0.0D, 0.0D, 0.0D);
 			tessellator.draw();
@@ -89,9 +89,9 @@ public class RenderFallingBlock extends Render {
 
 //		int colorMultiplier = block.colorMultiplier(world, x, y, z);
 		int colorMultiplier = block.getBlockColor();
-		float r = (float)(colorMultiplier >> 16 & 255) / 255.0F;
-		float g = (float)(colorMultiplier >> 8 & 255) / 255.0F;
-		float b = (float)(colorMultiplier & 255) / 255.0F;
+		float r = (colorMultiplier >> 16 & 255) / 255.0F;
+		float g = (colorMultiplier >> 8 & 255) / 255.0F;
+		float b = (colorMultiplier & 255) / 255.0F;
 		double pos = -0.5D;
 		Icon texture;
 		int numberOfPasses = 1 + textureOverlay.getNumberOfAdditionalRenderPasses(metadata);

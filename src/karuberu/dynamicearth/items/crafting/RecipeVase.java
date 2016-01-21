@@ -55,7 +55,7 @@ public class RecipeVase implements IRecipe {
 		if (vase == null) {
 			return false;
 		} else {
-			FluidStack vaseContents = ItemVase.getFluidStack(vase.getItemDamage());
+			FluidStack vaseContents = DynamicEarth.vase.getFluidStack(vase.getItemDamage());
 			if (container != null && vaseContents != null) {
 				ItemStack filledContainer = FluidContainerRegistry.fillFluidContainer(vaseContents, container);
 				if (filledContainer != null
@@ -90,7 +90,7 @@ public class RecipeVase implements IRecipe {
 				liquid.writeToNBT(tagCompound);
 				this.result = vase.copy();
 				this.result.setTagCompound(tagCompound);
-				this.result.setItemDamage(ItemVase.getDamage(liquid));
+				this.result.setItemDamage(DynamicEarth.vase.getDamage(liquid));
 				return true;
 			}
 		}

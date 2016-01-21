@@ -6,10 +6,11 @@ import java.util.Random;
 import karuberu.core.event.INeighborBlockEventHandler;
 import karuberu.core.event.NeighborBlockChangeEvent;
 import karuberu.core.util.Coordinates;
+import karuberu.core.util.GameruleHelper;
 import karuberu.core.util.Helper;
 import karuberu.core.util.block.BlockSide;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.GameruleHelper;
+import karuberu.dynamicearth.GameruleManager;
 import karuberu.dynamicearth.api.ITillable;
 import karuberu.dynamicearth.api.fallingblock.BlockFalling;
 import karuberu.dynamicearth.api.fallingblock.IFallingBlock;
@@ -71,12 +72,11 @@ public class BlockMud extends BlockSoil implements IMudBlock, IGrassyBlock, IFal
     public static CreativeTabs
 		creativeTab = CreativeTabs.tabBlock;
 	
-	public BlockMud(int id) {
-		super(id);
+	public BlockMud(String unlocalizedName) {
+		super(unlocalizedName);
 		this.setHardness(0.5F);
 		this.setStepSound(Block.soundGravelFootstep);
 		this.setCreativeTab(creativeTab);
-		this.setUnlocalizedName("mud");
 		this.setHydrateRadius(2, 1, 4, 2);
 	}
 	
@@ -352,7 +352,7 @@ public class BlockMud extends BlockSoil implements IMudBlock, IGrassyBlock, IFal
 			return;
 		}
 		int metadata = world.getBlockMetadata(x, y, z);
-		if (GameruleHelper.doMudTick(world)) {
+		if (GameruleManager.doMudTick(world)) {
 			if (this.isWetBlock(metadata)) {
 				super.updateTick(world, x, y, z, random);
 				if (this.isHydrated(world, x, y, z)) {
@@ -390,7 +390,7 @@ public class BlockMud extends BlockSoil implements IMudBlock, IGrassyBlock, IFal
 		if (!world.isRemote
 		&& this.isType(world, x, y, z, GrassType.MYCELIUM, GrassType.GRASS)) {
 			if (!(entity instanceof EntityPlayer)
-			&& !GameruleHelper.mobGriefing(world)) {
+			&& !GameruleHelper.mobGriefingEnabled(world)) {
 				return;
 			}
 			ItemStack itemStack = this.getBlockForType(world, x, y, z, GrassType.DIRT);
@@ -461,7 +461,7 @@ public class BlockMud extends BlockSoil implements IMudBlock, IGrassyBlock, IFal
 				return true;
 			}
 			if (!world.isAirBlock(x, yi, z)
-			&& !BlockDynamicEarth.isBlockWet(world, x, yi, z)
+			&& !BlockDynamicEarthWet.isBlockWet(world, x, yi, z)
 			&& !this.isWetBlock(world, x, yi, z, metadata)) {
 				return false;
 			}
@@ -572,7 +572,7 @@ public class BlockMud extends BlockSoil implements IMudBlock, IGrassyBlock, IFal
 		}
 		// If the block is under another block or is sitting on a block that isn't air or a wet block, stop sliding.
 		if (!world.isAirBlock(x, y + 1, z)
-		|| !(world.isAirBlock(x, y - 1, z) || BlockDynamicEarth.isBlockWet(world, x, y - 1, z))) {
+		|| !(world.isAirBlock(x, y - 1, z) || BlockDynamicEarthWet.isBlockWet(world, x, y - 1, z))) {
 			return;
 		}
 		Coordinates[] surroundingBlocks = Coordinates.getSurroundingBlockCoords(x, y, z);
@@ -772,7 +772,7 @@ public class BlockMud extends BlockSoil implements IMudBlock, IGrassyBlock, IFal
 		
 	public static void tryToForm(World world, int x, int y, int z) {
 		if (world.getBlockId(x, y, z) == Block.dirt.blockID
-		&& BlockDynamicEarth.willBlockHydrate(world, x, y, z, 1, 0, 1, 1)) {
+		&& BlockDynamicEarthWet.willBlockHydrate(world, x, y, z, 1, 0, 1, 1)) {
 			world.setBlock(x, y, z, DynamicEarth.mud.blockID, DynamicEarth.mud.NORMAL, Helper.NOTIFY_AND_UPDATE_REMOTE);
 		}
 	}

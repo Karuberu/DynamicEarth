@@ -1,5 +1,6 @@
 package karuberu.dynamicearth.plugins;
 
+import karuberu.core.util.plugin.IPlugin;
 import karuberu.dynamicearth.DynamicEarth;
 import mods.KBIgravelore.api.CustomSifterDropAPI;
 import mods.KBIgravelore.api.GravelDropAPI;
@@ -8,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-public class PluginEnrichedGravel implements IDynamicEarthPlugin {
+public class PluginEnrichedGravel implements IPlugin {
 
 	@Override
 	public String getName() {
@@ -17,7 +18,7 @@ public class PluginEnrichedGravel implements IDynamicEarthPlugin {
 
 	@Override
 	public String getErrorReportRequestMessage() {
-		return PluginHandler.pleaseNotify;
+		return PluginHandler.instance.getErrorReportRequestMessage();
 	}
 
 	@Override

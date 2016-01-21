@@ -10,9 +10,8 @@ public class BlockGlowingSoil extends BlockSoil {
 	public static final int
 		LIGHT_LEVEL = 13;
 	
-	public BlockGlowingSoil(int id) {
-		super(id);
-		this.setUnlocalizedName("glowingSoil");
+	public BlockGlowingSoil(String unlocalizedName) {
+		super(unlocalizedName);
 	}
 
 	@Override

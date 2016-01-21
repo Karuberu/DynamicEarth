@@ -14,9 +14,8 @@ import net.minecraftforge.common.IPlantable;
 
 public class BlockFertileSoil extends BlockSoil {
 	
-	public BlockFertileSoil(int id) {
-		super(id);
-		this.setUnlocalizedName("fertileSoil");
+	public BlockFertileSoil(String unlocalizedName) {
+		super(unlocalizedName);
 	}
 	
 	@Override

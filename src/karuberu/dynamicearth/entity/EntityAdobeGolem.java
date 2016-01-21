@@ -30,7 +30,7 @@ public class EntityAdobeGolem extends EntityIronGolem {
         boolean entityDamaged = entity.attackEntityFrom(DamageSource.causeMobDamage(this), 5);
 
         if (entityDamaged) {
-            entity.motionY += 0.2000000059604645D;
+            entity.motionY += 0.2D;
         }
         
         this.worldObj.playSoundAtEntity(this, "mob.irongolem.throw", 1.0F, 1.0F);
@@ -51,6 +51,7 @@ public class EntityAdobeGolem extends EntityIronGolem {
 		}
 	}
 	
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void handleHealthUpdate(byte status) {
 		if (status == 4) {

@@ -7,7 +7,6 @@ import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -17,7 +16,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockAdobeSlab extends BlockHalfSlab {
+public class BlockAdobeSlab extends BlockDynamicHalfSlab {
 	
 	public static final int
 		ADOBE = 0,
@@ -27,14 +26,12 @@ public class BlockAdobeSlab extends BlockHalfSlab {
     public static CreativeTabs
     	creativeTab = CreativeTabs.tabBlock;
 
-    public BlockAdobeSlab(int id, boolean par2) {
-		super(id, par2, Material.rock);
+    public BlockAdobeSlab(String unlocalizedName, boolean par2) {
+		super(unlocalizedName, par2, Material.rock);
 		this.setHardness(1.5F);
 		this.setResistance(5.0F);
 		this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(creativeTab);
-		this.setUnlocalizedName("adobeSlab");
-        Block.useNeighborBrightness[id] = true;
 	}
     
 	@Override

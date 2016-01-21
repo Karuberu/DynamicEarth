@@ -7,20 +7,19 @@ import karuberu.dynamicearth.DynamicEarth;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemAdobeSlab extends ItemBlock {
+public class ItemAdobeSlab extends ItemBlockDynamicEarth {
 	private final boolean isDoubleSlab;
 	private final BlockHalfSlab singleSlab;
 	private final BlockHalfSlab doubleSlab;
 
-	public ItemAdobeSlab(int id) {
-		super(id);
+	public ItemAdobeSlab(String unlocalizedName) {
+		super(unlocalizedName);
 		this.singleSlab = DynamicEarth.adobeSingleSlab;
 		this.doubleSlab = DynamicEarth.adobeDoubleSlab;
 		if (this.itemID == DynamicEarth.adobeDoubleSlab.blockID - 256) {

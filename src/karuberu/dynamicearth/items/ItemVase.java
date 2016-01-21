@@ -3,12 +3,13 @@ package karuberu.dynamicearth.items;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import karuberu.core.util.FluidHelper;
+import karuberu.core.util.FluidHelper.FluidReference;
 import karuberu.core.util.Helper;
 import karuberu.core.util.block.BlockSide;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.client.TextureManager.ItemIcon;
-import karuberu.dynamicearth.fluids.FluidHelper;
-import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
+import karuberu.dynamicearth.fluids.FluidColorRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -33,7 +34,7 @@ import net.minecraftforge.fluids.FluidStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemVase extends Item {
+public class ItemVase extends ItemDynamicEarth {
 	public static int
 		capacity = 1000,
 		maxTemperature = 440,
@@ -56,46 +57,28 @@ public class ItemVase extends Item {
 		AMOUNT = "amount",
 		CRAFTING_DRAIN = "craftingDrain";
 
-	public ItemVase(int id) {
-		super(id);
+	public ItemVase(String unlocalizedName) {
+		super(unlocalizedName, null);
 		this.setCreativeTab(creativeTab);
 		this.setMaxStackSize(1);
 		this.setNoRepair();
 	}
-
+	
 	@Override
-	public String getItemDisplayName(ItemStack itemStack) {
-		StringBuilder builder = new StringBuilder();
-		builder.append(super.getItemDisplayName(itemStack));
-		FluidStack liquid = ItemVase.getFluidStack(itemStack.getItemDamage());
-		if (liquid != null) {
-			String name = liquid.getFluid().getLocalizedName();
-			if (name != null) {
-				if (name.contains("fluid.")) {
-					name = liquid.getFluid().getName();
-				}
-				builder.append(" of ");
-				String[] words = name.split(" ");
-				for (String word : words) {
-					builder.append(Character.toUpperCase(word.charAt(0)));
-					builder.append(word.substring(1));
-					builder.append(" ");
-				}
-				if (words.length > 1) {
-					builder.deleteCharAt(builder.length() - 1);
-				}
-			}
-		} else if (itemStack.getItemDamage() > 0) {
-			builder.append(" of Unknown Liquid");
+	public String getUnlocalizedName(ItemStack itemStack) {
+		FluidStack fluidStack = this.getFluidStack(itemStack);
+		if (fluidStack == null) {
+			return super.getUnlocalizedName(itemStack);
+		} else {
+			return super.getUnlocalizedName() + "." + fluidStack.getFluid().getName();
 		}
-		return builder.toString();
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void addInformation(ItemStack itemStack, EntityPlayer player, List information, boolean bool) {
-		FluidStack fluidStack = ItemVase.getFluidStack(itemStack.getItemDamage());
+		FluidStack fluidStack = this.getFluidStack(itemStack.getItemDamage());
 		if (fluidStack != null && fluidStack.getFluid() != null) {
 			if (Helper.usingAdvancedTooltips()) {
 				information.add("Fluid: " + fluidStack.getFluid().getName());
@@ -134,10 +117,10 @@ public class ItemVase extends Item {
 
 	@Override
 	public Icon getIconFromDamageForRenderPass(int damage, int renderPass) {
-		FluidStack liquid = ItemVase.getFluidStack(damage);
+		FluidStack liquid = this.getFluidStack(damage);
 		if (liquid == null && damage == 0) {
 			return this.vaseIcon;
-		} else if (FluidHelper.getFluidColor(liquid) != FluidHelper.UNDEFINED_COLOR) {
+		} else if (FluidHelper.getFluidColor(liquid) != FluidColorRegistry.UNDEFINED_COLOR) {
 			if (renderPass == 0) {
 				return this.vaseIcon;
 			} else {
@@ -152,10 +135,10 @@ public class ItemVase extends Item {
 	@SideOnly(Side.CLIENT)
 	public int getColorFromItemStack(ItemStack itemStack, int renderPass) {
 		if (renderPass > 0) {
-			FluidStack fluidStack = ItemVase.getFluidStack(itemStack.getItemDamage());
+			FluidStack fluidStack = this.getFluidStack(itemStack.getItemDamage());
 			return FluidHelper.getFluidColor(fluidStack);
 		}
-		return FluidHelper.UNDEFINED_COLOR;
+		return FluidColorRegistry.UNDEFINED_COLOR;
 	}
 
 	@Override
@@ -171,7 +154,7 @@ public class ItemVase extends Item {
 		} else {
 			String fluidName = tagCompound.getString(FLUID);
 			int amount = tagCompound.getInteger(AMOUNT);
-			int actualDamage = ItemVase.getDamage(FluidRegistry.getFluid(fluidName), amount);
+			int actualDamage = this.getDamage(FluidRegistry.getFluid(fluidName), amount);
 			if (damage != actualDamage) {
 				this.setDamage(itemStack, actualDamage);
 			}
@@ -183,7 +166,7 @@ public class ItemVase extends Item {
 	@Override
 	public void setDamage(ItemStack itemStack, int damage) {
 		NBTTagCompound tagCompound = itemStack.hasTagCompound() ? itemStack.getTagCompound() : new NBTTagCompound();
-		FluidStack fluidStack = ItemVase.getFluidStack(damage);
+		FluidStack fluidStack = this.getFluidStack(damage);
 		if (fluidStack != null && fluidStack.getFluid() != null) {
 			tagCompound.setString(FLUID, fluidStack.getFluid().getName());
 			tagCompound.setInteger(AMOUNT, fluidStack.amount);
@@ -202,7 +185,7 @@ public class ItemVase extends Item {
 
 	@Override
 	public boolean doesContainerItemLeaveCraftingGrid(ItemStack itemStack) {
-		FluidStack contents = ItemVase.getFluidStack(itemStack.getItemDamage());
+		FluidStack contents = this.getFluidStack(itemStack.getItemDamage());
 		if (contents != null) {
 			return false;
 		}
@@ -213,13 +196,13 @@ public class ItemVase extends Item {
 	public ItemStack getContainerItemStack(ItemStack itemStack) {
 		if (itemStack.hasTagCompound()) {
 			NBTTagCompound tagCompound = itemStack.getTagCompound();
-			FluidStack contents = ItemVase.getFluidStack(itemStack.getItemDamage());
+			FluidStack contents = this.getFluidStack(itemStack.getItemDamage());
 			if (contents != null) {
 				if (tagCompound.hasKey(CRAFTING_DRAIN)) {
 					contents.amount -= tagCompound.getInteger(CRAFTING_DRAIN);
 					tagCompound.removeTag(CRAFTING_DRAIN);
 					itemStack.setTagCompound(tagCompound);
-					itemStack.setItemDamage(ItemVase.getDamage(contents));
+					itemStack.setItemDamage(this.getDamage(contents));
 				} else {
 					itemStack.setItemDamage(0);
 				}
@@ -232,7 +215,7 @@ public class ItemVase extends Item {
 
 	@Override
 	public int getMaxItemUseDuration(ItemStack itemStack) {
-		FluidStack contents = ItemVase.getFluidStack(itemStack.getItemDamage());
+		FluidStack contents = this.getFluidStack(itemStack.getItemDamage());
 		if (contents != null) {
 			if (contents.containsFluid(FluidReference.MILK.getBucketVolumeStack())
 			|| contents.containsFluid(FluidReference.SOUP.getBowlVolumeStack())) {
@@ -244,7 +227,7 @@ public class ItemVase extends Item {
 
 	@Override
 	public EnumAction getItemUseAction(ItemStack itemStack) {
-		FluidStack contents = ItemVase.getFluidStack(itemStack.getItemDamage());
+		FluidStack contents = this.getFluidStack(itemStack.getItemDamage());
 		if (contents != null) {
 			if (contents.containsFluid(FluidReference.MILK.getBucketVolumeStack())
 			|| contents.containsFluid(FluidReference.SOUP.getBowlVolumeStack())) {
@@ -257,7 +240,7 @@ public class ItemVase extends Item {
 	@Override
 	public boolean onItemUseFirst(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
 		if (world.getBlockId(x, y, z) == Block.cauldron.blockID) {
-			FluidStack contents = ItemVase.getFluidStack(itemStack.getItemDamage());
+			FluidStack contents = this.getFluidStack(itemStack.getItemDamage());
 			int cauldronMeta = world.getBlockMetadata(x, y, z);
 			if (cauldronMeta < 3
 			&& contents != null
@@ -271,7 +254,7 @@ public class ItemVase extends Item {
 					world.setBlockMetadataWithNotify(x, y, z, filledMeta, Helper.NOTIFY_AND_UPDATE_REMOTE);
 					if (!player.capabilities.isCreativeMode) {
 						contents.amount -= (filledMeta - cauldronMeta) * 250;
-						itemStack.setItemDamage(ItemVase.getDamage(contents));
+						itemStack.setItemDamage(this.getDamage(contents));
 					}
 				}
 			} else if (cauldronMeta > 0
@@ -292,7 +275,7 @@ public class ItemVase extends Item {
 						}
 					}
 					world.setBlockMetadataWithNotify(x, y, z, emptiedMeta, Helper.NOTIFY_AND_UPDATE_REMOTE);
-					itemStack.setItemDamage(ItemVase.getDamage(contents));
+					itemStack.setItemDamage(this.getDamage(contents));
 				}
 			}
 		}
@@ -301,7 +284,7 @@ public class ItemVase extends Item {
 		
 	@Override
 	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
-		FluidStack contents = ItemVase.getFluidStack(itemStack.getItemDamage());
+		FluidStack contents = this.getFluidStack(itemStack.getItemDamage());
 		if (contents == null
 		|| (contents.getFluid().canBePlacedInWorld())) {
 			float var4 = 1.0F;
@@ -337,7 +320,7 @@ public class ItemVase extends Item {
 								if (player.capabilities.isCreativeMode) {
 									return itemStack;
 								}
-								itemStack.setItemDamage(ItemVase.getDamage(fluid));
+								itemStack.setItemDamage(this.getDamage(fluid));
 								return itemStack;
 							}
 							return itemStack;
@@ -345,23 +328,23 @@ public class ItemVase extends Item {
 							Material material = world.getBlockMaterial(movingObjectPosX, movingObjectPosY, movingObjectPosZ);
 							int metadata = world.getBlockMetadata(movingObjectPosX, movingObjectPosY, movingObjectPosZ);
 							if (material == Material.lava
-							&& metadata == FluidHelper.STILL_LAVA_META) {
+							&& metadata == FluidReference.LAVA.blockMeta) {
 								player.renderBrokenItemStack(itemStack);
 								player.destroyCurrentEquippedItem();
 								player.setFire(15);
 								return itemStack;
 							} else if (material == Material.water
-							&& metadata == FluidHelper.STILL_WATER_META) {
+							&& metadata == FluidReference.WATER.blockMeta) {
 								world.setBlockToAir(movingObjectPosX, movingObjectPosY, movingObjectPosZ);
 								if (player.capabilities.isCreativeMode) {
 									return itemStack;
 								}
 								if (itemStack.stackSize == 1) {
-									itemStack.setItemDamage(ItemVase.getDamage(FluidReference.WATER.getBucketVolumeStack()));
+									itemStack.setItemDamage(this.getDamage(FluidReference.WATER.getBucketVolumeStack()));
 									return itemStack;
 								} else {
 									itemStack.stackSize--;
-									ItemStack filledVase = ItemVase.getFilledVase(FluidReference.WATER.getBucketVolumeStack());
+									ItemStack filledVase = this.getFilledVase(FluidReference.WATER.getBucketVolumeStack());
 									boolean added = player.inventory.addItemStackToInventory(filledVase);
 									if (!added) {
 										player.dropPlayerItem(filledVase);
@@ -401,7 +384,7 @@ public class ItemVase extends Item {
 						if (this.tryPlaceContainedLiquid(itemStack, world, playerPosX, playerPosY, playerPosZ, movingObjectPosX, movingObjectPosY, movingObjectPosZ)
 						&& !player.capabilities.isCreativeMode) {
 							contents.amount -= FluidHelper.BUCKET_VOLUME;
-							itemStack.setItemDamage(ItemVase.getDamage(contents));
+							itemStack.setItemDamage(this.getDamage(contents));
 							return itemStack;
 						}
 					}
@@ -421,7 +404,7 @@ public class ItemVase extends Item {
 
 	@Override
 	public ItemStack onEaten(ItemStack itemStack, World world, EntityPlayer player) {
-		FluidStack contents = ItemVase.getFluidStack(itemStack.getItemDamage());
+		FluidStack contents = this.getFluidStack(itemStack.getItemDamage());
 		if (contents != null) {
 			if (contents.containsFluid(FluidReference.MILK.getBucketVolumeStack())) {
 				if (!player.capabilities.isCreativeMode) {
@@ -437,13 +420,13 @@ public class ItemVase extends Item {
 					contents.amount -= 250;
 				}
 			}
-			itemStack.setItemDamage(ItemVase.getDamage(contents));
+			itemStack.setItemDamage(this.getDamage(contents));
 		}
 		return itemStack;
 	}
 
 	public boolean tryPlaceContainedLiquid(ItemStack itemStack, World world, double playerPosX, double playerPosY, double playerPosZ, int movingObjectPosX, int movingObjectPosY, int movingObjectPosZ) {
-		FluidStack contents = ItemVase.getFluidStack(itemStack.getItemDamage());
+		FluidStack contents = this.getFluidStack(itemStack.getItemDamage());
 		if (contents == null) {
 			return false;
 		} else if (!world.isAirBlock(movingObjectPosX, movingObjectPosY, movingObjectPosZ)
@@ -483,7 +466,7 @@ public class ItemVase extends Item {
 		}
 	}
 
-	public static int getDamage(int id, int amount) {
+	public int getDamage(int id, int amount) {
 		if (amount <= 0) {
 			return 0;
 		} else {
@@ -492,22 +475,40 @@ public class ItemVase extends Item {
 			return bb.getInt();
 		}
 	}
-	public static int getDamage(FluidStack fluid) {
-		return fluid == null ? 1 : ItemVase.getDamage(fluid.fluidID, fluid.amount);
+	public int getDamage(FluidStack fluid) {
+		return fluid == null ? 1 : this.getDamage(fluid.fluidID, fluid.amount);
 	}
-	public static int getDamage(Fluid fluid, int amount) {
+	public int getDamage(Fluid fluid, int amount) {
 		try {
-			return fluid == null ? 1 : ItemVase.getDamage(fluid.getID(), amount);
+			return fluid == null ? 1 : this.getDamage(fluid.getID(), amount);
 		} catch (NullPointerException e) {
 			return 1;
 		}
 	}
 	
-	public static ItemStack getFilledVase(FluidStack fluid) {
-		return new ItemStack(DynamicEarth.vase.itemID, 1, ItemVase.getDamage(fluid));
+	public ItemStack getFilledVase(FluidStack fluid) {
+		return new ItemStack(DynamicEarth.vase.itemID, 1, this.getDamage(fluid));
 	}
 
-	public static FluidStack getFluidStack(int damage) {
+	public ItemStack getFilledVase(Fluid fluid, int volume) {
+		return this.getFilledVase(new FluidStack(fluid, volume));
+	}
+	
+	public ItemStack getFilledVase(Fluid fluid) {
+		return this.getFilledVase(fluid, FluidHelper.BUCKET_VOLUME);
+	}
+	
+	public FluidStack getFluidStack(ItemStack itemStack) {
+		if (itemStack == null) {
+			return null;
+		}
+		if (itemStack.itemID != this.itemID) {
+			throw new IllegalArgumentException("ItemStack contains an invalid item ID. ID must be " + this.itemID + " and the ItemStack's ID was " + itemStack.itemID);
+		}
+		return this.getFluidStack(itemStack.getItemDamage());
+	}
+	
+	public FluidStack getFluidStack(int damage) {
 		ByteBuffer bb = ByteBuffer.wrap(new byte[4]).putInt(damage);
 		bb.rewind();
 		int id = bb.getShort();
@@ -519,7 +520,7 @@ public class ItemVase extends Item {
 		}
 	}
 
-	public static boolean canPickupLiquid(int id) {
+	public boolean canPickupLiquid(int id) {
 		return id < Block.blocksList.length && Block.blocksList[id].blockMaterial.isLiquid();
 	}
 }

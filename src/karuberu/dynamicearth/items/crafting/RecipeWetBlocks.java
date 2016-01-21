@@ -1,7 +1,7 @@
 package karuberu.dynamicearth.items.crafting;
 
+import karuberu.core.util.FluidHelper.FluidReference;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;

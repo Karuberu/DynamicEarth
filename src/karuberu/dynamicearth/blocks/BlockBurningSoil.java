@@ -25,7 +25,7 @@ import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 
-public class BlockBurningSoil extends Block implements IVanillaReplaceable {
+public class BlockBurningSoil extends BlockDynamicEarth implements IVanillaReplaceable {
 	
 	private Icon
 		dirt,
@@ -40,13 +40,12 @@ public class BlockBurningSoil extends Block implements IVanillaReplaceable {
 		dirtStack,
 		grassStack;
 	
-	public BlockBurningSoil(int id) {
-		super(id, Material.ground);
+	public BlockBurningSoil(String unlocalizedName) {
+		super(unlocalizedName, Material.ground);
 		this.setHardness(0.4F);
 		this.setStepSound(Block.soundGravelFootstep);
 		this.setCreativeTab(creativeTab);
 		this.setTickRandomly(true);
-		this.setUnlocalizedName("burningSoil");
 	}
 
 	@Override
@@ -191,7 +190,7 @@ public class BlockBurningSoil extends Block implements IVanillaReplaceable {
 	
 	private void applyHeatEffects(World world, int x, int y, int z) {
     	this.meltSnow(world, x, y, z);
-    	if (BlockDynamicEarth.getHydrationDistanceWithinRadius(world, x, y, z, 1, 1, 1, 1) != -1) {
+    	if (BlockDynamicEarthWet.getHydrationDistanceWithinRadius(world, x, y, z, 1, 1, 1, 1) != -1) {
     		FXManager.fizzleEffect(world, x, y + 1, z, 0.0F, true);
     	}
 	}

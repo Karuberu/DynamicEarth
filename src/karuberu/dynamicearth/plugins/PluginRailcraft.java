@@ -2,13 +2,14 @@ package karuberu.dynamicearth.plugins;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import karuberu.core.util.plugin.IPlugin;
 import karuberu.dynamicearth.DynamicEarth;
 import mods.railcraft.api.crafting.IRockCrusherRecipe;
 import mods.railcraft.api.crafting.RailcraftCraftingManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 
-public class PluginRailcraft implements IDynamicEarthPlugin {
+public class PluginRailcraft implements IPlugin {
 
 	@Override
 	public String getName() {
@@ -17,7 +18,7 @@ public class PluginRailcraft implements IDynamicEarthPlugin {
 
 	@Override
 	public String getErrorReportRequestMessage() {
-		return PluginHandler.pleaseNotify;
+		return PluginHandler.instance.getErrorReportRequestMessage();
 	}
 
 	@Override

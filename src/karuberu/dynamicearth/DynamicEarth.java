@@ -18,6 +18,7 @@ import karuberu.dynamicearth.blocks.BlockFertileSoil;
 import karuberu.dynamicearth.blocks.BlockGlowingMud;
 import karuberu.dynamicearth.blocks.BlockGlowingSoil;
 import karuberu.dynamicearth.blocks.BlockGrassSlab;
+import karuberu.dynamicearth.blocks.BlockLiquid;
 import karuberu.dynamicearth.blocks.BlockMud;
 import karuberu.dynamicearth.blocks.BlockMudBrick;
 import karuberu.dynamicearth.blocks.BlockMudBrickWall;
@@ -37,19 +38,18 @@ import karuberu.dynamicearth.entity.EntityFallingBlock;
 import karuberu.dynamicearth.entity.EntityMudball;
 import karuberu.dynamicearth.event.EventManager;
 import karuberu.dynamicearth.fluids.FluidHandler;
-import karuberu.dynamicearth.fluids.BlockLiquid;
 import karuberu.dynamicearth.items.BehaviorBombDispense;
 import karuberu.dynamicearth.items.BehaviorMudballDispense;
 import karuberu.dynamicearth.items.BehaviorVaseDispense;
 import karuberu.dynamicearth.items.ItemAdobeSlab;
 import karuberu.dynamicearth.items.ItemBlockBurningSoil;
+import karuberu.dynamicearth.items.ItemBlockDynamicEarth;
 import karuberu.dynamicearth.items.ItemBlockFertileMud;
 import karuberu.dynamicearth.items.ItemBlockFertileSoil;
 import karuberu.dynamicearth.items.ItemBlockGlowingMud;
 import karuberu.dynamicearth.items.ItemBlockGlowingSoil;
 import karuberu.dynamicearth.items.ItemBlockMud;
 import karuberu.dynamicearth.items.ItemBlockPeat;
-import karuberu.dynamicearth.items.ItemBlockPermafrost;
 import karuberu.dynamicearth.items.ItemBlockSandySoil;
 import karuberu.dynamicearth.items.ItemBomb;
 import karuberu.dynamicearth.items.ItemBombLit;
@@ -72,6 +72,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.Mod;
@@ -80,7 +81,6 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.registry.EntityRegistry;
 
 @Mod(
 	useMetadata=true,
@@ -101,14 +101,17 @@ import cpw.mods.fml.common.registry.EntityRegistry;
 	serverSideRequired = false
 )
 public class DynamicEarth {
-	@Mod.Instance("DynamicEarth")
-	public static DynamicEarth instance;
 	public static final String
 		modID = "DynamicEarth";
+	@Mod.Instance(DynamicEarth.modID)
+	public static DynamicEarth
+		instance;
 	public static final KaruberuLogger
 		logger = new KaruberuLogger(DynamicEarth.modID);
 	private static final RegistrationHelper
 		registrationHelper = new RegistrationHelper(DynamicEarth.logger);
+	public static final ConfigurationManager
+		config = new ConfigurationManager(DynamicEarth.logger);
 	public static BlockMud
     	mud,
     	fertileMud,
@@ -164,48 +167,95 @@ public class DynamicEarth {
 		vase;
 	public static int
 		peatMossRenderID;
-	private static int
-		BLOCKID_MUD					= 4000,
-		BLOCKID_FERTILEMUD			= BLOCKID_MUD+1,
-		BLOCKID_GLOWINGMUD			= BLOCKID_FERTILEMUD+1,
-		BLOCKID_PERMAFROST			= BLOCKID_GLOWINGMUD+1,
-		BLOCKID_ADOBEWET			= BLOCKID_PERMAFROST+1,
-		BLOCKID_ADOBE				= BLOCKID_ADOBEWET+1,
-		BLOCKID_MUDBRICKBLOCK		= BLOCKID_ADOBE+1,
-		BLOCKID_ADOBESLAB			= BLOCKID_MUDBRICKBLOCK+1,
-		BLOCKID_ADOBEDOUBLESLAB		= BLOCKID_ADOBESLAB+1,
-		BLOCKID_ADOBESTAIRS			= BLOCKID_ADOBEDOUBLESLAB+1,
-		BLOCKID_MUDBRICKSTAIRS		= BLOCKID_ADOBESTAIRS+1,
-		BLOCKID_MUDBRICKWALL		= BLOCKID_MUDBRICKSTAIRS+1,
-		BLOCKID_DIRTSLAB			= BLOCKID_MUDBRICKWALL+1,
-		BLOCKID_DIRTDOUBLESLAB		= BLOCKID_DIRTSLAB+1,
-		BLOCKID_GRASSSLAB			= BLOCKID_DIRTDOUBLESLAB+1,
-		BLOCKID_GRASSDOUBLESLAB		= BLOCKID_GRASSSLAB+1,
-		BLOCKID_PEATMOSS			= BLOCKID_GRASSDOUBLESLAB+1,
-		BLOCKID_PEAT				= BLOCKID_PEATMOSS+1,
-		BLOCKID_FARMLAND			= BLOCKID_PEAT+1,
-		BLOCKID_FERTILESOIL			= BLOCKID_FARMLAND+1,
-		BLOCKID_SANDYSOIL			= BLOCKID_FERTILESOIL+1,
-		BLOCKID_LIQUIDMILK			= BLOCKID_SANDYSOIL+1,
-		BLOCKID_LIQUIDSOUP			= BLOCKID_LIQUIDMILK+1,
-		BLOCKID_GLOWINGSOIL			= BLOCKID_LIQUIDSOUP+1,
-		BLOCKID_BURNINGSOIL			= BLOCKID_GLOWINGSOIL+1,
-		BLOCKID_MUDLAYER				= BLOCKID_BURNINGSOIL+1,
-		ITEMID_DIRTCLOD				= 10000,
-		ITEMID_MUDBLOB				= ITEMID_DIRTCLOD+1,
-		ITEMID_MUDBRICK				= ITEMID_MUDBLOB+1,
-		ITEMID_ADOBEDUST			= ITEMID_MUDBRICK+1,
-		ITEMID_ADOBEBLOB			= ITEMID_ADOBEDUST+1,
-		ITEMID_VASERAW				= ITEMID_ADOBEBLOB+1,
-		ITEMID_VASE					= ITEMID_VASERAW+1,
-		ITEMID_EARTHBOWLRAW			= ITEMID_VASE+1,
-		ITEMID_EARTHBOWL			= ITEMID_EARTHBOWLRAW+1,
-		ITEMID_EARTHBOWLSOUP		= ITEMID_EARTHBOWL+1,
-		ITEMID_BOMB					= ITEMID_EARTHBOWLSOUP+1,
-		ITEMID_BOMBLIT				= ITEMID_BOMB+1,
-		ITEMID_PEATMOSSSPECIMEN		= ITEMID_BOMBLIT+1,
-		ITEMID_PEATCLUMP			= ITEMID_PEATMOSSSPECIMEN+1,
-		ITEMID_PEATBRICK			= ITEMID_PEATCLUMP+1;
+	private static final String
+		BLOCK_MUD,
+		BLOCK_FERTILEMUD,
+		BLOCK_GLOWINGMUD,
+		BLOCK_PERMAFROST,
+		BLOCK_ADOBEWET,
+		BLOCK_ADOBE,
+		BLOCK_MUDBRICK,
+		BLOCK_ADOBESLAB,
+		BLOCK_ADOBEDOUBLESLAB,
+		BLOCK_ADOBESTAIRS,
+		BLOCK_MUDBRICKSTAIRS,
+		BLOCK_MUDBRICKWALL,
+		BLOCK_DIRTSLAB,
+		BLOCK_DIRTDOUBLESLAB,
+		BLOCK_GRASSSLAB,
+		BLOCK_GRASSDOUBLESLAB,
+		BLOCK_PEATMOSS,
+		BLOCK_PEAT,
+		BLOCK_FARMLAND,
+		BLOCK_FERTILESOIL,
+		BLOCK_SANDYSOIL,
+		BLOCK_LIQUIDMILK,
+		BLOCK_LIQUIDSOUP,
+		BLOCK_GLOWINGSOIL,
+		BLOCK_BURNINGSOIL,
+		BLOCK_MUDLAYER,
+		ITEM_DIRTCLOD,
+		ITEM_MUDBLOB,
+		ITEM_MUDBRICK,
+		ITEM_ADOBEDUST,
+		ITEM_ADOBEBLOB,
+		ITEM_VASERAW,
+		ITEM_VASE,
+		ITEM_EARTHBOWLRAW,
+		ITEM_EARTHBOWL,
+		ITEM_EARTHBOWLSOUP,
+		ITEM_BOMB,
+		ITEM_BOMBLIT,
+		ITEM_PEATMOSSSPECIMEN,
+		ITEM_PEATCLUMP,
+		ITEM_PEATBRICK;
+	static {
+		DynamicEarth.config.initializeBlockIDs(4000,
+			BLOCK_MUD = "mud",
+			BLOCK_FERTILEMUD = "fertileMud",
+			BLOCK_GLOWINGMUD = "glowingMud",
+			BLOCK_PERMAFROST = "permafrost",
+			BLOCK_ADOBEWET = "adobeWet",
+			BLOCK_ADOBE = "adobeDry",
+			BLOCK_MUDBRICK = "blockMudBrick",
+			BLOCK_ADOBESLAB = "adobeSlab",
+			BLOCK_ADOBEDOUBLESLAB = "adobeSlabDouble",
+			BLOCK_ADOBESTAIRS = "adobeStairs",
+			BLOCK_MUDBRICKSTAIRS = "mudBrickStairs",
+			BLOCK_MUDBRICKWALL = "mudBrickWall",
+			BLOCK_DIRTSLAB = "dirtSlab",
+			BLOCK_DIRTDOUBLESLAB = "dirtSlabDouble",
+			BLOCK_GRASSSLAB = "grassSlab",
+			BLOCK_GRASSDOUBLESLAB = "grassSlabDouble",
+			BLOCK_PEATMOSS = "peatMoss",
+			BLOCK_PEAT = "peat",
+			BLOCK_FARMLAND = "dynamicFarmland",
+			BLOCK_FERTILESOIL = "fertileSoil",
+			BLOCK_SANDYSOIL = "sandySoil",
+			BLOCK_LIQUIDMILK = "liquidMilk",
+			BLOCK_LIQUIDSOUP = "liquidSoup",
+			BLOCK_GLOWINGSOIL = "glowingSoil",
+			BLOCK_BURNINGSOIL = "burningSoil",
+			BLOCK_MUDLAYER = "mudLayer"
+		);
+		DynamicEarth.config.initializeItemIDs(10000,
+			ITEM_DIRTCLOD = "dirtClod",
+			ITEM_MUDBLOB = "mudBlob",
+			ITEM_MUDBRICK = "mudBrick",
+			ITEM_ADOBEDUST = "adobeDust",
+			ITEM_ADOBEBLOB = "adobeBlob",
+			ITEM_VASERAW = "vaseRaw",
+			ITEM_VASE = "vase",
+			ITEM_EARTHBOWLRAW = "earthbowlRaw",
+			ITEM_EARTHBOWL = "earthbowl",
+			ITEM_EARTHBOWLSOUP = "earthbowlSoup",
+			ITEM_BOMB = "bomb",
+			ITEM_BOMBLIT = "bombLit",
+			ITEM_PEATMOSSSPECIMEN = "peatMossSpecimen",
+			ITEM_PEATCLUMP = "peatClump",
+			ITEM_PEATBRICK = "peatBrick"
+		);
+	}
 	private static int
 		ENTITYID_FALLINGBLOCK = 0,
 		ENTITYID_GOLEM = 1,
@@ -246,55 +296,16 @@ public class DynamicEarth {
 	
 	@EventHandler
 	public void preInitialization(FMLPreInitializationEvent event) {
-		ConfigurationManager.setConfigurationFile(event.getSuggestedConfigurationFile());
-		ConfigurationManager.configAdjustments();
-		ConfigurationManager.configCrafting();
-		ConfigurationManager.configFeatures();
-		ConfigurationManager.configMaintenance();
-		ConfigurationManager.configWorldGen();
-		BLOCKID_MUD				= ConfigurationManager.getBlockID("Mud", BLOCKID_MUD);
-		BLOCKID_PERMAFROST		= ConfigurationManager.getBlockID("Permafrost", BLOCKID_PERMAFROST);
-		BLOCKID_ADOBEWET		= ConfigurationManager.getBlockID("AdobeMoist", BLOCKID_ADOBEWET);
-		BLOCKID_ADOBE			= ConfigurationManager.getBlockID("Adobe", BLOCKID_ADOBE);
-		BLOCKID_MUDBRICKBLOCK	= ConfigurationManager.getBlockID("MudBrick", BLOCKID_MUDBRICKBLOCK);
-		BLOCKID_ADOBEDOUBLESLAB	= ConfigurationManager.getBlockID("AdobeDoubleSlab", BLOCKID_ADOBEDOUBLESLAB);
-		BLOCKID_ADOBESLAB		= ConfigurationManager.getBlockID("AdobeSingleSlab", BLOCKID_ADOBESLAB);
-		BLOCKID_ADOBESTAIRS		= ConfigurationManager.getBlockID("AdobeStairs", BLOCKID_ADOBESTAIRS);
-		BLOCKID_MUDBRICKSTAIRS	= ConfigurationManager.getBlockID("MudBrickStairs", BLOCKID_MUDBRICKSTAIRS);
-		BLOCKID_MUDBRICKWALL	= ConfigurationManager.getBlockID("MudBrickWall", BLOCKID_MUDBRICKWALL);
-		BLOCKID_DIRTSLAB		= ConfigurationManager.getBlockID("DirtSlab", BLOCKID_DIRTSLAB);
-		BLOCKID_DIRTDOUBLESLAB	= ConfigurationManager.getBlockID("DirtDoubleSlab", BLOCKID_DIRTDOUBLESLAB);
-		BLOCKID_GRASSSLAB		= ConfigurationManager.getBlockID("GrassSlab", BLOCKID_GRASSSLAB);
-		BLOCKID_GRASSDOUBLESLAB = ConfigurationManager.getBlockID("GrassDoubleSlab", BLOCKID_GRASSDOUBLESLAB);
-		BLOCKID_PEATMOSS		= ConfigurationManager.getBlockID("PeatMoss", BLOCKID_PEATMOSS);
-		BLOCKID_PEAT			= ConfigurationManager.getBlockID("Peat", BLOCKID_PEAT);
-		BLOCKID_FARMLAND		= ConfigurationManager.getBlockID("Farmland", BLOCKID_FARMLAND);
-		BLOCKID_FERTILESOIL		= ConfigurationManager.getBlockID("FertileSoil", BLOCKID_FERTILESOIL);
-		BLOCKID_FERTILEMUD		= ConfigurationManager.getBlockID("FertileMud", BLOCKID_FERTILEMUD);
-		BLOCKID_SANDYSOIL		= ConfigurationManager.getBlockID("SandySoil", BLOCKID_SANDYSOIL);
-		BLOCKID_GLOWINGSOIL		= ConfigurationManager.getBlockID("GlowingSoil", BLOCKID_GLOWINGSOIL);
-		BLOCKID_GLOWINGMUD		= ConfigurationManager.getBlockID("GlowingMud", BLOCKID_GLOWINGMUD);
-		BLOCKID_BURNINGSOIL		= ConfigurationManager.getBlockID("BurningSoil", BLOCKID_BURNINGSOIL);
-		BLOCKID_MUDLAYER		= ConfigurationManager.getBlockID("MudLayer", BLOCKID_MUDLAYER);
-		BLOCKID_LIQUIDMILK		= ConfigurationManager.getBlockID("LiquidMilk", BLOCKID_LIQUIDMILK);
-		BLOCKID_LIQUIDSOUP		= ConfigurationManager.getBlockID("LiquidSoup", BLOCKID_LIQUIDSOUP);
-		ITEMID_DIRTCLOD			= ConfigurationManager.getItemID("DirtClod", ITEMID_DIRTCLOD);
-		ITEMID_MUDBLOB			= ConfigurationManager.getItemID("MudBlob", ITEMID_MUDBLOB);
-		ITEMID_MUDBRICK			= ConfigurationManager.getItemID("MudBrick", ITEMID_MUDBRICK);
-		ITEMID_ADOBEDUST		= ConfigurationManager.getItemID("AdobeDust", ITEMID_ADOBEDUST);
-		ITEMID_ADOBEBLOB		= ConfigurationManager.getItemID("AdobeBlob", ITEMID_ADOBEBLOB);
-		ITEMID_VASERAW			= ConfigurationManager.getItemID("VaseRaw", ITEMID_VASERAW);
-		ITEMID_VASE				= ConfigurationManager.getItemID("Vase", ITEMID_VASE);
-		ITEMID_EARTHBOWLRAW		= ConfigurationManager.getItemID("EarthbowlRaw", ITEMID_EARTHBOWLRAW);
-		ITEMID_EARTHBOWL		= ConfigurationManager.getItemID("Earthbowl", ITEMID_EARTHBOWL);
-		ITEMID_EARTHBOWLSOUP	= ConfigurationManager.getItemID("EarthbowlSoup", ITEMID_EARTHBOWLSOUP);
-		ITEMID_BOMB				= ConfigurationManager.getItemID("Bomb", ITEMID_BOMB);
-		ITEMID_BOMBLIT			= ConfigurationManager.getItemID("BombLit", ITEMID_BOMBLIT);
-		ITEMID_PEATCLUMP		= ConfigurationManager.getItemID("PeatClump", ITEMID_PEATCLUMP);
-		ITEMID_PEATBRICK		= ConfigurationManager.getItemID("PeatBrick", ITEMID_PEATBRICK);
-		ITEMID_PEATMOSSSPECIMEN	= ConfigurationManager.getItemID("PeatMossSpecimen", ITEMID_PEATMOSSSPECIMEN);
-		ConfigurationManager.closeConfig();
-		PluginHandler.handlePluginPreInitialization(event);
+		DynamicEarth.config.setConfigurationFile(new Configuration(event.getSuggestedConfigurationFile()));
+		DynamicEarth.config.configBlockIDs();
+		DynamicEarth.config.configItemIDs();
+		DynamicEarth.config.configAdjustments();
+		DynamicEarth.config.configCrafting();
+		DynamicEarth.config.configFeatures();
+		DynamicEarth.config.configMaintenance();
+		DynamicEarth.config.configWorldGen();
+		DynamicEarth.config.closeConfig();
+		PluginHandler.instance.handlePluginPreInitialization(event);
         DynamicEarth.registerBlocks();
         DynamicEarth.registerItems();
         DynamicEarth.registerEntities();
@@ -318,11 +329,12 @@ public class DynamicEarth {
         CommonProxy.proxy.registerNames();
         CommonProxy.proxy.registerLocalizations();
         CommonProxy.proxy.registerRenderInformation();
+        PluginHandler.instance.addPlugins();
     }
 	
 	@EventHandler
 	public void postInitialization(FMLPostInitializationEvent event) {
-        PluginHandler.initializePlugins();
+        PluginHandler.instance.initializePlugins();
         DynamicEarth.registerMudslideBlocks();
  	}
 	
@@ -374,24 +386,24 @@ public class DynamicEarth {
     	|| DynamicEarth.includePermafrost) {
     		Block.dirt.setTickRandomly(true);
     	}
-        farmland = new BlockDynamicFarmland(BLOCKID_FARMLAND);
+        farmland = new BlockDynamicFarmland(BLOCK_FARMLAND);
         DynamicEarth.registrationHelper.registerBlock(DynamicEarth.farmland);
 	    if (DynamicEarth.includeMud) {
-			mud = new BlockMud(BLOCKID_MUD);
+			mud = new BlockMud(BLOCK_MUD);
 			DynamicEarth.registrationHelper.registerBlock(DynamicEarth.mud, ItemBlockMud.class);
 			if (DynamicEarth.includeMudLayers) {
-				mudLayer = new BlockMudLayer(BLOCKID_MUDLAYER);
+				mudLayer = new BlockMudLayer(BLOCK_MUDLAYER);
 				DynamicEarth.registrationHelper.registerBlock(DynamicEarth.mudLayer);
 			}
 		}
 	    if (DynamicEarth.includeAdobe) {
-		    adobe = new BlockAdobe(BLOCKID_ADOBE);
-		    adobeWet = new BlockAdobeWet(BLOCKID_ADOBEWET);
-		    adobeDoubleSlab = (BlockHalfSlab) new BlockAdobeSlab(BLOCKID_ADOBEDOUBLESLAB, true).setUnlocalizedName("adobeSlab");
-		    adobeSingleSlab = (BlockHalfSlab) new BlockAdobeSlab(BLOCKID_ADOBESLAB, false).setUnlocalizedName("adobeSlabDouble");    
-		    adobeStairs = (new BlockAdobeStairs(BLOCKID_ADOBESTAIRS, adobe, 0)).setUnlocalizedName("adobeStairs");
-		    liquidMilk = new BlockLiquid(BLOCKID_LIQUIDMILK, Material.water, BlockTexture.MILK).setUnlocalizedName("liquidMilk");
-		    liquidSoup = new BlockLiquid(BLOCKID_LIQUIDSOUP, Material.water, BlockTexture.SOUP).setUnlocalizedName("liquidSoup");
+		    adobe = new BlockAdobe(BLOCK_ADOBE);
+		    adobeWet = new BlockAdobeWet(BLOCK_ADOBEWET);
+		    adobeDoubleSlab = new BlockAdobeSlab(BLOCK_ADOBEDOUBLESLAB, true);
+		    adobeSingleSlab = new BlockAdobeSlab(BLOCK_ADOBESLAB, false);    
+		    adobeStairs = (new BlockAdobeStairs(BLOCK_ADOBESTAIRS, adobe, 0));
+		    liquidMilk = new BlockLiquid(BLOCK_LIQUIDMILK, Material.water, BlockTexture.MILK);
+		    liquidSoup = new BlockLiquid(BLOCK_LIQUIDSOUP, Material.water, BlockTexture.SOUP);
 	        DynamicEarth.registrationHelper.registerBlock(DynamicEarth.adobeSingleSlab, ItemAdobeSlab.class);
 	        DynamicEarth.registrationHelper.registerBlock(DynamicEarth.adobeDoubleSlab, ItemAdobeSlab.class);
 		    DynamicEarth.registrationHelper.registerBlocks(
@@ -401,63 +413,63 @@ public class DynamicEarth {
 		    );
 	    }
 	    if (DynamicEarth.includeMudBrick) {
-		    blockMudBrick = new BlockMudBrick(BLOCKID_MUDBRICKBLOCK);
-		    mudBrickStairs = (new BlockAdobeStairs(BLOCKID_MUDBRICKSTAIRS, blockMudBrick, 0)).setUnlocalizedName("mudBrickStairs");    
-		    mudBrickWall = (new BlockMudBrickWall(BLOCKID_MUDBRICKWALL, blockMudBrick)).setUnlocalizedName("mudBrickWall");    
+		    blockMudBrick = new BlockMudBrick(BLOCK_MUDBRICK);
+		    mudBrickStairs = (new BlockAdobeStairs(BLOCK_MUDBRICKSTAIRS, blockMudBrick, 0));    
+		    mudBrickWall = (new BlockMudBrickWall(BLOCK_MUDBRICKWALL, blockMudBrick));    
 		    DynamicEarth.registrationHelper.registerBlocks(
 		    	DynamicEarth.blockMudBrick,
 		    	DynamicEarth.mudBrickStairs,
 		    	DynamicEarth.mudBrickWall
 		    );
 			if (!DynamicEarth.includeAdobe) {
-			    adobeDoubleSlab = (BlockHalfSlab) new BlockAdobeSlab(BLOCKID_ADOBEDOUBLESLAB, true);
-			    adobeSingleSlab = (BlockHalfSlab) new BlockAdobeSlab(BLOCKID_ADOBESLAB, false);    
+			    adobeDoubleSlab = new BlockAdobeSlab(BLOCK_ADOBEDOUBLESLAB, true);
+			    adobeSingleSlab = new BlockAdobeSlab(BLOCK_ADOBESLAB, false);    
 			    DynamicEarth.registrationHelper.registerBlock(DynamicEarth.adobeSingleSlab, ItemAdobeSlab.class);
 		        DynamicEarth.registrationHelper.registerBlock(DynamicEarth.adobeDoubleSlab, ItemAdobeSlab.class);
 			}
 	    }
 	    if (DynamicEarth.includePermafrost) {
-	    	permafrost = new BlockPermafrost(BLOCKID_PERMAFROST);
-	    	DynamicEarth.registrationHelper.registerBlock(DynamicEarth.permafrost, ItemBlockPermafrost.class);
+	    	permafrost = new BlockPermafrost(BLOCK_PERMAFROST);
+	    	DynamicEarth.registrationHelper.registerBlock(DynamicEarth.permafrost, ItemBlockDynamicEarth.class);
 	    }
 	    if (DynamicEarth.includeDirtSlabs) {
-		    dirtSlab = (BlockHalfSlab) (new BlockDirtSlab(BLOCKID_DIRTSLAB, false)).setUnlocalizedName("dirtSlab");    
-		    dirtDoubleSlab = (BlockHalfSlab) (new BlockDirtSlab(BLOCKID_DIRTDOUBLESLAB, true)).setUnlocalizedName("dirtDoubleSlab");    
-		    grassSlab = (BlockHalfSlab) (new BlockGrassSlab(BLOCKID_GRASSSLAB, false)).setUnlocalizedName("grassSlab");
-		    grassDoubleSlab = (BlockHalfSlab) (new BlockGrassSlab(BLOCKID_GRASSDOUBLESLAB, true)).setUnlocalizedName("grassDoubleSlab");
+		    dirtSlab = (new BlockDirtSlab(BLOCK_DIRTSLAB, false));    
+		    dirtDoubleSlab = (new BlockDirtSlab(BLOCK_DIRTDOUBLESLAB, true));    
+		    grassSlab = (new BlockGrassSlab(BLOCK_GRASSSLAB, false));
+		    grassDoubleSlab = (new BlockGrassSlab(BLOCK_GRASSDOUBLESLAB, true));
 		    DynamicEarth.registrationHelper.registerBlock(DynamicEarth.dirtSlab, ItemDirtSlab.class);
 	        DynamicEarth.registrationHelper.registerBlock(DynamicEarth.dirtDoubleSlab, ItemDirtSlab.class);
 	        DynamicEarth.registrationHelper.registerBlock(DynamicEarth.grassSlab, ItemGrassSlab.class);
 	        DynamicEarth.registrationHelper.registerBlock(DynamicEarth.grassDoubleSlab, ItemGrassSlab.class);
 	    }
 	    if (DynamicEarth.includePeat) {
-		    peatMoss = new BlockPeatMoss(BLOCKID_PEATMOSS);
-			peat = new BlockPeat(BLOCKID_PEAT);
+		    peatMoss = new BlockPeatMoss(BLOCK_PEATMOSS);
+			peat = new BlockPeat(BLOCK_PEAT);
 			DynamicEarth.registrationHelper.registerBlock(DynamicEarth.peatMoss);
 			DynamicEarth.registrationHelper.registerBlock(DynamicEarth.peat, ItemBlockPeat.class);
 	    }
 	    if (DynamicEarth.includeFertileSoil) {
-	    	fertileSoil = new BlockFertileSoil(BLOCKID_FERTILESOIL);
+	    	fertileSoil = new BlockFertileSoil(BLOCK_FERTILESOIL);
 	    	DynamicEarth.registrationHelper.registerBlock(DynamicEarth.fertileSoil, ItemBlockFertileSoil.class);
 	    	if (DynamicEarth.includeMud) {
-		    	fertileMud = new BlockFertileMud(BLOCKID_FERTILEMUD);
+		    	fertileMud = new BlockFertileMud(BLOCK_FERTILEMUD);
 		    	DynamicEarth.registrationHelper.registerBlock(DynamicEarth.fertileMud, ItemBlockFertileMud.class);	    		
 	    	}
 	    }
 	    if (DynamicEarth.includeSandySoil) {
-	    	sandySoil = new BlockSandySoil(BLOCKID_SANDYSOIL);
+	    	sandySoil = new BlockSandySoil(BLOCK_SANDYSOIL);
 	    	DynamicEarth.registrationHelper.registerBlock(DynamicEarth.sandySoil, ItemBlockSandySoil.class);
 	    }
 	    if (DynamicEarth.includeGlowingSoil) {
-	    	glowingSoil = new BlockGlowingSoil(BLOCKID_GLOWINGSOIL);
+	    	glowingSoil = new BlockGlowingSoil(BLOCK_GLOWINGSOIL);
 	    	DynamicEarth.registrationHelper.registerBlock(DynamicEarth.glowingSoil, ItemBlockGlowingSoil.class);
 	    	if (DynamicEarth.includeMud) {
-		    	glowingMud = new BlockGlowingMud(BLOCKID_GLOWINGMUD);
+		    	glowingMud = new BlockGlowingMud(BLOCK_GLOWINGMUD);
 		    	DynamicEarth.registrationHelper.registerBlock(DynamicEarth.glowingMud, ItemBlockGlowingMud.class);	    		
 	    	}
 	    }
 	    if (DynamicEarth.includeBurningSoil) {
-	    	burningSoil = new BlockBurningSoil(BLOCKID_BURNINGSOIL);
+	    	burningSoil = new BlockBurningSoil(BLOCK_BURNINGSOIL);
 	    	DynamicEarth.registrationHelper.registerBlock(DynamicEarth.burningSoil, ItemBlockBurningSoil.class);
 	    }
 	}
@@ -488,25 +500,25 @@ public class DynamicEarth {
     }
     
     private static void registerItems() {
-    	dirtClod = (ItemClump) new ItemClump(ITEMID_DIRTCLOD, ItemIcon.DIRTCLOD).setUnlocalizedName("dirtClod");
+    	dirtClod = (ItemClump) new ItemClump(ITEM_DIRTCLOD, ItemIcon.DIRTCLOD).setUnlocalizedName("dirtClod");
     	DynamicEarth.registrationHelper.registerItem(dirtClod);
     	if (DynamicEarth.includeMud) {
-    		mudBlob = (ItemClump) new ItemMudBlob(ITEMID_MUDBLOB, ItemIcon.MUDBLOB);
+    		mudBlob = new ItemMudBlob(ITEM_MUDBLOB, ItemIcon.MUDBLOB);
     	    dirtClod.setWetClump(new ItemStack(mudBlob.itemID, 1, ItemMudBlob.NORMAL));
         	DynamicEarth.registrationHelper.registerItem(mudBlob);
     	}
 	    if (DynamicEarth.includeMudBrick) {
-	    	mudBrick = (ItemDynamicEarth) new ItemDynamicEarth(ITEMID_MUDBRICK, ItemIcon.MUDBRICK).setUnlocalizedName("mudBrick");
+	    	mudBrick = (ItemDynamicEarth) new ItemDynamicEarth(ITEM_MUDBRICK, ItemIcon.MUDBRICK).setUnlocalizedName("mudBrick");
         	DynamicEarth.registrationHelper.registerItem(mudBrick);
 	    }
 	    if (DynamicEarth.includeAdobe) {
-		    adobeBlob = (ItemClump) new ItemClump(ITEMID_ADOBEBLOB, ItemIcon.ADOBEBLOB).setUnlocalizedName("adobeBlob");
-		    adobeDust = (ItemClump) new ItemClump(ITEMID_ADOBEDUST, ItemIcon.ADOBEDUST).setWetClump(new ItemStack(DynamicEarth.adobeBlob)).setUnlocalizedName("adobeDust");
-		    vaseRaw = (ItemDynamicEarth) new ItemDynamicEarth(ITEMID_VASERAW, ItemIcon.VASERAW).setUnlocalizedName("vaseRaw").setMaxStackSize(1);
-		    vase = (ItemVase) new ItemVase(ITEMID_VASE).setUnlocalizedName("vase");
-		    earthbowlRaw = (ItemDynamicEarth) new ItemDynamicEarth(ITEMID_EARTHBOWLRAW, ItemIcon.EARTHBOWLRAW).setUnlocalizedName("earthbowlRaw").setMaxStackSize(16);
-		    earthbowl = (ItemDynamicEarth) new ItemDynamicEarth(ITEMID_EARTHBOWL, ItemIcon.EARTHBOWL).setUnlocalizedName("earthbowl");
-		    earthbowlSoup = new ItemEarthbowlSoup(ITEMID_EARTHBOWLSOUP).setUnlocalizedName("earthbowlSoup");
+		    adobeBlob = (ItemClump) new ItemClump(ITEM_ADOBEBLOB, ItemIcon.ADOBEBLOB).setUnlocalizedName("adobeBlob");
+		    adobeDust = (ItemClump) new ItemClump(ITEM_ADOBEDUST, ItemIcon.ADOBEDUST).setWetClump(new ItemStack(DynamicEarth.adobeBlob)).setUnlocalizedName("adobeDust");
+		    vaseRaw = (ItemDynamicEarth) new ItemDynamicEarth(ITEM_VASERAW, ItemIcon.VASERAW).setUnlocalizedName("vaseRaw").setMaxStackSize(1);
+		    vase = (ItemVase) new ItemVase(ITEM_VASE).setUnlocalizedName("vase");
+		    earthbowlRaw = (ItemDynamicEarth) new ItemDynamicEarth(ITEM_EARTHBOWLRAW, ItemIcon.EARTHBOWLRAW).setUnlocalizedName("earthbowlRaw").setMaxStackSize(16);
+		    earthbowl = (ItemDynamicEarth) new ItemDynamicEarth(ITEM_EARTHBOWL, ItemIcon.EARTHBOWL).setUnlocalizedName("earthbowl");
+		    earthbowlSoup = new ItemEarthbowlSoup(ITEM_EARTHBOWLSOUP).setUnlocalizedName("earthbowlSoup");
         	DynamicEarth.registrationHelper.registerItems(
 		    	adobeBlob,
 		    	adobeDust,
@@ -517,15 +529,15 @@ public class DynamicEarth {
 		    	earthbowlSoup
 		    );
 		    if (DynamicEarth.includeBombs) {
-			    bomb = (ItemDynamicEarth) new ItemBomb(ITEMID_BOMB, ItemIcon.BOMB).setUnlocalizedName("bomb");
-			    bombLit = (ItemDynamicEarth) new ItemBombLit(ITEMID_BOMBLIT, ItemIcon.BOMBLIT).setUnlocalizedName("bombLit");    	
+			    bomb = (ItemDynamicEarth) new ItemBomb(ITEM_BOMB, ItemIcon.BOMB).setUnlocalizedName("bomb");
+			    bombLit = (ItemDynamicEarth) new ItemBombLit(ITEM_BOMBLIT, ItemIcon.BOMBLIT).setUnlocalizedName("bombLit");    	
 	        	DynamicEarth.registrationHelper.registerItems(bomb, bombLit);
 		    }
 	    }
 	    if (DynamicEarth.includePeat) {
-	    	peatClump = (ItemClump) new ItemClump(ITEMID_PEATCLUMP, ItemIcon.PEATCLUMP).setUnlocalizedName("peatClump");
-	    	peatBrick = (ItemDynamicEarth) new ItemDynamicEarth(ITEMID_PEATBRICK, ItemIcon.PEATBRICK).setUnlocalizedName("peatBrick");
-	    	peatMossSpecimen = (ItemDynamicEarth) (new ItemPeatMossSpecimen(ITEMID_PEATMOSSSPECIMEN, ItemIcon.PEATMOSSSPECIMEN)).setUnlocalizedName("peatMossSpecimen");
+	    	peatClump = (ItemClump) new ItemClump(ITEM_PEATCLUMP, ItemIcon.PEATCLUMP).setUnlocalizedName("peatClump");
+	    	peatBrick = (ItemDynamicEarth) new ItemDynamicEarth(ITEM_PEATBRICK, ItemIcon.PEATBRICK).setUnlocalizedName("peatBrick");
+	    	peatMossSpecimen = (ItemDynamicEarth) (new ItemPeatMossSpecimen(ITEM_PEATMOSSSPECIMEN, ItemIcon.PEATMOSSSPECIMEN)).setUnlocalizedName("peatMossSpecimen");
         	DynamicEarth.registrationHelper.registerItems(
         		peatClump,
         		peatBrick,
@@ -535,14 +547,14 @@ public class DynamicEarth {
 	}
         
     public static void registerEntities() {
-    	EntityRegistry.registerModEntity(EntityFallingBlock.class, "fallingBlock", DynamicEarth.ENTITYID_FALLINGBLOCK, instance, 250, 5, true);
-        EntityRegistry.registerModEntity(EntityMudball.class, "mudball", DynamicEarth.ENTITYID_MUDBALL, instance, 250, 1, true);
+    	DynamicEarth.registrationHelper.registerEntity(EntityFallingBlock.class, "fallingBlock", DynamicEarth.ENTITYID_FALLINGBLOCK, DynamicEarth.instance, 250, 5, true);
+    	DynamicEarth.registrationHelper.registerEntity(EntityMudball.class, "mudball", DynamicEarth.ENTITYID_MUDBALL, DynamicEarth.instance, 250, 1, true);
         if (DynamicEarth.includeAdobe) {
 	        if (DynamicEarth.includeAdobeGolems) {
-	        	EntityRegistry.registerModEntity(EntityAdobeGolem.class, "clayGolem", DynamicEarth.ENTITYID_GOLEM, instance, 250, 5, true);
+	        	DynamicEarth.registrationHelper.registerEntity(EntityAdobeGolem.class, "clayGolem", DynamicEarth.ENTITYID_GOLEM, DynamicEarth.instance, 250, 5, true);
 	        }
 	        if (DynamicEarth.includeBombs) {
-	        	EntityRegistry.registerModEntity(EntityBomb.class, "bomb", DynamicEarth.ENTITYID_BOMB, instance, 250, 1, true);
+	        	DynamicEarth.registrationHelper.registerEntity(EntityBomb.class, "bomb", DynamicEarth.ENTITYID_BOMB, DynamicEarth.instance, 250, 1, true);
 	        }
         }
     }

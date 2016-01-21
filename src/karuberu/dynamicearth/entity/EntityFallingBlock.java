@@ -65,7 +65,7 @@ public class EntityFallingBlock extends karuberu.dynamicearth.api.fallingblock.E
 	}
 	
 	public EntityFallingBlock(World world, int x, int y, int z, int id, int meta) {
-		this(world, (double)x + 0.5D, (double)y + 0.5D, (double)z + 0.5D, id, meta);
+		this(world, x + 0.5D, y + 0.5D, z + 0.5D, id, meta);
 	}
 	
 	public EntityFallingBlock(World world, double x, double y, double z, int id) {
@@ -260,7 +260,7 @@ public class EntityFallingBlock extends karuberu.dynamicearth.api.fallingblock.E
 				Iterator<Entity> iterator = entitiesList.iterator();
 				while (iterator.hasNext()) {
 					Entity entity = iterator.next();
-					entity.attackEntityFrom(damageSource, Math.min(MathHelper.floor_float((float)fallTime * this.fallDamage), this.fallDamageMax));
+					entity.attackEntityFrom(damageSource, Math.min(MathHelper.floor_float(fallTime * this.fallDamage), this.fallDamageMax));
 				}
 				if (fallingBlock != null) {
 					int meta = fallingBlock.getMetaForFall(fallTime, this.metadata, this.rand);
@@ -384,6 +384,7 @@ public class EntityFallingBlock extends karuberu.dynamicearth.api.fallingblock.E
 		return false;
 	}
 
+	@Override
 	public void addEntityCrashInfo(CrashReportCategory crashReportCategory) {
 		super.addEntityCrashInfo(crashReportCategory);
 		crashReportCategory.addCrashSection("Immitating block ID", Integer.valueOf(this.blockID));

@@ -10,9 +10,9 @@ public class FXManager {
 	public static void spawnNetherGrassParticles(World world, int x, int y, int z, double yOffset) {
 		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
 			if (world.rand.nextInt(100) == 0) {
-				double posX = (double)x + world.rand.nextDouble();
-				double posY = (double)y + yOffset;
-				double posZ = (double)z + world.rand.nextDouble();
+				double posX = x + world.rand.nextDouble();
+				double posY = y + yOffset;
+				double posZ = z + world.rand.nextDouble();
 	//			float loudness = 0.05F + world.rand.nextFloat() * 0.2F;
 	//			float f2 = 0.8F + world.rand.nextFloat() * 0.8F;
 				FXManager.doSpawnNetherGrassParticle(world, posX, posY, posZ);
@@ -28,16 +28,16 @@ public class FXManager {
 	
 	public static void fizzleEffect(World world, int x, int y, int z, float yOffset, boolean spawnParticles) {
 		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
-			double posX = (double)x;
+			double posX = x;
 			double posY = (double)y + (double)yOffset;
-			double posZ = (double)z;
+			double posZ = z;
 			float loudness = 0.5F;
 			float pitch = 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F;
-			FMLClientHandler.instance().getClient().sndManager.playSound("random.fizz", (float)x, (float)y + yOffset, (float)z, loudness, pitch);
+			FMLClientHandler.instance().getClient().sndManager.playSound("random.fizz", x, y + yOffset, z, loudness, pitch);
 			if (spawnParticles) {
 				for (int i = 0; i < 8; i++) {
-					posX = (double)x + world.rand.nextDouble();
-					posZ = (double)z + world.rand.nextDouble();
+					posX = x + world.rand.nextDouble();
+					posZ = z + world.rand.nextDouble();
 					FMLClientHandler.instance().getClient().renderGlobal.spawnParticle("smoke", posX, posY, posZ, 0.0D, 0.0D, 0.0D);
 				}
 			}
@@ -49,10 +49,10 @@ public class FXManager {
 			world.playAuxSFX(1009, x, y, z, 0);
 			if (spawnParticles) {
 				double posX, posZ;
-				double posY = (double)y + yOffset;
+				double posY = y + yOffset;
 				for (int i = 0; i < 8; i++) {
-					posX = (double)x + world.rand.nextDouble();
-					posZ = (double)z + world.rand.nextDouble();
+					posX = x + world.rand.nextDouble();
+					posZ = z + world.rand.nextDouble();
 					FXManager.doSpawnNetherGrassParticle(world, posX, posY, posZ);
 				}
 			}

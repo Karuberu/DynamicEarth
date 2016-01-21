@@ -1,13 +1,14 @@
 package karuberu.dynamicearth.plugins;
 
-import karuberu.dynamicearth.ConfigurationManager;
+import karuberu.core.util.FluidHelper.FluidReference;
+import karuberu.core.util.plugin.IPlugin;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import karuberu.dynamicearth.blocks.BlockPeat;
-import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 import karuberu.dynamicearth.items.crafting.RecipeManager;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.Configuration;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -15,7 +16,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import forestry.api.core.ItemInterface;
 import forestry.api.recipes.RecipeManagers;
 
-public class PluginForestry implements IDynamicEarthPlugin {
+public class PluginForestry implements IPlugin {
 
 	private static int
 		peatBurnTimeEngine = 4500;
@@ -32,7 +33,7 @@ public class PluginForestry implements IDynamicEarthPlugin {
 
 	@Override
 	public String getErrorReportRequestMessage() {
-		return PluginHandler.pleaseNotify;
+		return PluginHandler.instance.getErrorReportRequestMessage();
 	}
 
 	@Override
@@ -42,22 +43,22 @@ public class PluginForestry implements IDynamicEarthPlugin {
 
 	@Override
 	public void preInitialization(FMLPreInitializationEvent event) {
-		ConfigurationManager.setConfigurationFile(event.getSuggestedConfigurationFile());
-		PluginForestry.useForestryPeat = ConfigurationManager.get(
+		DynamicEarth.config.setConfigurationFile(new Configuration(event.getSuggestedConfigurationFile()));
+		PluginForestry.useForestryPeat = DynamicEarth.config.get(
 			"Forestry", 
 			"useForestryPeat", 
 			PluginForestry.useForestryPeat, 
 			"If this setting is enabled and Forestry is present, Dynamic Earth will " +
 			"use Forestry's peat item instead of creating a new one."
 		);
-		PluginForestry.peatBurnTimeEngine = ConfigurationManager.get(
+		PluginForestry.peatBurnTimeEngine = DynamicEarth.config.get(
 			"Forestry", 
 			"peatBurnTime", 
 			PluginForestry.peatBurnTimeEngine, 
 			"The amount of time Dynamic Earth's peat will burn in a Peat-fired Engine " +
 			"from Forestry. By default, this is lower than Forestry's peat."
 		);
-		ConfigurationManager.closeConfig();
+		DynamicEarth.config.closeConfig();
 	}
 
 	@Override

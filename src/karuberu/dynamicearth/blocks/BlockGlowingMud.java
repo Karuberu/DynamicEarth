@@ -8,9 +8,8 @@ import net.minecraft.world.IBlockAccess;
 
 public class BlockGlowingMud extends BlockMud {
 
-	public BlockGlowingMud(int id) {
-		super(id);
-		this.setUnlocalizedName("glowingMud");
+	public BlockGlowingMud(String unlocalizedName) {
+		super(unlocalizedName);
 	}
 	
 	@Override

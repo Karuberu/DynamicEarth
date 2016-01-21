@@ -25,8 +25,8 @@ public class ItemBombLit extends ItemDynamicEarth {
 	private boolean
 		fireCharged = false;
 
-	public ItemBombLit(int id, ItemIcon icon) {
-		super(id, icon);
+	public ItemBombLit(String unlocalizedName, ItemIcon icon) {
+		super(unlocalizedName, icon);
 		this.setMaxStackSize(1);
 		this.setMaxDamage(ItemBombLit.getMaxFuseBurnTime());
 		this.setNoRepair();

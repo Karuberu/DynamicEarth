@@ -3,17 +3,17 @@ package karuberu.dynamicearth.plugins;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
+import karuberu.core.util.FluidHelper.FluidReference;
+import karuberu.core.util.plugin.IPlugin;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.blocks.BlockAdobeSlab;
 import karuberu.dynamicearth.blocks.BlockDirtSlab;
 import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import karuberu.dynamicearth.blocks.BlockPeat;
-import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
-import karuberu.dynamicearth.items.ItemVase;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-public class PluginThaumcraft implements IDynamicEarthPlugin {
+public class PluginThaumcraft implements IPlugin {
 
 	@Override
 	public String getName() {
@@ -22,7 +22,7 @@ public class PluginThaumcraft implements IDynamicEarthPlugin {
 
 	@Override
 	public String getErrorReportRequestMessage() {
-		return PluginHandler.pleaseNotify;
+		return PluginHandler.instance.getErrorReportRequestMessage();
 	}
 
 	@Override
@@ -61,9 +61,9 @@ public class PluginThaumcraft implements IDynamicEarthPlugin {
 	        ThaumcraftApi.registerObjectTag(DynamicEarth.adobeBlob.itemID, -1, (new AspectList()).add(Aspect.EARTH, 1).add(Aspect.STONE, 1).add(Aspect.WATER, 1));
 	        ThaumcraftApi.registerObjectTag(DynamicEarth.vaseRaw.itemID, -1, (new AspectList()).add(Aspect.EARTH, 3).add(Aspect.STONE, 3).add(Aspect.WATER, 3));
 	        ThaumcraftApi.registerComplexObjectTag(DynamicEarth.vase.itemID, 0, (new AspectList()).add(Aspect.EARTH, 3).add(Aspect.STONE, 3).add(Aspect.VOID, 1));
-	        ThaumcraftApi.registerComplexObjectTag(DynamicEarth.vase.itemID, ItemVase.getDamage(FluidReference.WATER.getBucketVolumeStack()), (new AspectList()).add(Aspect.EARTH, 3).add(Aspect.STONE, 3).add(Aspect.WATER, 4).add(Aspect.VOID, 1));
-	        ThaumcraftApi.registerComplexObjectTag(DynamicEarth.vase.itemID, ItemVase.getDamage(FluidReference.MILK.getBucketVolumeStack()), (new AspectList()).add(Aspect.EARTH, 3).add(Aspect.STONE, 3).add(Aspect.HUNGER, 2).add(Aspect.HEAL, 2).add(Aspect.HEAL, 2).add(Aspect.WATER, 2).add(Aspect.VOID, 1));
-	        ThaumcraftApi.registerComplexObjectTag(DynamicEarth.vase.itemID, ItemVase.getDamage(FluidReference.SOUP.getBucketVolumeStack()), (new AspectList()).add(Aspect.EARTH, 3).add(Aspect.STONE, 3).add(Aspect.HUNGER, 6).add(Aspect.PLANT, 6).add(Aspect.DARKNESS, 1).add(Aspect.VOID, 1));
+	        ThaumcraftApi.registerComplexObjectTag(DynamicEarth.vase.itemID, DynamicEarth.vase.getDamage(FluidReference.WATER.getBucketVolumeStack()), (new AspectList()).add(Aspect.EARTH, 3).add(Aspect.STONE, 3).add(Aspect.WATER, 4).add(Aspect.VOID, 1));
+	        ThaumcraftApi.registerComplexObjectTag(DynamicEarth.vase.itemID, DynamicEarth.vase.getDamage(FluidReference.MILK.getBucketVolumeStack()), (new AspectList()).add(Aspect.EARTH, 3).add(Aspect.STONE, 3).add(Aspect.HUNGER, 2).add(Aspect.HEAL, 2).add(Aspect.HEAL, 2).add(Aspect.WATER, 2).add(Aspect.VOID, 1));
+	        ThaumcraftApi.registerComplexObjectTag(DynamicEarth.vase.itemID, DynamicEarth.vase.getDamage(FluidReference.SOUP.getBucketVolumeStack()), (new AspectList()).add(Aspect.EARTH, 3).add(Aspect.STONE, 3).add(Aspect.HUNGER, 6).add(Aspect.PLANT, 6).add(Aspect.DARKNESS, 1).add(Aspect.VOID, 1));
 	        ThaumcraftApi.registerObjectTag(DynamicEarth.earthbowlRaw.itemID, -1, (new AspectList().add(Aspect.EARTH, 1).add(Aspect.WATER, 1)));
 	        ThaumcraftApi.registerObjectTag(DynamicEarth.earthbowl.itemID, -1, (new AspectList()).add(Aspect.VOID, 1));
 	        ThaumcraftApi.registerComplexObjectTag(DynamicEarth.earthbowlSoup.itemID, -1, (new AspectList()).add(Aspect.HUNGER, 4).add(Aspect.PLANT, 4).add(Aspect.DARKNESS, 2).add(Aspect.VOID, 1));

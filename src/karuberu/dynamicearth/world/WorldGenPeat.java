@@ -66,7 +66,7 @@ public class WorldGenPeat implements IWorldGenerator {
 				}
 				int min = -diameter / 2;
 				int max = diameter / 2 + diameter % 2;
-				double radius = (double)diameter / 2.0D;
+				double radius = diameter / 2.0D;
 				for (int xi = min; xi <= max; xi++) {
 		            for (int zi = min; zi <= max; zi++) {
 		            	double centerX = -(radius / 2.0D) + (radius * random.nextDouble());

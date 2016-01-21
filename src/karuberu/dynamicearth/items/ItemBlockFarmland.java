@@ -1,13 +1,12 @@
 package karuberu.dynamicearth.items;
 
 import karuberu.dynamicearth.blocks.BlockDynamicFarmland;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
-public class ItemBlockFarmland extends ItemBlock {
+public class ItemBlockFarmland extends ItemBlockDynamicEarth {
 
-	public ItemBlockFarmland(int id) {
-		super(id);
+	public ItemBlockFarmland(String unlocalizedName) {
+		super(unlocalizedName);
 		this.setHasSubtypes(true);
 	}
 
@@ -34,10 +33,5 @@ public class ItemBlockFarmland extends ItemBlock {
 		default:
 			return super.getUnlocalizedName();
 		}
-	}
-
-	@Override
-	public int getMetadata(int damage) {
-		return damage;
 	}
 }

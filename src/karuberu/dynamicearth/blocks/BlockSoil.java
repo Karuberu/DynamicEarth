@@ -14,7 +14,6 @@ import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.api.ISoil;
 import karuberu.dynamicearth.api.ITillable;
 import karuberu.dynamicearth.api.grass.IGrassyBlock;
-import karuberu.dynamicearth.client.fx.FXManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -30,7 +29,7 @@ import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 
-public abstract class BlockSoil extends BlockDynamicEarth implements ITextureOverlay, ITillable, ISoil, IGrassyBlock {
+public abstract class BlockSoil extends BlockDynamicEarthWet implements ITextureOverlay, ITillable, ISoil, IGrassyBlock {
 	public final int
 		DIRT,
 		GRASS,
@@ -52,12 +51,12 @@ public abstract class BlockSoil extends BlockDynamicEarth implements ITextureOve
     public static CreativeTabs
 		creativeTab = CreativeTabs.tabBlock;
     
-	public BlockSoil(int id) {
-		this(id, 0, 1, 2);
+	public BlockSoil(String unlocalizedName) {
+		this(unlocalizedName, 0, 1, 2);
 	}
 	
-    public BlockSoil(int id, int dirtMeta, int grassMeta, int myceliumMeta) {
-		super(id, Material.ground);
+    public BlockSoil(String unlocalizedName, int dirtMeta, int grassMeta, int myceliumMeta) {
+		super(unlocalizedName, Material.ground);
 		this.DIRT = dirtMeta;
 		this.GRASS = grassMeta;
 		this.MYCELIUM = myceliumMeta;
@@ -71,7 +70,7 @@ public abstract class BlockSoil extends BlockDynamicEarth implements ITextureOve
 		this.dirtStack = new ItemStack(this.blockID, 1, this.DIRT);
 		this.grassStack = new ItemStack(this.blockID, 1, this.GRASS);
 		this.myceliumStack = new ItemStack(this.blockID, 1, this.MYCELIUM);
-		this.mudStack = new ItemStack(DynamicEarth.mud, 1, ((BlockMud)DynamicEarth.mud).NORMAL);
+		this.mudStack = new ItemStack(DynamicEarth.mud, 1, DynamicEarth.mud.NORMAL);
 		this.farmlandStack = new ItemStack(Block.tilledField, 1, 0);
 	}
 	

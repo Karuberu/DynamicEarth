@@ -1,5 +1,6 @@
 package karuberu.dynamicearth.client;
 
+import karuberu.core.util.client.ITextureProvider;
 import net.minecraft.util.ResourceLocation;
 
 public class TextureManager {
@@ -10,7 +11,7 @@ public class TextureManager {
 		dirEntities = dirBase + "textures/entities";
 	public static final ResourceLocation
 		clayGolemTexture = new ResourceLocation(dirEntities + "/clayGolem.png");
-	public static enum BlockTexture {
+	public static enum BlockTexture implements ITextureProvider {
 		MUD("mud"),
 		MUDWET("mudwet"),
 		MUDGRASSSIDE("mudgrass"),
@@ -58,14 +59,16 @@ public class TextureManager {
 		BlockTexture(String name) {
 			this.name = name;
 		}
+		@Override
 		public ResourceLocation getLocation() {
 			return new ResourceLocation (dirBlocks, name + ".png");
 		}
+		@Override
 		public String getIconPath() {
 			return dirBase + name;
 		}
 	}
-	public static enum ItemIcon {
+	public static enum ItemIcon implements ITextureProvider {
 		MUDBLOB("mudblob"),
 		MUDBRICK("mudbrick"),
 		ADOBEDUST("adobedust"),
@@ -90,9 +93,11 @@ public class TextureManager {
 		ItemIcon(String name) {
 			this.name = name;
 		}
+		@Override
 		public ResourceLocation getLocation() {
 			return new ResourceLocation (dirItems + "/" + name + ".png");
 		}
+		@Override
 		public String getIconPath() {
 			return dirBase + name;
 		}

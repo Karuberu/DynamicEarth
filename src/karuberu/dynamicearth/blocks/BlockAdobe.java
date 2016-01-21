@@ -19,14 +19,14 @@ public class BlockAdobe extends Block implements INeighborBlockEventHandler {
 	public static CreativeTabs
 		creativeTab = CreativeTabs.tabBlock;
 	
-	public BlockAdobe(int id) {
-		super(id, Material.rock);
+	public BlockAdobe(String unlocalizedName) {
+		super(DynamicEarth.config.getBlockID(unlocalizedName), Material.rock);
         this.setHardness(1.5F);
         this.setResistance(5.0F);
         this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(creativeTab);
-        this.setUnlocalizedName("adobeDry");
         this.setTextureName(BlockTexture.ADOBE.getIconPath());
+        this.setUnlocalizedName(unlocalizedName);
 	}
 	    
     @Override
@@ -67,10 +67,10 @@ public class BlockAdobe extends Block implements INeighborBlockEventHandler {
 	    			world.setBlockToAir(x, y, z + 1);
 	    		}
                 EntityAdobeGolem golem = new EntityAdobeGolem(world);
-                golem.setLocationAndAngles((double)x + 0.5D, (double)y - 0.95D, (double)z + 0.5D, 0.0F, 0.0F);
+                golem.setLocationAndAngles(x + 0.5D, y - 0.95D, z + 0.5D, 0.0F, 0.0F);
                 world.spawnEntityInWorld(golem);
                 for (int i = 0; i < 120; ++i) {
-                    world.spawnParticle("snowballpoof", (double)x + world.rand.nextDouble(), (double)(y - 2) + world.rand.nextDouble() * 3.9D, (double)z + world.rand.nextDouble(), 0.0D, 0.0D, 0.0D);
+                    world.spawnParticle("snowballpoof", x + world.rand.nextDouble(), y - 2 + world.rand.nextDouble() * 3.9D, z + world.rand.nextDouble(), 0.0D, 0.0D, 0.0D);
                 }
 	    	}
     	}

@@ -2,10 +2,10 @@ package karuberu.dynamicearth.plugins.ic2;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import karuberu.dynamicearth.plugins.IDynamicEarthPlugin;
+import karuberu.core.util.plugin.IPlugin;
 import karuberu.dynamicearth.plugins.PluginHandler;
 
-public class PluginIC2Proxy implements IDynamicEarthPlugin {
+public class PluginIC2Proxy implements IPlugin {
 
 	@Override
 	public String getName() {
@@ -14,7 +14,7 @@ public class PluginIC2Proxy implements IDynamicEarthPlugin {
 	
 	@Override
 	public String getErrorReportRequestMessage() {
-		return PluginHandler.pleaseNotify;
+		return PluginHandler.instance.getErrorReportRequestMessage();
 	}
 	
 	@Override

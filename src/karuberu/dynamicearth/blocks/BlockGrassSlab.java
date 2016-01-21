@@ -12,10 +12,7 @@ import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.api.ISoil;
 import karuberu.dynamicearth.api.grass.IGrassyBlock;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
-import karuberu.dynamicearth.client.fx.FXManager;
-
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -33,7 +30,7 @@ import net.minecraftforge.common.IPlantable;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IGrassyBlock, ISoil {
+public class BlockGrassSlab extends BlockDynamicHalfSlab implements ITextureOverlay, IGrassyBlock, ISoil {
 
     public static final String[]
     	slabType = new String[] {"grass", "mycelium"};
@@ -48,13 +45,12 @@ public class BlockGrassSlab extends BlockHalfSlab implements ITextureOverlay, IG
     public static CreativeTabs
 		creativeTab = CreativeTabs.tabBlock;
 
-    public BlockGrassSlab(int id, boolean isDoubleSlab) {
-		super(id, isDoubleSlab, Material.grass);
+    public BlockGrassSlab(String unlocalizedName, boolean isDoubleSlab) {
+		super(unlocalizedName, isDoubleSlab, Material.grass);
 		this.setHardness(0.6F);
 		this.setStepSound(Block.soundGrassFootstep);
         this.setCreativeTab(creativeTab);
         this.setTickRandomly(true);
-        Block.useNeighborBrightness[id] = true;
 	}
     
 	@Override

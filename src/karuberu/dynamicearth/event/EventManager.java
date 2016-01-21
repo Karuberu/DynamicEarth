@@ -7,10 +7,12 @@ import karuberu.core.event.BlockUpdateEvent;
 import karuberu.core.event.CanPlantStayEvent;
 import karuberu.core.event.EndermanGrabBlockEvent;
 import karuberu.core.event.NeighborBlockChangeEvent;
+import karuberu.core.util.FluidHelper.FluidReference;
+import karuberu.core.util.GameruleHelper;
 import karuberu.core.util.Helper;
 import karuberu.dynamicearth.CommonProxy;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.GameruleHelper;
+import karuberu.dynamicearth.GameruleManager;
 import karuberu.dynamicearth.api.IItemStackHandler;
 import karuberu.dynamicearth.api.ISoil;
 import karuberu.dynamicearth.api.ITillable;
@@ -23,8 +25,6 @@ import karuberu.dynamicearth.blocks.BlockMud;
 import karuberu.dynamicearth.blocks.BlockPermafrost;
 import karuberu.dynamicearth.entity.EntityBomb;
 import karuberu.dynamicearth.entity.ai.EntityAIEatGrassyBlock;
-import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
-import karuberu.dynamicearth.items.ItemVase;
 import karuberu.dynamicearth.world.WorldGenDynamicEarth;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
@@ -84,7 +84,7 @@ public class EventManager {
 		if (event.world.isRemote) {
 			return;
 		}
-		GameruleHelper.initializeGamerules(event.world);
+		GameruleManager.initializeGamerules(event.world);
 	}
 		
 	@ForgeSubscribe
@@ -150,7 +150,7 @@ public class EventManager {
 				&& event.target instanceof EntityCow) {
 					player.inventory.setInventorySlotContents(
 						player.inventory.currentItem,
-						ItemVase.getFilledVase(FluidReference.MILK.getBucketVolumeStack())
+						DynamicEarth.vase.getFilledVase(FluidReference.MILK.getBucketVolumeStack())
 					);
 				} else if (itemStack.itemID == DynamicEarth.earthbowl.itemID
 				&& event.target instanceof EntityMooshroom) {
@@ -170,7 +170,7 @@ public class EventManager {
 	@ForgeSubscribe
 	public void onEndermanGrabBlock(EndermanGrabBlockEvent event) {
 		if (event.getResult() != Result.DEFAULT
-		|| !GameruleHelper.mobGriefing(event.world)) {
+		|| !GameruleHelper.mobGriefingEnabled(event.world)) {
 			return;
 		}
 		World world = event.world;
@@ -224,7 +224,7 @@ public class EventManager {
 		}
 		World world = event.entityLiving.worldObj;
 		if (DynamicEarth.enableEndermanBlockDrops
-		&& GameruleHelper.doMobLoot(world)
+		&& GameruleHelper.mobLootEnabled(world)
 		&& event.entityLiving instanceof EntityEnderman) {
 			EntityEnderman enderman = (EntityEnderman)event.entityLiving;
 			if (enderman.getCarried() != 0) {
@@ -432,7 +432,7 @@ public class EventManager {
 				event.current.attemptDamageItem(1, world.rand);
 				block = Block.blocksList[world.getBlockId(x, y, z)];
 				if (block != null) {
-					world.playSoundEffect((double)x + 0.5D, (double)y + 0.5D, (double)z + 0.5D, block.stepSound.getStepSound(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
+					world.playSoundEffect(x + 0.5D, y + 0.5D, z + 0.5D, block.stepSound.getStepSound(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
 				}
 			}
 		}

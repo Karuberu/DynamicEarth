@@ -9,8 +9,8 @@ import net.minecraft.world.World;
 
 public class ItemGrassSlab extends ItemDirtSlab {
 
-	public ItemGrassSlab(int id) {
-		super(id);
+	public ItemGrassSlab(String unlocalizedName) {
+		super(unlocalizedName);
 		this.singleSlab = DynamicEarth.grassSlab;
 		this.doubleSlab = DynamicEarth.grassDoubleSlab;
 		if (this.itemID == this.doubleSlab.blockID - 256) {

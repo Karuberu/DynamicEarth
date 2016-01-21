@@ -1,7 +1,8 @@
 package karuberu.dynamicearth.fluids;
 
+import karuberu.core.util.FluidHelper;
+import karuberu.core.util.FluidHelper.FluidReference;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
 import karuberu.dynamicearth.items.ItemVase;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
@@ -98,8 +99,8 @@ public class FluidHandler {
 			}
 		}
 		FluidStack FluidStack = new FluidStack(fluid, 1000);
-		ItemStack itemStack = new ItemStack(DynamicEarth.vase, 1, ItemVase.getDamage(FluidStack));
-		ItemVase.liquids.add(ItemVase.getDamage(FluidStack));
+		ItemStack itemStack = new ItemStack(DynamicEarth.vase, 1, DynamicEarth.vase.getDamage(FluidStack));
+		ItemVase.liquids.add(DynamicEarth.vase.getDamage(FluidStack));
 		FluidContainerRegistry.registerFluidContainer(new FluidContainerData(FluidStack, itemStack, new ItemStack(DynamicEarth.vase)));
 		DynamicEarth.logger.finer("Fluid \"" + name + "\" was added as a vase fluid.");
 	}

@@ -55,10 +55,10 @@ public class RenderMudball extends Render {
         GL11.glRotatef(-this.renderManager.playerViewX, 1.0F, 0.0F, 0.0F);
         tessellator.startDrawingQuads();
         tessellator.setNormal(0.0F, 1.0F, 0.0F);
-        tessellator.addVertexWithUV((double)(0.0F - f5), (double)(0.0F - f6), 0.0D, (double)f, (double)f3);
-        tessellator.addVertexWithUV((double)(f4 - f5), (double)(0.0F - f6), 0.0D, (double)f1, (double)f3);
-        tessellator.addVertexWithUV((double)(f4 - f5), (double)(f4 - f6), 0.0D, (double)f1, (double)f2);
-        tessellator.addVertexWithUV((double)(0.0F - f5), (double)(f4 - f6), 0.0D, (double)f, (double)f2);
+        tessellator.addVertexWithUV(0.0F - f5, 0.0F - f6, 0.0D, f, f3);
+        tessellator.addVertexWithUV(f4 - f5, 0.0F - f6, 0.0D, f1, f3);
+        tessellator.addVertexWithUV(f4 - f5, f4 - f6, 0.0D, f1, f2);
+        tessellator.addVertexWithUV(0.0F - f5, f4 - f6, 0.0D, f, f2);
         tessellator.draw();
     }
 

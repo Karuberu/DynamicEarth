@@ -3,7 +3,6 @@ package karuberu.dynamicearth.api.mud;
 import java.util.ArrayList;
 import java.util.Random;
 import karuberu.dynamicearth.api.Reference;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;

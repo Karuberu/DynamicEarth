@@ -1,13 +1,12 @@
-package karuberu.dynamicearth.fluids;
+package karuberu.dynamicearth.blocks;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.util.Icon;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import karuberu.dynamicearth.creativetab.CreativeTabDynamicEarth;
 
-public class BlockLiquid extends Block {
+public class BlockLiquid extends BlockDynamicEarth {
 	private BlockTexture
 		textureStill,
 		textureMoving;
@@ -15,8 +14,8 @@ public class BlockLiquid extends Block {
 		iconStill,
 		iconMoving;
 	
-	public BlockLiquid(int id, Material material, BlockTexture icon) {
-		super(id, material);
+	public BlockLiquid(String unlocalizedName, Material material, BlockTexture icon) {
+		super(unlocalizedName, material);
 		this.textureStill = this.textureMoving = icon;
 		this.setCreativeTab(CreativeTabDynamicEarth.tabDynamicEarth);
 	}

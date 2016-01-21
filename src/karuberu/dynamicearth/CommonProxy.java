@@ -1,12 +1,9 @@
 package karuberu.dynamicearth;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.network.IGuiHandler;
 
-public class CommonProxy implements IGuiHandler {
+public class CommonProxy {
 	
 	@SidedProxy(
 		clientSide="karuberu.dynamicearth.client.ClientProxy",
@@ -22,16 +19,4 @@ public class CommonProxy implements IGuiHandler {
 	public Minecraft getMinecraftClient() {
 		return null;
 	}
-	
-	@Override
-	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-	  return null;
-	}
-	
-	@Override
-	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		return null;
-	}
-
-
 }

@@ -104,9 +104,9 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 	@SideOnly(Side.CLIENT)
 	public boolean renderWorldBlock(IBlockAccess blockAccess, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
         int colorMultiplier = block.colorMultiplier(blockAccess, x, y, z);
-        float r = (float)(colorMultiplier >> 16 & 255) / 255.0F;
-        float g = (float)(colorMultiplier >> 8 & 255) / 255.0F;
-        float b = (float)(colorMultiplier & 255) / 255.0F;
+        float r = (colorMultiplier >> 16 & 255) / 255.0F;
+        float g = (colorMultiplier >> 8 & 255) / 255.0F;
+        float b = (colorMultiplier & 255) / 255.0F;
         
         if (EntityRenderer.anaglyphEnable) {
             float anaglyphR = (r * 30.0F + g * 59.0F + b * 11.0F) / 100.0F;
@@ -194,17 +194,17 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
     				tessellator.setColorOpaque_F(sideColor, sideColor, sideColor);
 	            	switch (BlockSide.get(side)) {
 	            	case BOTTOM:
-	            		renderer.renderFaceYNeg(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceYNeg(block, x, y, z, texture); break;
 	            	case TOP:
-	            		renderer.renderFaceYPos(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceYPos(block, x, y, z, texture); break;
 	            	case EAST:
-	            		renderer.renderFaceZNeg(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceZNeg(block, x, y, z, texture); break;
 	            	case WEST:
-	            		renderer.renderFaceZPos(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceZPos(block, x, y, z, texture); break;
 	            	case NORTH:
-	            		renderer.renderFaceXNeg(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceXNeg(block, x, y, z, texture); break;
 	            	case SOUTH:
-	            		renderer.renderFaceXPos(block, (double)x, (double)y, (double)z, texture); break;
+	            		renderer.renderFaceXPos(block, x, y, z, texture); break;
 					default:
 						break;
 	            	}
@@ -675,17 +675,17 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 					renderer.colorBlueTopRight *= lightValueTopRight;
 					switch (BlockSide.get(side)) {
 					case BOTTOM:
-						renderer.renderFaceYNeg(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceYNeg(block, x, y, z, texture); break;
 					case TOP:
-						renderer.renderFaceYPos(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceYPos(block, x, y, z, texture); break;
 					case EAST:
-						renderer.renderFaceZNeg(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceZNeg(block, x, y, z, texture); break;
 					case WEST:
-						renderer.renderFaceZPos(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceZPos(block, x, y, z, texture); break;
 					case NORTH:
-						renderer.renderFaceXNeg(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceXNeg(block, x, y, z, texture); break;
 					case SOUTH:
-						renderer.renderFaceXPos(block, (double)x, (double)y, (double)z, texture); break;
+						renderer.renderFaceXPos(block, x, y, z, texture); break;
 					default:
 						break;
 					}
@@ -699,9 +699,9 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 			tessellator.setBrightness(plantGrowth.getMixedBrightnessForBlock(blockAccess, x, y, z));
 			float f = 1.0F;
 			int colorMultiplier = plantGrowth.colorMultiplier(blockAccess, x, y, z);
-			r = (float)(colorMultiplier >> 16 & 0xFF) / 255.0F;
-			g = (float)(colorMultiplier >> 8 & 0xFF) / 255.0F;
-			b = (float)(colorMultiplier & 0xFF) / 255.0F;
+			r = (colorMultiplier >> 16 & 0xFF) / 255.0F;
+			g = (colorMultiplier >> 8 & 0xFF) / 255.0F;
+			b = (colorMultiplier & 0xFF) / 255.0F;
 
 			if (EntityRenderer.anaglyphEnable) {
 				float f4 = (r * 30.0F + g * 59.0F + b * 11.0F) / 100.0F;
@@ -712,15 +712,15 @@ public class RenderPeatMoss implements ISimpleBlockRenderingHandler {
 				b = f6;
 			}
 			tessellator.setColorOpaque_F(f * r, f * g, f * b);
-			double posX = (double)x;
-			double posY = (double)y;
-			double posZ = (double)z;
+			double posX = x;
+			double posY = y;
+			double posZ = z;
 			if (plantGrowth == Block.tallGrass) {
-				long i1 = (long)(x * 3129871) ^ (long)z * 116129781L ^ (long)y;
+				long i1 = x * 3129871 ^ z * 116129781L ^ y;
 				i1 = i1 * i1 * 42317861L + i1 * 11L;
-				posX += ((double)((float)(i1 >> 16 & 15L) / 15.0F) - 0.5D) * 0.5D;
-				posY += ((double)((float)(i1 >> 20 & 15L) / 15.0F) - 1.0D) * 0.2D;
-				posZ += ((double)((float)(i1 >> 24 & 15L) / 15.0F) - 0.5D) * 0.5D;
+				posX += ((i1 >> 16 & 15L) / 15.0F - 0.5D) * 0.5D;
+				posY += ((i1 >> 20 & 15L) / 15.0F - 1.0D) * 0.2D;
+				posZ += ((i1 >> 24 & 15L) / 15.0F - 0.5D) * 0.5D;
 			}
 			renderer.drawCrossedSquares(plantGrowth, plantGrowthMetadata, posX, posY, posZ, 1.0F);
 			blockRendered = true;

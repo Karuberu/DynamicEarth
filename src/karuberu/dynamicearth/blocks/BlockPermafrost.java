@@ -17,7 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
-public class BlockPermafrost extends Block implements IVanillaReplaceable {
+public class BlockPermafrost extends BlockDynamicEarth implements IVanillaReplaceable {
 	public static final int
 		META_PERMAFROST = 0;
 	public static int
@@ -29,12 +29,11 @@ public class BlockPermafrost extends Block implements IVanillaReplaceable {
     private static ItemStack
     	dirt;
     
-	public BlockPermafrost(int id) {
-		super(id, Material.rock);
+	public BlockPermafrost(String unlocalizedName) {
+		super(unlocalizedName, Material.rock);
 		this.setHardness(1.5F);
 		this.setStepSound(Block.soundStoneFootstep);
         this.setCreativeTab(creativeTab);
-		this.setUnlocalizedName("permafrost");
         this.setTickRandomly(true);
         this.slipperiness = 0.93F;
 	}

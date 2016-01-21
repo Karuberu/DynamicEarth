@@ -26,8 +26,8 @@ public class ItemClump extends ItemDynamicEarth {
 	public static CreativeTabs
 		creativeTab = CreativeTabs.tabMaterials;
 
-	public ItemClump(int id, ItemIcon icon) {
-		super(id, icon);
+	public ItemClump(String unlocalizedName, ItemIcon icon) {
+		super(unlocalizedName, icon);
 		this.setCreativeTab(creativeTab);
 	}
 	

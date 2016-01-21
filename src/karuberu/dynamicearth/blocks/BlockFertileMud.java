@@ -11,9 +11,8 @@ import net.minecraftforge.common.IPlantable;
 
 public class BlockFertileMud extends BlockMud {
 
-	public BlockFertileMud(int id) {
-		super(id);
-		this.setUnlocalizedName("fertileMud");
+	public BlockFertileMud(String unlocalizedName) {
+		super(unlocalizedName);
 	}
 	
 	@Override

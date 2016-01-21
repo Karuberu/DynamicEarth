@@ -7,20 +7,19 @@ import karuberu.dynamicearth.blocks.BlockGrassSlab;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemDirtSlab extends ItemBlock {
+public class ItemDirtSlab extends ItemBlockDynamicEarth {
 	protected boolean isDoubleSlab;
 	protected BlockHalfSlab singleSlab;
 	protected Block doubleSlab;
 
-	public ItemDirtSlab(int id) {
-		super(id);
+	public ItemDirtSlab(String unlocalizedName) {
+		super(unlocalizedName);
 		this.singleSlab = DynamicEarth.dirtSlab;
 		this.doubleSlab = DynamicEarth.dirtDoubleSlab;
 		if (this.itemID == this.doubleSlab.blockID - 256) {

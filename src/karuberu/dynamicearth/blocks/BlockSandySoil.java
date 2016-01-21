@@ -7,9 +7,8 @@ import net.minecraft.item.ItemStack;
 
 public class BlockSandySoil extends BlockSoil {
 	
-	public BlockSandySoil(int id) {
-		super(id);
-		this.setUnlocalizedName("sandySoil");
+	public BlockSandySoil(String unlocalizedName) {
+		super(unlocalizedName);
 	}
 	
 	@Override

@@ -19,7 +19,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
-public class BlockPeatMoss extends BlockDynamicEarth {
+public class BlockPeatMoss extends BlockDynamicEarthWet {
 	
 	public static int minimumLightLevel = 6;
 	public static int tickRate = 20;
@@ -37,9 +37,8 @@ public class BlockPeatMoss extends BlockDynamicEarth {
 		GROWTH_MUSHROOM_RED = 9,
 		GROWTH_NONE = 10;
 
-	public BlockPeatMoss(int id) {
-		super(id, MaterialPeatMoss.material);
-		this.setUnlocalizedName("peatMoss");
+	public BlockPeatMoss(String unlocalizedName) {
+		super(unlocalizedName, MaterialPeatMoss.material);
 		this.setStepSound(Block.soundGrassFootstep);
 		this.setLightOpacity(0);
 		this.setHardness(0.1F);

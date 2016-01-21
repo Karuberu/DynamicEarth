@@ -14,8 +14,8 @@ public class ItemEarthbowlSoup extends ItemSoup {
 	public static CreativeTabs
 		creativeTab = CreativeTabs.tabFood;
 
-	public ItemEarthbowlSoup(int id) {
-		super(id, 8);
+	public ItemEarthbowlSoup(String unlocalizedName) {
+		super(DynamicEarth.config.getItemID(unlocalizedName), 8);
 		this.setContainerItem(DynamicEarth.earthbowl);
 		this.setCreativeTab(creativeTab);
 	}

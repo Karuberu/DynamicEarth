@@ -7,7 +7,6 @@ import karuberu.core.util.Helper;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.api.grass.IGrassyBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockHalfSlab;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -22,7 +21,7 @@ import net.minecraftforge.common.IPlantable;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
+public class BlockDirtSlab extends BlockDynamicHalfSlab implements IGrassyBlock {
 
     public static final String[]
     	slabType = new String[] {"dirt"};
@@ -31,13 +30,12 @@ public class BlockDirtSlab extends BlockHalfSlab implements IGrassyBlock {
     public static CreativeTabs
 		creativeTab = CreativeTabs.tabBlock;
     
-    public BlockDirtSlab(int id, boolean par2) {
-		super(id, par2, Material.ground);
+    public BlockDirtSlab(String unlocalizedName, boolean par2) {
+		super(unlocalizedName, par2, Material.ground);
 		this.setHardness(0.5F);
 		this.setStepSound(Block.soundGravelFootstep);
         this.setCreativeTab(creativeTab);
         this.setTickRandomly(true);
-        Block.useNeighborBrightness[id] = true;
 	}
     
 	@Override

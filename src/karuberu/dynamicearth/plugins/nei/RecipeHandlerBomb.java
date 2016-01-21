@@ -112,6 +112,7 @@ public class RecipeHandlerBomb extends ShapelessRecipeHandler {
 		return "Earthenware Hand-bomb";
 	}
 	
+	@Override
 	public void onUpdate() {
 		if (Helper.shiftKey()) {
 			return;

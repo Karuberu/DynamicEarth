@@ -1,6 +1,7 @@
 package karuberu.dynamicearth.items;
 
-import karuberu.dynamicearth.fluids.FluidHelper.FluidReference;
+import karuberu.core.util.FluidHelper.FluidReference;
+import karuberu.dynamicearth.DynamicEarth;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
@@ -26,7 +27,7 @@ public class BehaviorVaseDispense extends BehaviorDefaultDispenseItem {
 		if (vase.tryPlaceContainedLiquid(itemStack, dispenser.getWorld(), x, y, z, x + facing.getFrontOffsetX(), y + facing.getFrontOffsetY(), z + facing.getFrontOffsetZ())) {
 			itemStack.setItemDamage(0);
 			return itemStack;
-		} else if (ItemVase.getFluidStack(itemStack.getItemDamage()) == null){
+		} else if (DynamicEarth.vase.getFluidStack(itemStack.getItemDamage()) == null){
 			x += facing.getFrontOffsetX();
 			y += facing.getFrontOffsetY();
 			z += facing.getFrontOffsetZ();
@@ -38,7 +39,7 @@ public class BehaviorVaseDispense extends BehaviorDefaultDispenseItem {
 				liquid = FluidRegistry.lookupFluidForBlock(Block.blocksList[id]);				
 			}
 			if (liquid != null) {
-				itemStack.setItemDamage(ItemVase.getDamage(new FluidStack(liquid, 1000)));
+				itemStack.setItemDamage(DynamicEarth.vase.getDamage(new FluidStack(liquid, 1000)));
 				world.setBlockToAir(x, y, z);
 				return itemStack;
 			}

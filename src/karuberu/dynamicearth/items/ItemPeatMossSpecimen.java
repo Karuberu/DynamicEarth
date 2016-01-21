@@ -23,8 +23,8 @@ public class ItemPeatMossSpecimen extends ItemDynamicEarth implements IPlantable
 	public static CreativeTabs
 		creativeTab = CreativeTabs.tabDecorations;
 	
-	public ItemPeatMossSpecimen(int id, ItemIcon icon) {
-		super(id, icon);
+	public ItemPeatMossSpecimen(String unlocalizedName, ItemIcon icon) {
+		super(unlocalizedName, icon);
 		this.setCreativeTab(creativeTab);
 	}
 

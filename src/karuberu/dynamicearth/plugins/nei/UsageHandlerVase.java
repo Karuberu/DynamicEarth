@@ -66,7 +66,7 @@ public class UsageHandlerVase extends ShapelessRecipeHandler {
 		ArrayList<FluidContainerData> containers = new ArrayList<FluidContainerData>();
 		for (int damage : ItemVase.liquids) {
 			vase = new ItemStack(DynamicEarth.vase, 1, damage);
-			fluid = ItemVase.getFluidStack(damage);
+			fluid = DynamicEarth.vase.getFluidStack(damage);
 			containers.clear();
 			for (FluidContainerData dataPoint : data) {
 				if (dataPoint.fluid.fluidID == fluid.fluidID

@@ -16,8 +16,8 @@ public class BlockMudBrickWall extends BlockWall {
     public static CreativeTabs
 		creativeTab = CreativeTabs.tabBlock;
     
-	public BlockMudBrickWall(int id, Block block) {
-		super(id, block);
+	public BlockMudBrickWall(String unlocalizedName, Block block) {
+		super(DynamicEarth.config.getBlockID(unlocalizedName), block);
 		this.setCreativeTab(creativeTab);
 	}
     

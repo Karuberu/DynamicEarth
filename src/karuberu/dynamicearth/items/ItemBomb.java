@@ -30,8 +30,8 @@ public class ItemBomb extends ItemDynamicEarth {
 		basicBomb,
 		flashyBomb;
 
-	public ItemBomb(int id, ItemIcon icon) {
-		super(id, icon);
+	public ItemBomb(String unlocalizedName, ItemIcon icon) {
+		super(unlocalizedName, icon);
 		this.iconTexture = icon;
 		this.setCreativeTab(creativeTab);
 		this.setMaxStackSize(16);

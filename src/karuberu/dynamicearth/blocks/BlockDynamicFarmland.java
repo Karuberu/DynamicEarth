@@ -6,12 +6,12 @@ import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import karuberu.core.util.GameruleHelper;
 import karuberu.core.util.Helper;
 import karuberu.core.util.block.BlockSide;
 import karuberu.core.util.client.render.ITextureOverlay;
 import karuberu.core.util.client.render.RenderLayeredBlock;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.GameruleHelper;
 import karuberu.dynamicearth.client.TextureManager.BlockTexture;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -28,7 +28,7 @@ import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 
-public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureOverlay {
+public class BlockDynamicFarmland extends BlockDynamicEarthWet implements ITextureOverlay {
 	public final static int
 		MUD = 0,
 		PEAT_DRY = 1,
@@ -72,8 +72,8 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
 		farmlandGlowingDryStack,
 		farmlandGlowingWetStack;
 
-	public BlockDynamicFarmland(int id) {
-		super(id, Material.ground);
+	public BlockDynamicFarmland(String unlocalizedName) {
+		super(unlocalizedName, Material.ground);
 		this.setHydrateRadius(4, 0, 4);
 		this.setSimpleHydration(true);
 		this.setStepSound(Block.soundGravelFootstep);
@@ -81,8 +81,7 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
         this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.9375F, 1.0F);
         this.setLightOpacity(255);
 		this.setTickRandomly(true);
-		this.setUnlocalizedName("dynamicFarmland");
-		Block.useNeighborBrightness[id] = true;
+		this.setUseNeighborBrightness(true);
 	}
 	
 	protected void initializeItemStacks() {
@@ -268,7 +267,7 @@ public class BlockDynamicFarmland extends BlockDynamicEarth implements ITextureO
         if (!world.isRemote
         && world.rand.nextFloat() < height - 0.5F) {
             if (entity instanceof EntityPlayer
-            || GameruleHelper.mobGriefing(world)) {
+            || GameruleHelper.mobGriefingEnabled(world)) {
             	entity.posY += 0.125F;
         		this.trample(world, x, y, z);
             }

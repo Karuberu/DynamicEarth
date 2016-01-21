@@ -1,5 +1,7 @@
 package karuberu.dynamicearth.client;
 
+import karuberu.core.util.Helper;
+import karuberu.core.util.client.LanguageHelper;
 import karuberu.core.util.client.render.RenderLayeredBlock;
 import karuberu.dynamicearth.CommonProxy;
 import karuberu.dynamicearth.DynamicEarth;
@@ -16,19 +18,11 @@ import karuberu.dynamicearth.entity.EntityBomb;
 import karuberu.dynamicearth.entity.EntityFallingBlock;
 import karuberu.dynamicearth.entity.EntityMudball;
 import karuberu.dynamicearth.fluids.FluidHandler;
-import karuberu.dynamicearth.items.ItemBlockBurningSoil;
-import karuberu.dynamicearth.items.ItemBlockFertileMud;
-import karuberu.dynamicearth.items.ItemBlockFertileSoil;
-import karuberu.dynamicearth.items.ItemBlockGlowingMud;
-import karuberu.dynamicearth.items.ItemBlockGlowingSoil;
-import karuberu.dynamicearth.items.ItemBlockMud;
-import karuberu.dynamicearth.items.ItemBlockPeat;
-import karuberu.dynamicearth.items.ItemBlockPermafrost;
-import karuberu.dynamicearth.items.ItemBlockSandySoil;
 import karuberu.dynamicearth.items.ItemMudBlob;
-import karuberu.dynamicearth.items.ItemPeatMossSpecimen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
@@ -36,206 +30,219 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 public class ClientProxy extends CommonProxy {
 	@Override
 	public void registerNames() {
-		LanguageRegistry.addName(DynamicEarth.farmland, "Tilled Earth");
-		LanguageRegistry.addName(DynamicEarth.dirtClod, "Dirt Clod");
+		LanguageHelper.registerName(DynamicEarth.farmland, "Tilled Earth");
+		LanguageHelper.registerName(DynamicEarth.dirtClod, "Dirt Clod");
 		if (DynamicEarth.includeMud) {
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.mud, 1, DynamicEarth.mud.NORMAL), "Mud");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.mud, 1, DynamicEarth.mud.GRASS), "Muddy Grass");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.mud, 1, DynamicEarth.mud.MYCELIUM), "Muddy Mycelium");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.mud, 1, DynamicEarth.mud.WET), "Wet Mud");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.mud, 1, DynamicEarth.mud.WET_GRASS), "Sodden Grass");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.mud, 1, DynamicEarth.mud.WET_MYCELIUM), "Sodden Mycelium");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.mudBlob, 1, ItemMudBlob.NORMAL), "Mud Blob");
-			ItemBlockMud.hintText = new String[] {
+			LanguageHelper.registerName(DynamicEarth.mud, DynamicEarth.mud.NORMAL, "Mud");
+			LanguageHelper.registerName(DynamicEarth.mud, DynamicEarth.mud.GRASS, "Muddy Grass");
+			LanguageHelper.registerName(DynamicEarth.mud, DynamicEarth.mud.MYCELIUM, "Muddy Mycelium");
+			LanguageHelper.registerName(DynamicEarth.mud, DynamicEarth.mud.WET, "Wet Mud");
+			LanguageHelper.registerName(DynamicEarth.mud, DynamicEarth.mud.WET_GRASS, "Sodden Grass");
+			LanguageHelper.registerName(DynamicEarth.mud, DynamicEarth.mud.WET_MYCELIUM, "Sodden Mycelium");
+			LanguageHelper.registerName(DynamicEarth.mudBlob, ItemMudBlob.NORMAL, "Mud Blob");
+			LanguageHelper.registerHintText(new ItemStack(DynamicEarth.mud),
 				"Dirt that has absorbed a great",
 				"deal of water. Because of its",
 				"high water content, it is not",
 				"very stable and may mudslide."
-			};
+			);
 		}
 		if (DynamicEarth.includeMudBrick) {
-			LanguageRegistry.addName(DynamicEarth.mudBrick, "Mud Brick");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.MUDBRICK), "Mud Brick Slab");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeDoubleSlab, 1, BlockAdobeSlab.MUDBRICK), "Mud Brick Slab");
-			LanguageRegistry.addName(DynamicEarth.blockMudBrick, "Mud Brick");
-			LanguageRegistry.addName(DynamicEarth.mudBrickStairs, "Mud Brick Stairs");
-			LanguageRegistry.addName(DynamicEarth.mudBrickWall, "Mud Brick Wall");
-			DynamicEarth.mudBrick.setHintText(
+			LanguageHelper.registerName(DynamicEarth.mudBrick, "Mud Brick");
+			LanguageHelper.registerName(DynamicEarth.adobeSingleSlab, BlockAdobeSlab.MUDBRICK, "Mud Brick Slab");
+			LanguageHelper.registerName(DynamicEarth.adobeDoubleSlab, BlockAdobeSlab.MUDBRICK, "Mud Brick Slab");
+			LanguageHelper.registerName(DynamicEarth.blockMudBrick, "Mud Brick");
+			LanguageHelper.registerName(DynamicEarth.mudBrickStairs, "Mud Brick Stairs");
+			LanguageHelper.registerName(DynamicEarth.mudBrickWall, "Mud Brick Wall");
+			LanguageHelper.registerHintText(DynamicEarth.mudBrick,
 				"A brick made from mud dried",
 				"in a furnace. It can be used as",
 				"a low-cost building material."
 			);
 		}
 		if (DynamicEarth.includeAdobe) {
-			LanguageRegistry.addName(DynamicEarth.adobeWet, "Moist Adobe");
-			LanguageRegistry.addName(DynamicEarth.adobe, "Adobe");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeSingleSlab, 1, BlockAdobeSlab.ADOBE), "Adobe Slab");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.adobeDoubleSlab, 1, BlockAdobeSlab.ADOBE), "Adobe Slab");
-			LanguageRegistry.addName(DynamicEarth.adobeStairs, "Adobe Stairs");
-			LanguageRegistry.addName(DynamicEarth.adobeBlob, "Moist Adobe Blob");
-			LanguageRegistry.addName(DynamicEarth.adobeDust, "Adobe Dust");
-			LanguageRegistry.addName(DynamicEarth.vaseRaw, "Unfired Vase");
-			LanguageRegistry.addName(DynamicEarth.vase, "Vase");
-			LanguageRegistry.addName(DynamicEarth.earthbowlRaw, "Unfired Bowl");
-			LanguageRegistry.addName(DynamicEarth.earthbowl, "Earthenware Bowl");
-			LanguageRegistry.addName(DynamicEarth.earthbowlSoup, "Mushroom Stew");
-			LanguageRegistry.addName(DynamicEarth.liquidMilk, "Milk");
-			LanguageRegistry.addName(DynamicEarth.liquidSoup, "Mushroom Stew");
-			DynamicEarth.adobeBlob.setHintText(
+			LanguageHelper.registerName(DynamicEarth.adobeWet, "Moist Adobe");
+			LanguageHelper.registerName(DynamicEarth.adobe, "Adobe");
+			LanguageHelper.registerName(DynamicEarth.adobeSingleSlab, BlockAdobeSlab.ADOBE, "Adobe Slab");
+			LanguageHelper.registerName(DynamicEarth.adobeDoubleSlab, BlockAdobeSlab.ADOBE, "Adobe Slab");
+			LanguageHelper.registerName(DynamicEarth.adobeStairs, "Adobe Stairs");
+			LanguageHelper.registerName(DynamicEarth.adobeBlob, "Moist Adobe Blob");
+			LanguageHelper.registerName(DynamicEarth.adobeDust, "Adobe Dust");
+			LanguageHelper.registerName(DynamicEarth.vase, "Vase");	
+			LanguageHelper.registerName(DynamicEarth.vaseRaw, "Unfired Vase");	
+			LanguageHelper.registerName(DynamicEarth.earthbowlRaw, "Unfired Bowl");
+			LanguageHelper.registerName(DynamicEarth.earthbowl, "Earthenware Bowl");
+			LanguageHelper.registerName(DynamicEarth.earthbowlSoup, "Mushroom Stew");
+			LanguageHelper.registerName(DynamicEarth.liquidMilk, "Milk");
+			LanguageHelper.registerName(DynamicEarth.liquidSoup, "Mushroom Stew");
+			LanguageHelper.registerHintText(DynamicEarth.adobeBlob,
 				"A handful of moist adobe. It",
 				"is used to make earthenware",
 				"products and can be formed",
 				"into blocks for building."
 			);
-			DynamicEarth.adobeDust.setHintText(
+			LanguageHelper.registerHintText(DynamicEarth.adobeDust,
 				"Dust from an adobe structure.",
 				"It can be rehydrated if dipped",
 				"in water."
 			);
-			DynamicEarth.vaseRaw.setHintText(
+			LanguageHelper.registerHintText(DynamicEarth.vaseRaw,
 				"A vase made from adobe. It",
 				"must be fired in a furnace",
 				"before it can be used."
 			);
-			DynamicEarth.earthbowlRaw.setHintText(
+			LanguageHelper.registerHintText(DynamicEarth.earthbowlRaw,
 				"A bowl made from adobe. It",
 				"must be fired in a furnace",
 				"before it can be used."
 			);
+			for (Fluid fluid : FluidRegistry.getRegisteredFluids().values()) {
+				ItemStack itemStack = DynamicEarth.vase.getFilledVase(fluid);
+				if (itemStack != null) {
+					String fluidName = LanguageRegistry.instance().getStringLocalization(fluid.getUnlocalizedName());
+					if (fluidName == null || fluidName.isEmpty()) {
+						fluidName = Helper.UCFirst(fluid.getName());
+					}
+					LanguageHelper.registerName(
+						itemStack,
+						"Vase of " + fluidName
+					);
+				}
+			}
 			if (DynamicEarth.includeBombs) {
-				LanguageRegistry.addName(DynamicEarth.bomb, "Earthenware Hand-bomb");
-				LanguageRegistry.addName(DynamicEarth.bombLit, "Earthenware Hand-bomb");
+				LanguageHelper.registerName(DynamicEarth.bomb, "Earthenware Hand-bomb");
+				LanguageHelper.registerName(DynamicEarth.bombLit, "Earthenware Hand-bomb");
 			}
 		}
 		if (DynamicEarth.includePermafrost) {
-			LanguageRegistry.addName(DynamicEarth.permafrost, "Permafrost");
-			ItemBlockPermafrost.hintText = new String[] {
+			LanguageHelper.registerName(DynamicEarth.permafrost, "Permafrost");
+			LanguageHelper.registerHintText(DynamicEarth.permafrost,
 				"Dirt that has frozen hard",
 				"as rock. A pickaxe or sturdy",
 				"shovel will be needed to",
 				"quickly mine it."
-			};
+			);
 		}
 		if (DynamicEarth.includeDirtSlabs) {
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.dirtSlab, 1, BlockDirtSlab.DIRT), "Dirt Slab");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.grassSlab, 1, BlockGrassSlab.GRASS), "Grass Slab");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.grassSlab, 1, BlockGrassSlab.MYCELIUM), "Mycelium Slab");
+			LanguageHelper.registerName(DynamicEarth.dirtSlab, BlockDirtSlab.DIRT, "Dirt Slab");
+			LanguageHelper.registerName(DynamicEarth.grassSlab, BlockGrassSlab.GRASS, "Grass Slab");
+			LanguageHelper.registerName(DynamicEarth.grassSlab, BlockGrassSlab.MYCELIUM, "Mycelium Slab");
 		}
 		if (DynamicEarth.includePeat) {
-			LanguageRegistry.addName(DynamicEarth.peatMoss, "Peat Moss");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.peat, 1, BlockPeat.WET), "Peat");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.peat, 1, BlockPeat.DRY), "Dried Peat");
-			LanguageRegistry.addName(DynamicEarth.peatClump, "Wet Peat Clump");
-			LanguageRegistry.addName(DynamicEarth.peatBrick, "Peat Brick");
-			LanguageRegistry.addName(DynamicEarth.peatMossSpecimen, "Peat Moss Specimen");
-			ItemPeatMossSpecimen.hintText = new String[] {
+			LanguageHelper.registerName(DynamicEarth.peatMoss, "Peat Moss");
+			LanguageHelper.registerName(DynamicEarth.peat, BlockPeat.WET, "Peat");
+			LanguageHelper.registerName(DynamicEarth.peat, BlockPeat.DRY, "Dried Peat");
+			LanguageHelper.registerName(DynamicEarth.peatClump, "Wet Peat Clump");
+			LanguageHelper.registerName(DynamicEarth.peatBrick, "Peat Brick");
+			LanguageHelper.registerName(DynamicEarth.peatMossSpecimen, "Peat Moss Specimen");
+			LanguageHelper.registerHintText(DynamicEarth.peatMossSpecimen,
 				"A small sample of peat moss,",
 				"found naturally in swamps.",
 				"Plant it in farmland and it",
 				"will produce peat from dirt."
-			};
-			ItemBlockPeat.hintText = new String[] {
+			);
+			LanguageHelper.registerHintText(DynamicEarth.peat,
 				"A type of fuel produced by the",
 				"lifecycle of peat moss. It must",
 				"be dried before it can be",
 				"burned."
-			};
-			DynamicEarth.peatClump.setHintText(ItemBlockPeat.hintText);
-			DynamicEarth.peatBrick.setHintText(
+			);
+			LanguageHelper.registerHintText(DynamicEarth.peatClump, LanguageHelper.getHintText(DynamicEarth.peat));
+			LanguageHelper.registerHintText(DynamicEarth.peatBrick,
 				"Dried peat that can be used as",
 				"fuel. As a fuel source, it is",
 				"only slightly worse than coal."
 			);
 		}
 		if (DynamicEarth.includeFertileSoil) {
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.fertileSoil, 1, DynamicEarth.fertileSoil.DIRT), "Rich Soil");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.fertileSoil, 1, DynamicEarth.fertileSoil.GRASS), "Fertile Grass");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.fertileSoil, 1, DynamicEarth.fertileSoil.MYCELIUM), "Fertile Mycelium");
-			ItemBlockFertileSoil.hintText = new String[] {
+			LanguageHelper.registerName(DynamicEarth.fertileSoil, DynamicEarth.fertileSoil.DIRT, "Rich Soil");
+			LanguageHelper.registerName(DynamicEarth.fertileSoil, DynamicEarth.fertileSoil.GRASS, "Fertile Grass");
+			LanguageHelper.registerName(DynamicEarth.fertileSoil, DynamicEarth.fertileSoil.MYCELIUM, "Fertile Mycelium");
+			LanguageHelper.registerHintText(DynamicEarth.fertileSoil,
 				"This dirt has everything needed",
 				"to make a plant happy. Plants",
 				"are to sure to grow faster",
 				"when planted in this soil."
-			};
+			);
 			if (DynamicEarth.includeMud) {
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.fertileMud, 1, DynamicEarth.fertileMud.NORMAL), "Rich Mud");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.fertileMud, 1, DynamicEarth.fertileMud.GRASS), "Muddy Fertile Grass");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.fertileMud, 1, DynamicEarth.fertileMud.MYCELIUM), "Muddy Fertile Mycelium");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.fertileMud, 1, DynamicEarth.fertileMud.WET), "Rich Wet Mud");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.fertileMud, 1, DynamicEarth.fertileMud.WET_GRASS), "Sodden Fertile Grass");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.fertileMud, 1, DynamicEarth.fertileMud.WET_MYCELIUM), "Sodden Fertile Mycelium");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.mudBlob, 1, ItemMudBlob.FERTILE), "Rich Mud Blob");
-				ItemBlockFertileMud.hintText = new String[] {
+				LanguageHelper.registerName(DynamicEarth.fertileMud, DynamicEarth.fertileMud.NORMAL, "Rich Mud");
+				LanguageHelper.registerName(DynamicEarth.fertileMud, DynamicEarth.fertileMud.GRASS, "Muddy Fertile Grass");
+				LanguageHelper.registerName(DynamicEarth.fertileMud, DynamicEarth.fertileMud.MYCELIUM, "Muddy Fertile Mycelium");
+				LanguageHelper.registerName(DynamicEarth.fertileMud, DynamicEarth.fertileMud.WET, "Rich Wet Mud");
+				LanguageHelper.registerName(DynamicEarth.fertileMud, DynamicEarth.fertileMud.WET_GRASS, "Sodden Fertile Grass");
+				LanguageHelper.registerName(DynamicEarth.fertileMud, DynamicEarth.fertileMud.WET_MYCELIUM, "Sodden Fertile Mycelium");
+				LanguageHelper.registerName(DynamicEarth.mudBlob, ItemMudBlob.FERTILE, "Rich Mud Blob");
+				LanguageHelper.registerHintText(DynamicEarth.fertileMud,
 					"This mud has everything needed",
 					"to make a plant happy. Plants",
 					"are to sure to grow faster",
 					"when planted in this soil."
-				};
+				);
 			}
 		}
 		if (DynamicEarth.includeSandySoil) {
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.sandySoil, 1, DynamicEarth.sandySoil.DIRT), "Sandy Soil");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.sandySoil, 1, DynamicEarth.sandySoil.GRASS), "Dry Grass");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.sandySoil, 1, DynamicEarth.sandySoil.MYCELIUM), "Dry Mycelium");
-			ItemBlockSandySoil.hintText = new String[] {
+			LanguageHelper.registerName(DynamicEarth.sandySoil, DynamicEarth.sandySoil.DIRT, "Sandy Soil");
+			LanguageHelper.registerName(DynamicEarth.sandySoil, DynamicEarth.sandySoil.GRASS, "Dry Grass");
+			LanguageHelper.registerName(DynamicEarth.sandySoil, DynamicEarth.sandySoil.MYCELIUM, "Dry Mycelium");
+			LanguageHelper.registerHintText(DynamicEarth.sandySoil,
 				"This dirt has a very high sand",
 				"content, making it unlikely to",
 				"turn into mud."
-			};
+			);
 		}
 		if (DynamicEarth.includeGlowingSoil) {
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.glowingSoil, 1, DynamicEarth.glowingSoil.DIRT), "Glowsoil");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.glowingSoil, 1, DynamicEarth.glowingSoil.GRASS), "Glowing Grass");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.glowingSoil, 1, DynamicEarth.glowingSoil.MYCELIUM), "Glowing Mycelium");
-			ItemBlockGlowingSoil.hintText = new String[] {
+			LanguageHelper.registerName(DynamicEarth.glowingSoil, DynamicEarth.glowingSoil.DIRT, "Glowsoil");
+			LanguageHelper.registerName(DynamicEarth.glowingSoil, DynamicEarth.glowingSoil.GRASS, "Glowing Grass");
+			LanguageHelper.registerName(DynamicEarth.glowingSoil, DynamicEarth.glowingSoil.MYCELIUM, "Glowing Mycelium");
+			LanguageHelper.registerHintText(DynamicEarth.glowingSoil,
 				"Dirt infused with glowstone.",
 				"Emits light that is slightly",
 				"dimmer than a torch."
-			};
+			);
 			if (DynamicEarth.includeMud) {
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.glowingMud, 1, DynamicEarth.glowingMud.NORMAL), "Glowmud");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.glowingMud, 1, DynamicEarth.glowingMud.GRASS), "Muddy Glowing Grass");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.glowingMud, 1, DynamicEarth.glowingMud.MYCELIUM), "Muddy Glowing Mycelium");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.glowingMud, 1, DynamicEarth.glowingMud.WET), "Wet Glowmud");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.glowingMud, 1, DynamicEarth.glowingMud.WET_GRASS), "Sodden Glowing Grass");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.glowingMud, 1, DynamicEarth.glowingMud.WET_MYCELIUM), "Sodden Glowing Mycelium");
-				LanguageRegistry.addName(new ItemStack(DynamicEarth.mudBlob, 1, ItemMudBlob.GLOWING), "Glowing Mud Blob");
-				ItemBlockGlowingMud.hintText = new String[] {
+				LanguageHelper.registerName(DynamicEarth.glowingMud, DynamicEarth.glowingMud.NORMAL, "Glowmud");
+				LanguageHelper.registerName(DynamicEarth.glowingMud, DynamicEarth.glowingMud.GRASS, "Muddy Glowing Grass");
+				LanguageHelper.registerName(DynamicEarth.glowingMud, DynamicEarth.glowingMud.MYCELIUM, "Muddy Glowing Mycelium");
+				LanguageHelper.registerName(DynamicEarth.glowingMud, DynamicEarth.glowingMud.WET, "Wet Glowmud");
+				LanguageHelper.registerName(DynamicEarth.glowingMud, DynamicEarth.glowingMud.WET_GRASS, "Sodden Glowing Grass");
+				LanguageHelper.registerName(DynamicEarth.glowingMud, DynamicEarth.glowingMud.WET_MYCELIUM, "Sodden Glowing Mycelium");
+				LanguageHelper.registerName(DynamicEarth.mudBlob, ItemMudBlob.GLOWING, "Glowing Mud Blob");
+				LanguageHelper.registerHintText(DynamicEarth.glowingMud,
 					"Mud infused with glowstone.",
 					"Emits light that is slightly",
 					"dimmer than a torch."
-				};
+				);
 			}
 		}
 		if (DynamicEarth.includeBurningSoil) {
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.burningSoil, 1, DynamicEarth.burningSoil.DIRT), "Burning Soil");
-			LanguageRegistry.addName(new ItemStack(DynamicEarth.burningSoil, 1, DynamicEarth.burningSoil.GRASS), "Nether Grass");
-			ItemBlockBurningSoil.dirtHintText = new String[] {
+			LanguageHelper.registerName(DynamicEarth.burningSoil, DynamicEarth.burningSoil.DIRT, "Burning Soil");
+			LanguageHelper.registerName(DynamicEarth.burningSoil, DynamicEarth.burningSoil.GRASS, "Nether Grass");
+			LanguageHelper.registerHintText(new ItemStack(DynamicEarth.burningSoil, 1, DynamicEarth.burningSoil.DIRT),
 				"Dirt infused with heat. While unable",
 				"to grow regular vegetation, it may be",
 				"the perfect soil for new strains of",
 				"Nether plant life."
-			};
-			ItemBlockBurningSoil.grassHintText = new String[] {
+			);
+			LanguageHelper.registerHintText(new ItemStack(DynamicEarth.burningSoil, 1, DynamicEarth.burningSoil.GRASS),
 				"A new strain of grass created by",
 				"hybridizing overworld vegetation",
 				"with Nether vegetation. It seems",
 				"to thrive in hot conditions."
-			};
+			);
 		}
 	}
 
 	@Override
 	public void registerLocalizations() {
 		if (DynamicEarth.includeAdobe) {
-			LanguageRegistry.instance().addStringLocalization("fluid.soup", "en_US", "Mushroom Stew");
-			LanguageRegistry.instance().addStringLocalization("fluid.milk", "en_US", "Milk");
+			LanguageHelper.registerName(FluidHandler.soup, "Mushroom Stew");
+			LanguageHelper.registerName(FluidHandler.milk, "Mushroom Stew");
 		}
 		if (DynamicEarth.includeAdobeGolems) {
-			LanguageRegistry.instance().addStringLocalization("entity.DynamicEarth.clayGolem.name", "en_US", "Adobe Golem");
+			LanguageHelper.registerLocalization("entity.DynamicEarth.clayGolem.name", "Adobe Golem");
 		}
 		if (DynamicEarth.includeBombs) {
-			LanguageRegistry.instance().addStringLocalization("entity.DynamicEarth.bomb.name", "en_US", "Earthenware Hand-bomb");
+			LanguageHelper.registerLocalization("entity.DynamicEarth.bomb.name", "Earthenware Hand-bomb");
 		}
 	}
 

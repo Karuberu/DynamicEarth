@@ -3,13 +3,14 @@ package karuberu.dynamicearth.plugins;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import karuberu.core.util.plugin.IPlugin;
 import karuberu.dynamicearth.DynamicEarth;
 import karuberu.dynamicearth.blocks.BlockAdobeSlab;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class PluginThermalExpansion implements IDynamicEarthPlugin {
+public class PluginThermalExpansion implements IPlugin {
 
 	@Override
 	public String getName() {
@@ -18,7 +19,7 @@ public class PluginThermalExpansion implements IDynamicEarthPlugin {
 
 	@Override
 	public String getErrorReportRequestMessage() {
-		return PluginHandler.pleaseNotify;
+		return PluginHandler.instance.getErrorReportRequestMessage();
 	}
 
 	@Override

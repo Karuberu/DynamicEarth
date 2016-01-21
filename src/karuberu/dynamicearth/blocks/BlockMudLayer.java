@@ -17,17 +17,16 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
-public class BlockMudLayer extends BlockDynamicEarth implements IVanillaReplaceable {
+public class BlockMudLayer extends BlockDynamicEarthWet implements IVanillaReplaceable {
 
-	public BlockMudLayer(int id) {
-		super(id, Material.ground);
-		this.setUnlocalizedName("mudLayer");
+	public BlockMudLayer(String unlocalizedName) {
+		super(unlocalizedName, Material.ground);
 		this.setStepSound(Block.soundGravelFootstep);
 		this.setLightOpacity(0);
 		this.setHardness(0.2F);
 		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);
 		this.setHydrateRadius(3, 0, 0, 3);
-		Block.useNeighborBrightness[this.blockID] = true;
+		this.setUseNeighborBrightness(true);
 	}
 
 	@Override

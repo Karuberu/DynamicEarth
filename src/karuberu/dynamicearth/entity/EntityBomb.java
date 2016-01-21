@@ -8,7 +8,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 import karuberu.core.util.client.fx.FXHelper;
 import karuberu.dynamicearth.DynamicEarth;
-import karuberu.dynamicearth.client.fx.FXManager;
 import karuberu.dynamicearth.items.ItemBombLit;
 
 import net.minecraft.entity.Entity;
@@ -169,7 +168,7 @@ public class EntityBomb extends EntityThrowable {
 								if (Potion.potionTypes[id].isInstant()) {
 									Potion.potionTypes[id].affectEntity(this.getThrower(), entityliving, effect.getAmplifier(), effectiveness);
 								} else {
-									int duration = (int)(effectiveness * (double)effect.getDuration() + 0.5D);
+									int duration = (int)(effectiveness * effect.getDuration() + 0.5D);
 									if (duration > 20) {
 										entityliving.addPotionEffect(new PotionEffect(id, duration, effect.getAmplifier()));
 									}

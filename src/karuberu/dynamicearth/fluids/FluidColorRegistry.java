@@ -1,11 +1,9 @@
 package karuberu.dynamicearth.fluids;
 
 import java.util.Hashtable;
-import karuberu.core.util.FluidHelper.FluidReference;
 import karuberu.core.util.client.ColorHelper;
 import karuberu.dynamicearth.DynamicEarth;
 import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 /**
@@ -13,15 +11,9 @@ import net.minecraftforge.fluids.FluidStack;
  * code when dealing with fluids.
  * @author Karuberu
  */
-public class FluidHelper {
+public class FluidColorRegistry {
 	public static final int
-		UNDEFINED_COLOR = 0xFFFFFF,
-		BUCKET_VOLUME = FluidContainerRegistry.BUCKET_VOLUME,
-		BOWL_VOLUME = 250,
-		BOTTLE_VOLUME = 250;
-	public static final int
-		STILL_LAVA_META = 0,
-		STILL_WATER_META = 0;
+		UNDEFINED_COLOR = 0xFFFFFF;
 	private static Hashtable<String, Integer>
 		colorTable = new Hashtable<String, Integer>();
 
@@ -40,7 +32,7 @@ public class FluidHelper {
 		if (fluidStack == null) {
 			return UNDEFINED_COLOR;
 		}
-		return FluidHelper.getFluidColor(fluidStack.getFluid());
+		return FluidColorRegistry.getFluidColor(fluidStack.getFluid());
 	}
 	
 	public static void setColorList(String[] colorList) {
@@ -61,30 +53,5 @@ public class FluidHelper {
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Searches through known fluids and returns the metadata of the fluid when placed
-	 * in block form or -1 if not found.
-	 * @return
-	 */
-	public static int getFluidBlockMetadata(Fluid fluid) {
-		if (fluid != null) {
-			for (FluidReference reference : FluidReference.values()) {
-				Fluid referenceFluid = reference.getFluid();
-				if (referenceFluid != null
-				&& fluid.getID() == referenceFluid.getID()) {
-					return reference.blockMeta;
-				}
-			}
-		}
-		return -1;
-	}
-	
-	public static int getFluidBlockID(Fluid fluid) {
-		if (fluid.getID() == FluidReference.WATER.getFluid().getID()) {
-			return fluid.getBlockID() - 1;
-		}
-		return fluid.getBlockID();
 	}
 }
